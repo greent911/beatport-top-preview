@@ -1,0 +1,38 @@
+# Dependency directories
+node_modules/
+package-lock.json
+
+# dotenv environment variables file
+.env
+.env.dev
+.env.test
+.env.prod
+.env.prod1
+.env.prod2
+
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Windows thumbnail cache files
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Mac OS
+.DS_Store
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+# Google App Engine Files
+.app.yaml1
+.app.yaml2
+.app.yamlexample

@@ -1,0 +1,33 @@
+{
+  "name": "beatport-top-preview",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "NODE_ENV=test mocha beatport-top-fetcher/test beatport-top-yt-preview/test --exit",
+    "start": "node ./beatport-top-yt-preview/bin/www",
+    "nodemon": "nodemon ./beatport-top-yt-preview/bin/www",
+    "build": "webpack --config ./beatport-top-yt-preview/webpack.config.js",
+    "build:prod": "webpack -p --config ./beatport-top-yt-preview/webpack.config.js",
+    "devstart": "nodemon ./beatport-top-yt-preview/bin/www --ignore ./beatport-top-yt-preview/webapp/ & webpack --watch --devtool source-map --config ./beatport-top-yt-preview/webpack.config.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "beatport-top-yt-preview": "file:beatport-top-yt-preview",
+    "beatporttopfetcher": "file:beatport-top-fetcher",
+    "moment": "^2.24.0"
+  },
+  "devDependencies": {
+    "chai": "*",
+    "chai-http": "*",
+    "mocha": "*",
+    "nodemon": "^1.18.10",
+    "webpack": "^4.35.0",
+    "webpack-cli": "^3.3.5",
+    "css-loader": "^3.0.0",
+    "style-loader": "^0.23.1",
+    "file-loader": "^4.0.0",
+    "html-webpack-plugin": "^3.2.0"
+  }
+}

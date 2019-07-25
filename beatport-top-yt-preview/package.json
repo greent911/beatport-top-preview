@@ -1,0 +1,24 @@
+{
+  "name": "beatport-top-yt-preview",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "test": "NODE_ENV=test mocha --exit"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.9",
+    "deepmerge": "^3.2.0",
+    "dotenv": "^6.2.0",
+    "ejs": "~2.5.7",
+    "express": "~4.16.0",
+    "helmet": "*",
+    "http-errors": "~1.6.2",
+    "morgan": "~1.9.0",
+    "mysql2": "^1.6.5",
+    "node-schedule": "^1.3.2",
+    "sequelize": "^4.42.1",
+    "winston": "^3.2.1"
+  }
+}

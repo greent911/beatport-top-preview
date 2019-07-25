@@ -1,0 +1,27 @@
+body {
+  font-family: "Montserrat", sans-serif;
+  height: 100vh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  background: #222222;
+}
+a {
+  color: inherit;
+}
+a:not(:hover) {
+  text-decoration: none;
+}
+
+@media screen and (max-width: 600px) {
+  body {
+    height: calc(200vh - 175px);
+    height: calc(100vh + var(--vh, 1vh) * 100 - 175px);
+  }
+}
+
+/* @media screen and (max-width: 600px) and (orientation: landscape) {
+  body {
+    height: calc(200vh - 155px);
+  }
+} */

@@ -1,0 +1,140 @@
+<!doctype html>
+
+<head>
+<title>Beatport Top 100 Tracks Preview Playlist</title>
+<meta charset="UTF-8">
+<meta name="description" content="A playlist featuring the Top 100 electronic dance music tracks on Beatport. This playlist is updated every day at 12 pm (UTC).">
+<meta name="google-site-verification" content="9k2MLe9VfKn3ViS9Fx69r0DbkIebpcKdOFKkFshvduI"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<link href="https://fonts.googleapis.com/css?family=Russo+One&display=swap" rel="stylesheet">
+</head>
+
+<body>
+<div id="overlay" class="overlay"></div>
+<div id="sidenav" class="sidenav">
+  <a href="javascript:void(0);" class="close" id="close">&times;</a>
+</div>
+
+<div class="navbar" id="navbar">
+  <a href="javascript:void(0);" id="menu" class="menu">
+    <i class="fa fa-bars"></i>
+  </a>
+  <!-- <a href="/beatport?type=psy-trance">PSY-TRANCE</a> -->
+  <a href="javascript:void(0);" class="about" id="about">
+    <i class="fas fa-info-circle"></i>
+    <div class="about-dropdown" id="about-dropdown">
+      <h3>About BP-TOP-PREVIEV</h3>
+      <p>Hi, I'm Nelson Li. I'm a developer and love electronic music as well.</p>
+      <p>It seems to me that 2 minute previews of psy-trance tracks on Beatport are still too short. Therefore, I decided to create an application with full tracks preview and automatically generated playlists via Youtube. I hope this will also help you. This application also provides a feature to link to the origin Beatport track page. If you like a track after listening, please support the author and purchase it on Beatport!</p>
+      <p>This site is not affiliated with Beatport or any of its affiliates.</p>
+    </div>
+  </a>
+</div>
+<div class="content" id="content">
+  <div id="yt-player" class="yt-player">
+    <div id="yt-player-inner">
+    </div>
+  </div>
+  <div class="playlist" id="playlist">
+  </div>
+</div>
+<div id="footer" class="footer" style="visibility: hidden;">
+    <div id="artwork" class="artwork"></div>
+    <div class="track-info">
+    <div class="current-track">
+      <a class="title" id="title" target="_blank"></a>
+      <a class="artist" id="artist" target="_blank"></a>
+    </div>
+    <div class="audio-player" id="audio-player">
+      <div class="controls" id="controls">
+        <span class="current-time" id="current-time">0:00</span>
+        <div id="audio-slider" class="audio-slider" data-direction="horizontal">
+          <div id="progress" class="progress">
+            <div class="pin" id="progress-pin" data-method="rewind"></div>
+          </div>
+        </div>
+        <span class="total-time" id="total-time">0:00</span>
+      </div>
+      <div class="volume">
+        <div id="volume-btn" class="volume-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25">
+            <path id="speaker" fill="#000000" fill-rule="evenodd" d="M14.667 0v2.747c3.853 1.146 6.666 4.72 6.666 8.946 0 4.227-2.813 7.787-6.666 8.934v2.76C20 22.173 24 17.4 24 11.693 24 5.987 20 1.213 14.667 0zM18 11.693c0-2.36-1.333-4.386-3.333-5.373v10.707c2-.947 3.333-2.987 3.333-5.334zm-18-4v8h5.333L12 22.36V1.027L5.333 7.693H0z"/>
+          </svg>
+        </div>
+        <div id="volume-controls" class="volume-controls">
+          <div id="volume-slider" class="volume-slider" data-direction="vertical">
+            <div id="volume-progress" class="volume-progress">
+              <div class="volume-pin" id="volume-pin" data-method="changeVolume"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="timeline-m">
+      <div class="timeline-control-m">
+      <span class="current-time" id="current-time-m">0:00</span>
+      <span class="total-time" id="total-time-m">0:00</span>
+      </div>
+    </div>
+    <div class='playerbtn' id="external-om">
+      <i id="external-mn" class="mobile fas fa-external-link-square-alt"></i>
+    </div>
+    </div>
+    <div class='player-buttons'>
+      <div class="pleft">
+        <div class='playerbtn'>
+          <i id="external" class="normal fas fa-external-link-square-alt">
+            <span class="tooltiptext">Link to Beatport</span>
+          </i>
+          <i id="random-m" class="fas fa-random mobile"></i>
+        </div>
+      </div>
+      <div class="pmid">
+      <div class='playerbtn'>
+        <i id="random" class="fas fa-random normal"></i>
+      </div>
+      <div class='playerbtn play-back'>
+        <i id="play-back" class="fa fa-backward" aria-hidden="true"></i>
+      </div>
+      <div class='playerbtn playToggle'>
+        <i id="playToggle" class="far fa-play-circle" aria-hidden="true"></i>
+      </div>
+      <div class='playerbtn play-forward'>
+        <i id="play-forward" class="fa fa-forward" aria-hidden="true"></i>
+      </div>
+      <div class='playerbtn'>
+        <div id="repeat" class="normal repeat"></div>
+        <div id="repeatonce" class="normal repeatonce"></div>
+      </div>	
+      </div>
+      <div class="pright">
+        <div class='playerbtn'>
+          <i id="more" class="fas fa-ellipsis-h normal"></i>
+          <div id="repeat-m" class="mobile repeat"></div>
+          <div id="repeatonce-m" class="mobile repeatonce"></div>
+        </div>
+        <div id="more-dropup" class="more-dropup">
+          <a href="#" id="open-yt"><i class="fab fa-youtube" style="padding-right: 10px; color: red"></i>Watch on youtube.com</a>
+          <a href="#" id="more-cancel" style="color: #94d500">Cancel</a>
+          <div id="updated-time"></div>
+        </div>
+      </div>
+    </div>
+    <div class="m-footer">
+      <div class="fleft">
+        <div class='playerbtn'>
+          <i id="external-m" class="mobile fas fa-external-link-square-alt"></i>
+        </div>
+      </div>
+      <div class="fright">
+        <div class='playerbtn'>
+          <i class="fas fa-ellipsis-h" id="more-m"></i>
+        </div>
+      </div>
+    </div>
+</div>
+<script>
+</script>
+</body>
+
+</html>	

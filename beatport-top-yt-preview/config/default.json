@@ -1,0 +1,65 @@
+{
+  "env": "default",
+  "top100": {
+    "jobString": "0 0 0 * * *",
+    "key": "",
+    "link": "https://www.beatport.com/top-100"
+  },
+  "afro-house": {
+    "link": "https://www.beatport.com/genre/afro-house/89/top-100"
+  },
+  "bass-house": {
+    "link": "https://www.beatport.com/genre/bass-house/91/top-100"
+  },
+  "big-room": {
+    "link": "https://www.beatport.com/genre/big-room/79/top-100"
+  },
+  "deep-house": {
+    "link": "https://www.beatport.com/genre/deep-house/12/top-100"
+  },
+  "drum-and-bass": {
+    "link": "https://www.beatport.com/genre/drum-and-bass/1/top-100"
+  },
+  "dubstep": {
+    "link": "https://www.beatport.com/genre/dubstep/18/top-100"
+  },
+  "electro-house": {
+    "link": "https://www.beatport.com/genre/electro-house/17/top-100"
+  },
+  "electronica-downtempo": {
+    "link": "https://www.beatport.com/genre/electronica-downtempo/3/top-100"
+  },
+  "future-house": {
+    "link": "https://www.beatport.com/genre/future-house/65/top-100"
+  },
+  "hard-dance": {
+    "link": "https://www.beatport.com/genre/hard-dance/8/top-100"
+  },
+  "hardcore-hard-techno": {
+    "link": "https://www.beatport.com/genre/hardcore-hard-techno/2/top-100"
+  },
+  "house": {
+    "link": "https://www.beatport.com/genre/house/5/top-100"
+  },
+  "melodic-house-and-techno": {
+    "link": "https://www.beatport.com/genre/melodic-house-and-techno/90/top-100"
+  },
+  "progressive-house": {
+    "link": "https://www.beatport.com/genre/progressive-house/15/top-100"
+  },
+  "psy-trance": {
+    "link": "https://www.beatport.com/genre/psy-trance/13/top-100"
+  },
+  "tech-house": {
+    "link": "https://www.beatport.com/genre/tech-house/11/top-100"
+  },
+  "techno": {
+    "link": "https://www.beatport.com/genre/techno/6/top-100"
+  },
+  "trance": {
+    "link": "https://www.beatport.com/genre/trance/7/top-100"
+  },
+  "trap-future-bass": {
+    "link": "https://www.beatport.com/genre/trap-future-bass/87/top-100"
+  }
+}
