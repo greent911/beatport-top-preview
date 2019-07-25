@@ -6,6 +6,9 @@ A Node.js web app to track the Beatport top 100s and generate music video playli
 
 >It seems to me that 2 minute previews of psy-trance tracks on Beatport are still too short. Therefore, I decided to create an application with full tracks preview and automatically generated playlists via Youtube (...I had already wasted too much time manually querying music videos on Youtube...). This application also provides a feature to link to the origin Beatport track page. If you like a track after listening, please support the author and purchase it on Beatport!
 
+![image](https://github.com/greent911/beatport-top-preview/blob/master/bp-top-preview.png)
+![image](https://github.com/greent911/beatport-top-preview/blob/master/bp-top-preview-m.png)
+
 ## Setup
 #### 1. Database setup
 You'll need to:
