@@ -1,10 +1,9 @@
 var express = require('express');
 var path = require('path');
 var router = express.Router();
-const typeController = require('../controllers/typeController');
 
-router.use('/tracks', require('./track.js'));
-router.get('/types', typeController.getTypes);
+router.use('/tracks', require('./tracks.js'));
+router.use('/types', require('./types.js'));
 
 /* GET home page. */
 router.use('/beatport', function(req, res) {
