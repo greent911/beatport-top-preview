@@ -1,8 +1,12 @@
 const logger = require('./logger');
 
 class ErrorHandler {
-  async handleError (error) {
-    await logger.error(error.stack);
+  async handleError (err) {
+    if (err.errors) {
+      await logger.error(err.errors);
+    } else {
+      await logger.error(err.stack);
+    }
     // await sendMail();
   }
 }
