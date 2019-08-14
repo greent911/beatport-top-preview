@@ -1,5 +1,5 @@
-const models = require('../../models');
-const logger = require('../../logger');
+const models = require('./../../models');
+const logger = require('./../../logger');
 
 exports.getTypes = async () => {
   try {
