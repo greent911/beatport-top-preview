@@ -52,7 +52,7 @@ app.use(function(req, res) {
 app.use(async function(err, req, res, next) {
   await errorHandler.handleError(err);
   res.status(err.status || 500);
-  res.send({ error: 'Something broke!' });
+  res.send({ error: err.isPublic ? err.message : 'Something broke!' });
 });
 
 module.exports = app;

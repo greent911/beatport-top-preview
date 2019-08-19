@@ -6,7 +6,7 @@ exports.getTypes = [
       let types = await typeService.getTypes();
       return res.json(types);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 ];
