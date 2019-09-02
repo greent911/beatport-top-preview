@@ -4,7 +4,7 @@ const { trackService } = require('../services');
 const { InputFormatError } = require('../errors');
 
 function validateTypeInput() {
-  return param('type').matches(/^[a-zA-Z]*$|^[a-zA-Z]+[a-zA-Z-]*[a-zA-Z]+$/)
+  return param('type').matches(/^[a-zA-Z0-9]*$|^[a-zA-Z0-9]+[a-zA-Z0-9-]*[a-zA-Z0-9]+$/)
     .withMessage('Incorrect format!');
 }
 

@@ -1,4 +1,4 @@
-var config = {
+module.exports = {
   'env':  'production',
   'top100': {
     'jobString': process.env.GENRE_TOP100_CRONSTR,
@@ -81,5 +81,3 @@ var config = {
     'key': process.env.GENRE_TRAPFUTURE_KEY
   }
 };
-
-module.exports = config;

@@ -23,9 +23,8 @@ sequelize
     errorHandler.handleError(err);
     // process.exit(1);
   });
-
 // job schedule setup
-scheduler(config);
+scheduler(config.genres);
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
