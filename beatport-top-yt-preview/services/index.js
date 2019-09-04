@@ -3,5 +3,6 @@ const trackService = require('./track');
 
 module.exports = {
   typeService,
-  trackService
+  trackService,
+  /* extend service from here */
 };

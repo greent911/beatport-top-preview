@@ -23,6 +23,7 @@ sequelize
     errorHandler.handleError(err);
     // process.exit(1);
   });
+
 // job schedule setup
 scheduler(config.genres);
 

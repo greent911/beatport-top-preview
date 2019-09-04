@@ -1,5 +1,6 @@
 const InputFormatError = require('./InputFormatError');
 
 module.exports = {
-  InputFormatError
+  InputFormatError,
+  /* extend Error class from here */
 };

@@ -5,7 +5,7 @@ const { InputFormatError } = require('../errors');
 
 function validateTypeInput() {
   return param('type').matches(/^[a-zA-Z0-9]*$|^[a-zA-Z0-9]+[a-zA-Z0-9-]*[a-zA-Z0-9]+$/)
-    .withMessage('Incorrect format!');
+    .withMessage('Incorrect input format');
 }
 
 exports.getTracks = [
@@ -13,9 +13,12 @@ exports.getTracks = [
   async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      // return res.status(422).json({ errors: errors.array() });
-      logger.error(errors.array());
-      return next(new InputFormatError());
+      let errArray = errors.array();
+      let message = errArray.reduce((prev, current) => {
+        return prev + current.msg + ' : ' + current.value + '\n';
+      }, '');
+      message = message.slice(0, -1);
+      return next(new InputFormatError(message));
     }
     let type = req.params.type || 'top100';
     try {
