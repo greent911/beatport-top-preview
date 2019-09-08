@@ -1,12 +1,12 @@
 # Beatport Top Preview
 
-A Node.js web app to track the Beatport top 100s and generate music video playlists with Youtube Data API
+A Node.js web app to track the Beatport top 100s and generate full length music playlists via Youtube
 
 [https://bp-top-preview.herokuapp.com/beatport](https://bp-top-preview.herokuapp.com/beatport)
 
 [![Build Status](https://travis-ci.com/greent911/beatport-top-preview.svg?token=RsyxacQEXqVr2voXy1sY&branch=master)](https://travis-ci.com/greent911/beatport-top-preview)
 
->It seems to me that 2 minute previews of psy-trance tracks on Beatport are still too short. Therefore, I decided to create an application with full tracks preview and automatically generated playlists via Youtube (...I had already wasted too much time manually querying music videos on Youtube...). This application also provides a feature to link to the origin Beatport track page. If you like a track after listening, please support the author and purchase it on Beatport!
+>Some of preview clips on Beatport Top 100 are not good enough for the listeners. Therefore, I decided to create an application to find full length tracks on YouTube and automatically generate the top 100 music playlists. This application gives users an efficient way to listen and purchase tracks from Beatport.com.
 
 ![image](https://github.com/greent911/beatport-top-preview/blob/master/bp-top-preview.png)
 ![image](https://github.com/greent911/beatport-top-preview/blob/master/bp-top-preview-m.png)
