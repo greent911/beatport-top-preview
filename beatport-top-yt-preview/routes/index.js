@@ -10,4 +10,9 @@ router.use('/beatport', function(req, res) {
   res.sendFile(path.join(__dirname + '/../public/index.html'));
 });
 
+/* Allow Google robots to crawl your site */
+router.use('/robots.txt', function(req, res) {
+  res.sendFile(path.join(__dirname + '/../views/robots.txt'));
+});
+
 module.exports = router;
