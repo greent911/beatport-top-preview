@@ -6,8 +6,7 @@
   "scripts": {
     "test": "mocha"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Nelson Li",
   "dependencies": {
     "crawler": "^1.2.0",
     "googleapis": "^37.2.0",

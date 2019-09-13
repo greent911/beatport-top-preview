@@ -1,5 +1,4 @@
 const { param, validationResult } = require('express-validator');
-const logger = require('../logger');
 const { trackService } = require('../services');
 const { InputFormatError } = require('../errors');
 
