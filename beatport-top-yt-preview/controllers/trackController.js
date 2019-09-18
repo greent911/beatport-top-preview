@@ -29,8 +29,8 @@ exports.getTracks = [
     // HANDLE REQUEST
     let { type } = req.params;
     try {
-      let results = await trackService.getTracksByType(type);
-      return res.json(results);
+      let tracks = await trackService.getTracksByType(type);
+      return res.json(tracks);
     } catch (error) {
       return next(error);
     }
