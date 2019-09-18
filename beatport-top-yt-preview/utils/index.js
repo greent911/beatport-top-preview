@@ -1,0 +1,1 @@
+exports.parseString = (arg) => arg + '';

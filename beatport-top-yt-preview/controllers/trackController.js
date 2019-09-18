@@ -1,12 +1,13 @@
-const { param, validationResult } = require('express-validator');
+const { param, validationResult, sanitizeParam } = require('express-validator');
 const { trackService } = require('../services');
 const { InputFormatError } = require('../errors');
 
 exports.getTracks = [
   [
     // VALIDATION RULES
-    // Check type from /:type, type must contain only letters and numbers (can be connected with dashes)
-    param('type').matches(/^[a-zA-Z0-9]*$|^[a-zA-Z0-9]+[a-zA-Z0-9-]*[a-zA-Z0-9]+$/)
+    // Check if type exist from /:type, type must contain only letters and numbers (can be connected with dashes)
+    param('type')
+      .optional().isString().matches(/^[a-zA-Z0-9]*$|^[a-zA-Z0-9]+[a-zA-Z0-9-]*[a-zA-Z0-9]+$/)
       .withMessage('Incorrect input format')
   ],
   (req, res, next) => {
@@ -20,9 +21,13 @@ exports.getTracks = [
     }, '').slice(0, -1);
     return next(new InputFormatError(errorMessage));
   },
+  [
+    // SANITIZE
+    sanitizeParam('type').customSanitizer((value) => (value)? value: 'top100')
+  ],
   async (req, res, next) => {
     // HANDLE REQUEST
-    let type = req.params.type || 'top100';
+    let { type } = req.params;
     try {
       let results = await trackService.getTracksByType(type);
       return res.json(results);
