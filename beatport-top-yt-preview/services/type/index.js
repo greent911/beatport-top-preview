@@ -1,7 +1,10 @@
 const models = require('./../../models');
 const logger = require('./../../logger');
 
-exports.getTypes = async () => {
+/**
+ * @returns {Promise<string[]>} A promise that contains array of types when fulfilled.
+ */
+const getTypes = async () => {
   try {
     let typeObjects = await models.sequelize
       .query(
@@ -16,4 +19,8 @@ exports.getTypes = async () => {
   } catch (error) {
     throw error;
   }
+};
+
+module.exports = {
+  getTypes
 };

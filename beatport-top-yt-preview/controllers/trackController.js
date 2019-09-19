@@ -2,7 +2,11 @@ const { param, validationResult, sanitizeParam } = require('express-validator');
 const { trackService } = require('../services');
 const { InputFormatError } = require('../errors');
 
-exports.getTracks = [
+/**
+ * Returns the tracks
+ * @type {Function[]} Request handler middlewares
+ */
+const getTracks = [
   [
     // VALIDATION RULES
     // Check if type exist from /:type, type must contain only letters and numbers (can be connected with dashes)
@@ -36,3 +40,7 @@ exports.getTracks = [
     }
   }
 ];
+
+module.exports = {
+  getTracks
+};

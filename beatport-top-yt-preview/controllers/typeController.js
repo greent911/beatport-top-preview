@@ -1,6 +1,10 @@
 const { typeService } = require('../services');
 
-exports.getTypes = [
+/**
+ * Returns the tracks
+ * @type {Function[]} Request handler middleware
+ */
+const getTypes = [
   async (req, res, next) => {
     try {
       let types = await typeService.getTypes();
@@ -10,3 +14,7 @@ exports.getTypes = [
     }
   }
 ];
+
+module.exports = {
+  getTypes
+};
