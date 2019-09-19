@@ -5,7 +5,12 @@ const logger = require('./../../logger');
 exports.getTracksByType = async (type) => {
   try {
     let tracks = await models.sequelize
-      .query('SELECT * FROM top_tracks WHERE type=:type AND num BETWEEN 1 AND 100 ORDER BY num ASC',
+      .query(
+        'SELECT num, type, title, artists, remixers, labels, genre, released, link, imglink, video_id ' +
+          'FROM top_tracks ' + 
+         'WHERE type = :type ' + 
+           'AND num BETWEEN 1 AND 100 ' + 
+         'ORDER BY num ASC',
         {replacements: { type: parseString(type) }, type: models.sequelize.QueryTypes.SELECT, logging: logger.info});
     return tracks;
   } catch (error) {
