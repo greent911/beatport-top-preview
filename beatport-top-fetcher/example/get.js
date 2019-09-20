@@ -31,7 +31,7 @@ let track3 = {
 // fetcher.top100list.push(track2);
 fetcher.top100list.push(track3);
 
-async function getVideoId () {
+async function getVideoId() {
   let data = await fetcher.getVideoIds();
   console.log(data);
 }

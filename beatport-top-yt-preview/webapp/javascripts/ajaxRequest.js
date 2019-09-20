@@ -1,11 +1,11 @@
-export default function ajaxRequest (url, method, json) {
+export default function ajaxRequest(url, method, json) {
   // Create the XHR request
   let request = new XMLHttpRequest();
     
   // Return it as a Promise
-  return new Promise(function (resolve, reject) {
+  return new Promise(function(resolve, reject) {
     // Setup our listener to process compeleted requests
-    request.onreadystatechange = function () {
+    request.onreadystatechange = function() {
       // Only run if the request is complete
       if (request.readyState !== 4) return;
       // Process the response

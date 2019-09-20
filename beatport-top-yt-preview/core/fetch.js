@@ -11,7 +11,7 @@ const BeatportTopFetcher = require('beatporttopfetcher');
 const models = require(`${__dirname}/../models`);
 const logger = require(`${__dirname}/../logger`);
 let fetcher = new BeatportTopFetcher(key);
-async function save (top100list) {
+async function save(top100list) {
   try {
     await models['top_track'].bulkCreate(top100list, {
       updateOnDuplicate: [],
@@ -24,7 +24,7 @@ async function save (top100list) {
     models.sequelize.close();
   }
 }
-async function fetch () {
+async function fetch() {
   try {
     let data = await fetcher.fetchList(type, srclink);
     console.log(data);

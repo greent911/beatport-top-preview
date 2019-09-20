@@ -6,7 +6,7 @@ const { google } = require('googleapis');
 const he = require('he');
 
 /** Extending String type with substring removal */
-String.prototype.remove = function (strs) {
+String.prototype.remove = function(strs) {
   let replaceStrs = (Array.isArray(strs))? strs: [strs];
   return replaceStrs.reduce((accumulator, replaceStr) => {
     return accumulator.replace(replaceStr, '');
@@ -14,10 +14,10 @@ String.prototype.remove = function (strs) {
 };
 
 /** Crawl top 100 track data on beatport */
-function crawl (type, srclink) {
+function crawl(type, srclink) {
   return new Promise((resolve, reject) => {
     let crawler = new Crawler({
-      callback : function (error, res, done) {
+      callback : function(error, res, done) {
         let top100list = [];
         if (error) {
           reject(error);
@@ -49,37 +49,37 @@ function crawl (type, srclink) {
   });
 }
 /** Decode HTML text */
-function decodeHTML (text) {
+function decodeHTML(text) {
   return he.decode(text);
 }
 /** Decode ASCII */
-function decodeASCII (text) {
+function decodeASCII(text) {
   let combining = /[\u0300-\u036F]/g; 
   return text.normalize('NFKD').replace(combining, '');
 }
 
 /** Validate youtube search result title */
 class Validator {
-  constructor (ytTitle) {
+  constructor(ytTitle) {
     this.ytTitle = ytTitle;
   }
-  validateArtists (artists) {
+  validateArtists(artists) {
     let checkingTitle = this.ytTitle.toLowerCase();
     let lArtists = artists.toLowerCase();
     let lArtistsStrs = lArtists.split(', ');
     let validate = lArtistsStrs.some((artist) => checkingTitle.includes(artist));
     return validate;
   }
-  validateTitle (title) {
+  validateTitle(title) {
     let checkingTitle = this.ytTitle.toLowerCase();
     let lTitle = title.remove(' Remix').toLowerCase();
     let lTitleStrs = lTitle.split(' ');
     return lTitleStrs.some((str) => checkingTitle.includes(str));
   }
-  validateRemixers (remixers) {
+  validateRemixers(remixers) {
     return this.validateArtists(remixers);
   }
-  validatePrimaryTitle (primaryTitle) {
+  validatePrimaryTitle(primaryTitle) {
     let checkingTitle = this.ytTitle.toLowerCase();
     let lTitle = primaryTitle.toLowerCase();
     return checkingTitle.includes(lTitle);
@@ -94,7 +94,7 @@ class BeatportTopFetcher {
    * construct with youtube API key
    * @param {string} authkey youtube API key
    */
-  constructor (authkey) {
+  constructor(authkey) {
     this.youtube = google.youtube({
       version: 'v3',
       auth: authkey,
@@ -108,7 +108,7 @@ class BeatportTopFetcher {
    * @param {string} type 'top100' or other genre
    * @param {string} srclink beatport top 100 page link
    */
-  async fetchList (type, srclink) {
+  async fetchList(type, srclink) {
     this.top100list = await crawl(type, srclink);
     return this.top100list;
   }
@@ -117,7 +117,7 @@ class BeatportTopFetcher {
    * @param {string} title track title
    * @returns {string} search title
    */
-  getQueryTitle (title) {
+  getQueryTitle(title) {
     return title.remove(this.queryTitleFilterArray);
   }
   /**
@@ -125,14 +125,14 @@ class BeatportTopFetcher {
    * @param {string} title track artists
    * @returns {string} search artists
    */
-  getQueryArtists (artists) {
+  getQueryArtists(artists) {
     return artists.remove(this.queryArtistsFilterArray);
   }
   /**
    * Get the title & artists for youtube search
    * @param {string} track track data
    */
-  getQueryInput (track) {
+  getQueryInput(track) {
     let {title, artists} = track;
     return {
       queryTitle: this.getQueryTitle(title),
@@ -140,7 +140,7 @@ class BeatportTopFetcher {
     };
   }
   /** format HTML text from youtube search */
-  formatText (text) {
+  formatText(text) {
     return decodeASCII(decodeHTML(text));
   }
   /**
@@ -151,7 +151,7 @@ class BeatportTopFetcher {
    * @param {*} queryArtists the artists for youtube search
    * @returns {string|null} if is valid or not, return video ID or null
    */
-  getValidVideoId (ytResponseData, track, queryTitle, queryArtists) {
+  getValidVideoId(ytResponseData, track, queryTitle, queryArtists) {
     if (!ytResponseData) {
       return null;
     }
@@ -176,7 +176,7 @@ class BeatportTopFetcher {
    * Get video ID by youtube search API
    * @param {object} track track data
    */
-  async getVideoId (track) {
+  async getVideoId(track) {
     let {title, artists} = track;
     let queryTitle = this.getQueryTitle(title);
     let queryArtists = this.getQueryArtists(artists);
@@ -198,7 +198,7 @@ class BeatportTopFetcher {
   /**
    * Get top 100 track video IDs
    */
-  async getVideoIds () {
+  async getVideoIds() {
     let videoIds = await Promise.all(this.top100list.map((track) => this.getVideoId(track)));
     this.top100list.map((data, index) => {
       data['video_id'] = videoIds[index];

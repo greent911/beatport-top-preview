@@ -8,7 +8,7 @@ const debug = require('debug')('beatport-top-yt-preview:scheduler');
 const logger = require('./../logger');
 const errorHandler = require('./../errorHandler');
 
-function createFetchJob (jobString, apikey, type, srclink) {
+function createFetchJob(jobString, apikey, type, srclink) {
   return schedule.scheduleJob(jobString, () => {
     logger.info(jobString);
     logger.info('Start child process ' + moment().format());

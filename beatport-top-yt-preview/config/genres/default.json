@@ -1,5 +1,4 @@
 {
-  "env": "default",
   "top100": {
     "jobString": "0 0 0 * * *",
     "key": "",
