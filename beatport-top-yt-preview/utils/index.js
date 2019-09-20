@@ -1,4 +1,4 @@
 /**
  * Parse anything to string
  */
-exports.parseString = (arg) => arg + '';
+module.exports.parseString = (arg) => arg + '';
