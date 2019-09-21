@@ -9,8 +9,8 @@ const getTypes = [
     try {
       let types = await typeService.getTypes();
       return res.json(types);
-    } catch (error) {
-      return next(error);
+    } catch (err) {
+      return next(err);
     }
   }
 ];

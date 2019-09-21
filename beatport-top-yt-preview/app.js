@@ -1,26 +1,28 @@
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var morgan = require('morgan');
-var helmet = require('helmet');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const morgan = require('morgan');
+const helmet = require('helmet');
 
-var config = require('./config');
-var indexRouter = require('./routes/index');
-var logger = require('./logger');
-var scheduler = require('./core/scheduler');
-var errorHandler = require('./errorHandler');
-var sequelize = require('./models').sequelize;
+const config = require('./config');
+const indexRouter = require('./routes/index');
+const logger = require('./logger');
+const scheduler = require('./core/scheduler');
+const sequelize = require('./models').sequelize;
+const notFoundHandler = require('./middlewares/notFoundHandler');
+const errorHandler = require('./middlewares/errorHandler');
 
-var app = express();
+const app = express();
 
+// Test the database connection
 sequelize
   .authenticate()
   .then(() => {
-    logger.info('Connection has been established successfully.');
+    logger.info('Database connection has been established successfully.');
   })
   .catch((err) => {
     logger.error('Unable to connect to the database: ', err);
-    errorHandler.handleError(err);
+    logger.error(err.stack);
     // process.exit(1);
   });
 
@@ -41,16 +43,7 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 
-// handle 404
-app.use(function(req, res) {
-  res.status(404).send('Sorry cant find that!');
-});
-
-// error handler (must have next)
-app.use(async function(err, req, res, next) {
-  await errorHandler.handleError(err);
-  res.status(err.status || 500);
-  res.send({ error: err.isPublic ? err.message : 'Something broke!' });
-});
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 module.exports = app;

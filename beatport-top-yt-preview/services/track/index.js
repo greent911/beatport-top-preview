@@ -1,6 +1,7 @@
 const utils = require('./../../utils');
 const models = require('./../../models');
 const logger = require('./../../logger');
+const { DatabaseError } = require('./../../errors');
 
 /**
  * @typedef {Object} Track
@@ -19,6 +20,7 @@ const logger = require('./../../logger');
 /**
  * @param {*} type
  * @returns {Promise<Track[]>} A promise that contains the array of tracks when fulfilled.
+ * @throws {DatabaseError}
  */
 const getTracksByType = async (type) => {
   try {
@@ -31,8 +33,8 @@ const getTracksByType = async (type) => {
          'ORDER BY num ASC',
         {replacements: { type: utils.parseString(type) }, type: models.sequelize.QueryTypes.SELECT, logging: logger.info});
     return tracks;
-  } catch (error) {
-    throw error;
+  } catch (err) {
+    throw new DatabaseError(err.message, err);
   }
 };
 

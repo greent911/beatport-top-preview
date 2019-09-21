@@ -1,8 +1,10 @@
 const models = require('./../../models');
 const logger = require('./../../logger');
+const { DatabaseError } = require('./../../errors');
 
 /**
  * @returns {Promise<string[]>} A promise that contains array of types when fulfilled.
+ * @throws {DatabaseError}
  */
 const getTypes = async () => {
   try {
@@ -16,8 +18,8 @@ const getTypes = async () => {
     let types = typeObjects.map((obj) => obj.type);
     types = ['top100', ...types];
     return types;
-  } catch (error) {
-    throw error;
+  } catch (err) {
+    throw new DatabaseError(err.message, err);
   }
 };
 

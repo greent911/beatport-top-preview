@@ -6,7 +6,6 @@ const moment = require('moment');
 const { fork } = require('child_process');
 const debug = require('debug')('beatport-top-yt-preview:scheduler');
 const logger = require('./../logger');
-const errorHandler = require('./../errorHandler');
 
 function createFetchJob(jobString, apikey, type, srclink) {
   return schedule.scheduleJob(jobString, () => {
@@ -17,7 +16,7 @@ function createFetchJob(jobString, apikey, type, srclink) {
       cwd: `${__dirname}`
     });
     child.on('error', (err) => {
-      errorHandler.handleErrorMessage('ERROR: spawn failed! (' + err + ')');
+      logger.error('ERROR: spawn failed! (' + err + ')');
     });
     child.on('exit', (code, signal) => {
       logger.info('Exit child process ' + moment().format());
@@ -27,7 +26,7 @@ function createFetchJob(jobString, apikey, type, srclink) {
       }
     });
     child.stderr.on('data', (data) => {
-      errorHandler.handleErrorMessage('stderr: ' + data);
+      logger.error('stderr: ' + data);
     });
     child.stdout.on('data', (data) => {
       debug('stdout: ' + data);

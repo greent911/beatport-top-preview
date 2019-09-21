@@ -1,6 +1,6 @@
-const InputFormatError = require('./InputFormatError');
+const DatabaseError = require('./DatabaseError');
 
 module.exports = {
-  InputFormatError,
+  DatabaseError,
   /* extend Error class from here */
 };
