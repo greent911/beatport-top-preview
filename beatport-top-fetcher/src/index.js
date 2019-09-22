@@ -5,20 +5,39 @@ const Crawler = require('crawler');
 const { google } = require('googleapis');
 const he = require('he');
 
-/** Extending String type with substring removal */
+/**
+ * Return a new string with string(s) removal
+ * @param {string|string[]} strs string(s) to be removed
+ * @returns {string} new string 
+ */
 String.prototype.remove = function(strs) {
-  let replaceStrs = (Array.isArray(strs))? strs: [strs];
-  return replaceStrs.reduce((accumulator, replaceStr) => {
-    return accumulator.replace(replaceStr, '');
+  let removeStrs = (Array.isArray(strs))? strs: [strs];
+  return removeStrs.reduce((current, str) => {
+    return current.replace(str, '');
   }, this);
 };
 
-/** Crawl top 100 track data on beatport */
+/** Decode HTML text */
+function decodeHTML(text) {
+  return he.decode(text);
+}
+/** Decode ASCII */
+function decodeASCII(text) {
+  let combining = /[\u0300-\u036F]/g; 
+  return text.normalize('NFKD').replace(combining, '');
+}
+
+/** 
+ * Crawl top 100 plain track data on beatport 
+ * @param {string} type Use to set data's type
+ * @param {string} srclink The source page link
+ * @returns {Promise<Object[]>} A promise that contains the array of tracks when fulfilled.
+ **/
 function crawl(type, srclink) {
   return new Promise((resolve, reject) => {
     let crawler = new Crawler({
       callback : function(error, res, done) {
-        let top100list = [];
+        let plainTracks = [];
         if (error) {
           reject(error);
         } else {
@@ -38,24 +57,15 @@ function crawl(type, srclink) {
               link: meta.find('.buk-track-title a').attr('href'),
               imglink: $(elem).find('.buk-track-artwork-parent a img.buk-track-artwork').attr('data-src')
             };
-            top100list.push(track);
+            plainTracks.push(track);
           });
-          resolve(top100list);
+          resolve(plainTracks);
         }
         done();
       }
     });
     crawler.queue(srclink);
   });
-}
-/** Decode HTML text */
-function decodeHTML(text) {
-  return he.decode(text);
-}
-/** Decode ASCII */
-function decodeASCII(text) {
-  let combining = /[\u0300-\u036F]/g; 
-  return text.normalize('NFKD').replace(combining, '');
 }
 
 /** Validate youtube search result title */
@@ -67,22 +77,25 @@ class Validator {
     let checkingTitle = this.ytTitle.toLowerCase();
     let lArtists = artists.toLowerCase();
     let lArtistsStrs = lArtists.split(', ');
-    let validate = lArtistsStrs.some((artist) => checkingTitle.includes(artist));
-    return validate;
+    let isValid = lArtistsStrs.some((artist) => checkingTitle.includes(artist));
+    return isValid;
   }
   validateTitle(title) {
     let checkingTitle = this.ytTitle.toLowerCase();
     let lTitle = title.remove(' Remix').toLowerCase();
     let lTitleStrs = lTitle.split(' ');
-    return lTitleStrs.some((str) => checkingTitle.includes(str));
+    let isValid = lTitleStrs.some((str) => checkingTitle.includes(str));
+    return isValid;
   }
   validateRemixers(remixers) {
-    return this.validateArtists(remixers);
+    let isValid = this.validateArtists(remixers);
+    return isValid;
   }
   validatePrimaryTitle(primaryTitle) {
     let checkingTitle = this.ytTitle.toLowerCase();
     let lTitle = primaryTitle.toLowerCase();
-    return checkingTitle.includes(lTitle);
+    let isValid = checkingTitle.includes(lTitle);
+    return isValid;
   }
 }
 
@@ -107,6 +120,7 @@ class BeatportTopFetcher {
    * Crawl top 100 track data
    * @param {string} type 'top100' or other genre
    * @param {string} srclink beatport top 100 page link
+   * @returns {Promise<Object[]>} A promise that contains the array of plain tracks when fulfilled.
    */
   async fetchList(type, srclink) {
     this.top100list = await crawl(type, srclink);
