@@ -1,6 +1,6 @@
-const { validationResult } = require('express-validator');
-const logger = require('../logger');
 const httpStatus = require('http-status');
+const { validationResult } = require('express-validator');
+const logger = require('./../logger');
 
 /**
  * Format ValidationError object to string

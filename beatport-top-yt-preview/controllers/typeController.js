@@ -1,4 +1,4 @@
-const { typeService } = require('../services');
+const { typeService } = require('./../services');
 
 /**
  * Returns the tracks

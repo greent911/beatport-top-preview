@@ -1,6 +1,6 @@
 const { param, sanitizeParam } = require('express-validator');
-const requestValidationHandler = require('../middlewares/requestValidationHandler');
-const { trackService } = require('../services');
+const requestValidationHandler = require('./../middlewares/requestValidationHandler');
+const { trackService } = require('./../services');
 
 /**
  * Returns the tracks

@@ -1,4 +1,4 @@
-var expect = require('chai').expect;
+const expect = require('chai').expect;
 const BeatportTopFetcher = require('beatporttopfetcher');
 
 describe('beatport-top-fetcher sanitizes query input(track title & artists from Bearport) for Youtube search API', function() {

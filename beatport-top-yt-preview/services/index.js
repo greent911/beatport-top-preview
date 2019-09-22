@@ -1,8 +1,8 @@
-const typeService = require('./type');
 const trackService = require('./track');
+const typeService = require('./type');
 
 module.exports = {
-  typeService,
   trackService,
+  typeService,
   /* extend service from here */
 };

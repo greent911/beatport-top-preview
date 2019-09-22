@@ -4,6 +4,7 @@ if (process.argv.length <= 2) {
   console.log('node ' + __filename.slice(__dirname.length + 1) + ' key [type [srclink]]');
   process.exit(-1);
 }
+
 let key = process.argv[2];
 let type = process.argv[3] || 'top100';
 let srclink = process.argv[4] || 'https://www.beatport.com/top-100';
@@ -11,6 +12,7 @@ const BeatportTopFetcher = require('beatporttopfetcher');
 const models = require(`${__dirname}/../models`);
 const logger = require(`${__dirname}/../logger`);
 let fetcher = new BeatportTopFetcher(key);
+
 async function save(top100list) {
   try {
     await models['top_track'].bulkCreate(top100list, {
@@ -37,4 +39,5 @@ async function fetch() {
   }
   console.log('Done');
 }
+
 fetch();

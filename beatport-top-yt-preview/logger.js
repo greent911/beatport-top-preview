@@ -1,5 +1,5 @@
-const { createLogger, format, transports } = require('winston');
 const util = require('util');
+const { createLogger, format, transports } = require('winston');
 
 let options = {
   console: {

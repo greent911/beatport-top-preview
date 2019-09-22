@@ -1,6 +1,6 @@
-const models = require('./../../models');
-const logger = require('./../../logger');
 const { DatabaseError } = require('./../../errors');
+const logger = require('./../../logger');
+const models = require('./../../models');
 
 /**
  * @returns {Promise<string[]>} A promise that contains array of types when fulfilled.

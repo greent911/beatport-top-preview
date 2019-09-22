@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-const app = require('../app');
-const debug = require('debug')('beatport-top-yt-preview:server');
 const http = require('http');
+const debug = require('debug')('beatport-top-yt-preview:server');
+const app = require('./../app');
 
 /**
  * Normalize a port into a number, string, or false.

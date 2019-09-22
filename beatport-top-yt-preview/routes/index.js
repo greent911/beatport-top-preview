@@ -1,6 +1,7 @@
-var express = require('express');
-var path = require('path');
-var router = express.Router();
+const express = require('express');
+const path = require('path');
+
+const router = express.Router();
 
 router.use('/tracks', require('./tracks.js'));
 router.use('/types', require('./types.js'));

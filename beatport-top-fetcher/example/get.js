@@ -1,5 +1,5 @@
-let key = '';
 const BeatportTopFetcher = require('beatporttopfetcher');
+let key = '';
 let fetcher = new BeatportTopFetcher(key);
 // let track = {
 //   num: '14',

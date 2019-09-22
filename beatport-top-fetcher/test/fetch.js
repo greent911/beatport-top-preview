@@ -1,4 +1,4 @@
-var expect = require('chai').expect;
+const expect = require('chai').expect;
 const BeatportTopFetcher = require('beatporttopfetcher');
 
 describe('beatport-top-fetcher fetches top 100 track data from Beatport', function() {

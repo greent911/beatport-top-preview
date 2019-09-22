@@ -1,16 +1,16 @@
-const express = require('express');
-const path = require('path');
 const cookieParser = require('cookie-parser');
-const morgan = require('morgan');
+const express = require('express');
 const helmet = require('helmet');
+const morgan = require('morgan');
+const path = require('path');
 
 const config = require('./config');
-const indexRouter = require('./routes/index');
-const logger = require('./logger');
 const scheduler = require('./core/scheduler');
-const sequelize = require('./models').sequelize;
+const logger = require('./logger');
 const notFoundHandler = require('./middlewares/notFoundHandler');
 const errorHandler = require('./middlewares/errorHandler');
+const sequelize = require('./models').sequelize;
+const routes = require('./routes');
 
 const app = express();
 
@@ -41,7 +41,7 @@ app.use(cookieParser());
 
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
+app.use('/', routes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

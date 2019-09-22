@@ -1,5 +1,5 @@
-const AppError = require('../errors/AppError');
-const logger = require('../logger');
+const AppError = require('./../errors/AppError');
+const logger = require('./../logger');
 
 function logErrorStack(err) {
   if (err instanceof AppError) {

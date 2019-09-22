@@ -1,7 +1,7 @@
-const utils = require('./../../utils');
-const models = require('./../../models');
-const logger = require('./../../logger');
 const { DatabaseError } = require('./../../errors');
+const logger = require('./../../logger');
+const models = require('./../../models');
+const utils = require('./../../utils');
 
 /**
  * @typedef {Object} Track

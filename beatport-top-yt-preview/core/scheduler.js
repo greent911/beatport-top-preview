@@ -1,10 +1,10 @@
 /**
  * scheduler.js: job scheduler for fetching track data
  */
-const schedule = require('node-schedule');
-const moment = require('moment');
 const { fork } = require('child_process');
 const debug = require('debug')('beatport-top-yt-preview:scheduler');
+const moment = require('moment');
+const schedule = require('node-schedule');
 const logger = require('./../logger');
 
 function createFetchJob(jobString, apikey, type, srclink) {
