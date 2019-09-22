@@ -256,7 +256,7 @@ class Main {
         coefficient = 0;
       } else {
         let height = volumeSlider.clientHeight;
-        var offsetY = event.clientY - rect.top;
+        let offsetY = event.clientY - rect.top;
         coefficient = 1 - offsetY / height;
       }
       self.footer.element['volumeProgress'].style.height = (coefficient*100) + '%';

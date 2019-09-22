@@ -1,7 +1,5 @@
 {
   "top100": {
-    "jobString": "0 0 0 * * *",
-    "key": "",
     "link": "https://www.beatport.com/top-100"
   },
   "afro-house": {

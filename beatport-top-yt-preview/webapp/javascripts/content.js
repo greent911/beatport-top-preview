@@ -226,9 +226,9 @@ class Content extends Base {
       let videoIds = tracks.map((track) => track['video_id']);
       this.videoIdsString = videoIds.join();
       // Youtube iframe initialize
-      var tag = document.createElement('script');
+      let tag = document.createElement('script');
       tag.src = 'https://www.youtube.com/iframe_api';
-      var firstScriptTag = document.getElementsByTagName('script')[0];
+      let firstScriptTag = document.getElementsByTagName('script')[0];
       firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
     } else {
       console.log('Oops! Track data not found.');
