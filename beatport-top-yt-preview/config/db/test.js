@@ -3,5 +3,6 @@ module.exports = {
   'password': process.env.DBCONFIG_PASSWORD,
   'database': process.env.DBCONFIG_DATABASE,
   'host': process.env.DBCONFIG_HOST,
-  'dialect': 'mysql'
+  'dialect': 'mysql',
+  'operatorsAliases': false
 };

@@ -15,6 +15,7 @@ const routes = require('./routes');
 const app = express();
 
 // Test the database connection
+logger.info('Testing database connection...');
 sequelize
   .authenticate()
   .then(() => {

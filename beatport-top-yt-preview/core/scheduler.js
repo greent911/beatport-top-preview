@@ -40,7 +40,7 @@ module.exports = (configOrJobString, apikey, type, srclink) => {
     Object.keys(configOrJobString).forEach((genre) => {
       let {jobString, key, link} = configOrJobString[genre];
       if (jobString && key && link) {
-        logger.info(`${jobString} ${key} ${genre} ${link}`);
+        logger.info(`Create fetching CronJob: ${jobString} ${key} ${genre} ${link}`);
         jobs.push(createFetchJob(jobString, key, genre, link));
       }
     });
