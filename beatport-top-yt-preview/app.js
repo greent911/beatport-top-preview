@@ -8,7 +8,7 @@ const path = require('path');
 
 const config = require('./config');
 const scheduler = require('./core/scheduler');
-const logger = require('./logger');
+const logger = require('./utils/logger');
 const notFoundHandler = require('./middlewares/notFoundHandler');
 const errorHandler = require('./middlewares/errorHandler');
 const sequelize = require('./models').sequelize;

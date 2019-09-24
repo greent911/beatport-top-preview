@@ -1,7 +1,7 @@
 'use strict';
 
 const { DatabaseError } = require('./../../errors');
-const logger = require('./../../logger');
+const logger = require('../../utils/logger');
 const models = require('./../../models');
 
 /**

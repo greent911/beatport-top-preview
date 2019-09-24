@@ -7,7 +7,7 @@ const { fork } = require('child_process');
 const debug = require('debug')('beatport-top-yt-preview:scheduler');
 const moment = require('moment');
 const schedule = require('node-schedule');
-const logger = require('./../logger');
+const logger = require('./../utils/logger');
 
 function createFetchJob(jobString, apikey, type, srclink) {
   return schedule.scheduleJob(jobString, () => {

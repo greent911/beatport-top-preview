@@ -1,7 +1,7 @@
 'use strict';
 
 const AppError = require('./../errors/AppError');
-const logger = require('./../logger');
+const logger = require('./../utils/logger');
 
 function logErrorStack(err) {
   if (err instanceof AppError) {

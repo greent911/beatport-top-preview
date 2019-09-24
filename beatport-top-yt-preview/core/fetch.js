@@ -12,7 +12,7 @@ let type = process.argv[3] || 'top100';
 let srclink = process.argv[4] || 'https://www.beatport.com/top-100';
 const BeatportTopFetcher = require('beatporttopfetcher');
 const models = require(`${__dirname}/../models`);
-const logger = require(`${__dirname}/../logger`);
+const logger = require(`${__dirname}/../utils/logger`);
 let fetcher = new BeatportTopFetcher(key);
 
 async function save(top100list) {

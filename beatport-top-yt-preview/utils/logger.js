@@ -1,5 +1,6 @@
 'use strict';
 
+const util = require('util');
 const { createLogger, format, transports } = require('winston');
 
 let options = {
@@ -12,7 +13,7 @@ let options = {
       format.colorize(),
       format.json(),
       format.printf(({ level, message, timestamp }) => 
-        `[${timestamp} ${level}] ${message}`
+        `[${timestamp} ${level}] ` + util.format(message)
       )
     )
   },
