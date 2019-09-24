@@ -11,5 +11,10 @@
     "crawler": "^1.2.0",
     "googleapis": "^37.2.0",
     "he": "^1.2.0"
+  },
+  "devDependencies": {
+    "chai": "*",
+    "chai-http": "*",
+    "mocha": "*"
   }
 }

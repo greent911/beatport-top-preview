@@ -3,7 +3,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   mode: 'production',
-  entry: './beatport-top-yt-preview/webapp/javascripts/main.js',
+  context: path.resolve(__dirname),
+  entry: './webapp/javascripts/main.js',
   output: {
     filename: 'main.js',
     path: path.resolve(__dirname, 'public'),
@@ -11,7 +12,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './beatport-top-yt-preview/webapp/index.html',
+      template: './webapp/index.html',
       inject: 'head'
     })
   ],
