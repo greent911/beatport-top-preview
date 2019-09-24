@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
   'top100': {
     'jobString': process.env.GENRE_TOP100_CRONSTR,

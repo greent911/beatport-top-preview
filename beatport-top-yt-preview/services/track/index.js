@@ -1,3 +1,5 @@
+'use strict';
+
 const { DatabaseError } = require('./../../errors');
 const logger = require('./../../logger');
 const models = require('./../../models');

@@ -1,3 +1,5 @@
+'use strict';
+
 const BeatportTopFetcher = require('beatporttopfetcher');
 let key = '';
 let fetcher = new BeatportTopFetcher(key);

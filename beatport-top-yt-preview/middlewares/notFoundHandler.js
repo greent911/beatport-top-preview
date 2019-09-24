@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * 404 not Found Handling Middleware
  */

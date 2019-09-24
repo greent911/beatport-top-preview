@@ -1,3 +1,5 @@
+'use strict';
+
 /* eslint-disable no-console */
 if (process.argv.length <= 2) {
   console.log('Example usage:');

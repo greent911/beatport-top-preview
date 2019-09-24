@@ -1,3 +1,5 @@
+'use strict';
+
 const { param, sanitizeParam } = require('express-validator');
 const requestValidationHandler = require('./../middlewares/requestValidationHandler');
 const { trackService } = require('./../services');

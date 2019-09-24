@@ -8,7 +8,6 @@
     "start": "node ./beatport-top-yt-preview/bin/www",
     "nodemon": "nodemon ./beatport-top-yt-preview/bin/www",
     "build": "webpack --config ./beatport-top-yt-preview/webpack.config.js",
-    "build:prod": "webpack -p --config ./beatport-top-yt-preview/webpack.config.js",
     "devstart": "nodemon ./beatport-top-yt-preview/bin/www --ignore ./beatport-top-yt-preview/webapp/ & webpack --watch --devtool source-map --config ./beatport-top-yt-preview/webpack.config.js"
   },
   "author": "Nelson Li",

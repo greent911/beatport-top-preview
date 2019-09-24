@@ -1,3 +1,5 @@
+'use strict';
+
 // If there is a .env file, loads into environment variables
 require('dotenv').config();
 

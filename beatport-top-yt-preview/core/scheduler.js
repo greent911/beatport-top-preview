@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * scheduler.js: job scheduler for fetching track data
  */

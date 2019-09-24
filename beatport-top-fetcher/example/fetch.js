@@ -1,3 +1,5 @@
+'use strict';
+
 const BeatportTopFetcher = require('beatporttopfetcher');
 let fetcher = new BeatportTopFetcher();
 let type = 'bass-house';

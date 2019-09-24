@@ -1,3 +1,5 @@
+'use strict';
+
 const trackService = require('./track');
 const typeService = require('./type');
 

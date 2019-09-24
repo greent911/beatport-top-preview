@@ -1,3 +1,5 @@
+'use strict';
+
 const env = process.env.NODE_ENV || 'development';
 /**
  * @typedef {Object} DBConfig

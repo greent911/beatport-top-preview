@@ -1,3 +1,5 @@
+'use strict';
+
 const merge = require('deepmerge');
 const defaults = require('./default.json');
 const env = process.env.NODE_ENV || 'development';

@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
   'username': process.env.DBCONFIG_USERNAME,
   'password': process.env.DBCONFIG_PASSWORD,

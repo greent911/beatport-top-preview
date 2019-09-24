@@ -1,3 +1,5 @@
+'use strict';
+
 const httpStatus = require('http-status');
 const { validationResult } = require('express-validator');
 const logger = require('./../logger');

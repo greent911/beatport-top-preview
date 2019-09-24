@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * Parse anything to string
  */

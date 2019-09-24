@@ -1,3 +1,5 @@
+'use strict';
+
 const AppError = require('./../errors/AppError');
 const logger = require('./../logger');
 

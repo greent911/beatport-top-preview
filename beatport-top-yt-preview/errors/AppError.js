@@ -1,3 +1,5 @@
+'use strict';
+
 const { BaseError, fullStack } = require('make-error-cause');
 
 /** The application error interface */

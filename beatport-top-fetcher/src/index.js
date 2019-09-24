@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * Beatport Top 100 Tracks Fetcher
  */
