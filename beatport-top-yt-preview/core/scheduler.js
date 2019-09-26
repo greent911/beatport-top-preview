@@ -10,18 +10,18 @@ const schedule = require('node-schedule');
 const logger = require('./../utils/logger');
 
 /**
- * @param {string} cronTime The Cron time format define frequency of crawling actions
+ * @param {string} cronTime The Cron time format define frequency of actions
  * @param {*} key The Youtube API key to fetch data on Youtube
- * @param {*} genre The genre
- * @param {*} link The genre's page link to be crawled
+ * @param {*} type The fetching tracks' type name
+ * @param {*} link Beatport Top 100's page link to be crawled
  */
-const createFetchingJob = (cronTime, key, genre, link) => {
+const createFetchingJob = (cronTime, key, type, link) => {
   logger.info(`Scheduling job with cron format: ${cronTime}`);
-  logger.info(`Creating the cron job to fetch '${genre}' tracks from ${link} with Youtube API key: ${key}`);
+  logger.info(`Creating the cron job to fetch '${type}' tracks from ${link} with Youtube API key: ${key}`);
   return schedule.scheduleJob(cronTime, () => {
     logger.info(cronTime);
     logger.info('Start child process ' + moment().format());
-    const child = fork('fetch.js', [key, genre, link], {
+    const child = fork('fetch.js', [key, type, link], {
       silent: true,
       cwd: `${__dirname}`
     });
@@ -45,20 +45,20 @@ const createFetchingJob = (cronTime, key, genre, link) => {
 };
 
 /**
- * @typedef {Object} GenreConfig
+ * @typedef {Object} FetchConfig
  * @property {string} cronTime 
  * @property {string} key 
  * @property {string} link
  */
 /**
- * @param {GenreConfig} config 
+ * @param {Object.<string, FetchConfig} config An object of configuration(s) with fetch type name as key
  */
 const setupFetchingJobs = (config) => {
   let jobs = [];
-  Object.keys(config).forEach((genre) => {
-    let {cronTime, key, link} = config[genre];
+  Object.keys(config).forEach((type) => {
+    let {cronTime, key, link} = config[type];
     if (cronTime && key && link) {
-      jobs.push(createFetchingJob(cronTime, key, genre, link));
+      jobs.push(createFetchingJob(cronTime, key, type, link));
     }
   });
   return jobs;

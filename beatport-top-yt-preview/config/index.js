@@ -4,10 +4,10 @@
 require('dotenv').config();
 
 const dbConfig = require('./db');
-const genresConfig = require('./genres');
+const fetchConfig = require('./fetch');
 
 module.exports = {
   db: dbConfig,
-  genres: genresConfig,
+  fetch: fetchConfig,
   /* extend config type from here */
 };
