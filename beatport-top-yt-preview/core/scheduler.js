@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * scheduler.js: job scheduler for fetching track data
+ * scheduler.js: job scheduler for fetching tracks
  */
 const { fork } = require('child_process');
 const debug = require('debug')('beatport-top-yt-preview:scheduler');
@@ -9,11 +9,19 @@ const moment = require('moment');
 const schedule = require('node-schedule');
 const logger = require('./../utils/logger');
 
-function createFetchJob(jobString, apikey, type, srclink) {
-  return schedule.scheduleJob(jobString, () => {
-    logger.info(jobString);
+/**
+ * @param {string} cronTime The Cron time format define frequency of crawling actions
+ * @param {*} key The Youtube API key to fetch data on Youtube
+ * @param {*} genre The genre
+ * @param {*} link The genre's page link to be crawled
+ */
+const createFetchingJob = (cronTime, key, genre, link) => {
+  logger.info(`Scheduling job with cron format: ${cronTime}`);
+  logger.info(`Creating the cron job to fetch '${genre}' tracks from ${link} with Youtube API key: ${key}`);
+  return schedule.scheduleJob(cronTime, () => {
+    logger.info(cronTime);
     logger.info('Start child process ' + moment().format());
-    const child = fork('fetch.js', [apikey, type, srclink], {
+    const child = fork('fetch.js', [key, genre, link], {
       silent: true,
       cwd: `${__dirname}`
     });
@@ -34,20 +42,29 @@ function createFetchJob(jobString, apikey, type, srclink) {
       debug('stdout: ' + data);
     });
   });  
-}
+};
 
-module.exports = (configOrJobString, apikey, type, srclink) => {
+/**
+ * @typedef {Object} GenreConfig
+ * @property {string} cronTime 
+ * @property {string} key 
+ * @property {string} link
+ */
+/**
+ * @param {GenreConfig} config 
+ */
+const setupFetchingJobs = (config) => {
   let jobs = [];
-  if (!apikey && !type && !srclink) {
-    Object.keys(configOrJobString).forEach((genre) => {
-      let {jobString, key, link} = configOrJobString[genre];
-      if (jobString && key && link) {
-        logger.info(`Create fetching CronJob: ${jobString} ${key} ${genre} ${link}`);
-        jobs.push(createFetchJob(jobString, key, genre, link));
-      }
-    });
-  } else {
-    jobs.push(createFetchJob(configOrJobString, apikey, type, srclink));
-  }
+  Object.keys(config).forEach((genre) => {
+    let {cronTime, key, link} = config[genre];
+    if (cronTime && key && link) {
+      jobs.push(createFetchingJob(cronTime, key, genre, link));
+    }
+  });
   return jobs;
+};
+
+module.exports = {
+  setupFetchingJobs,
+  createFetchingJob
 };

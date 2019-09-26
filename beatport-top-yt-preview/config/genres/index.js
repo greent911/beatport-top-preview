@@ -7,7 +7,7 @@ let config = require(`./${env}`);
 
 /**
  * @typedef {Object} GenreConfig
- * @property {string} jobString The Cron format define frequency of crawling actions 
+ * @property {string} cronTime The Cron time format define frequency of crawling actions 
  * @property {string} key The Youtube API key to fetch data on Youtube
  * @property {string} link The genre's page link to be crawled
  */
@@ -18,7 +18,7 @@ let config = require(`./${env}`);
  * Example: 
  * {
  *   "psy-trance" : {
- *     "jobString": "0 0 0 * * *",
+ *     "cronTime": "0 0 0 * * *",
  *     "key": "YoutubeApiKey",
  *     "link": "https://www.beatport.com/genre/psy-trance/13/top-100"
  *   }

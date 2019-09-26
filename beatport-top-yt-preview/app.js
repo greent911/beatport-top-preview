@@ -29,8 +29,8 @@ sequelize
     // process.exit(1);
   });
 
-// job schedule setup
-scheduler(config.genres);
+// Fetching job schedule setup
+scheduler.setupFetchingJobs(config.genres);
 
 app.set('strict routing', true);
 app.use(helmet());
