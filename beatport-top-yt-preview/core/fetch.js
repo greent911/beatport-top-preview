@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * Top 100 Tracks Fetch Script
+ */
+
 /* eslint-disable no-console */
 if (process.argv.length <= 2) {
   console.log('Example usage:');
@@ -10,7 +14,6 @@ if (process.argv.length <= 2) {
 const BeatportTopFetcher = require('beatporttopfetcher');
 const models = require(`${__dirname}/../models`);
 const { trackService } = require(`${__dirname}/../services`);
-const logger = require(`${__dirname}/../utils/logger`);
 
 let key = process.argv[2];
 let type = process.argv[3] || 'top100';
@@ -40,7 +43,7 @@ const save = async (tracks) => {
   try {
     await trackService.upsertTracks(tracks);
   } catch (err) {
-    logger.error('Save tracks into Database error');
+    console.error('Save tracks into Database error');
     throw err;
   } finally {
     models.sequelize.close();
@@ -55,7 +58,7 @@ const fetch = async () => {
     console.log(fetcher.top100list);
     await save(fetcher.top100list);
   } catch (err) {
-    logger.error(`Fetch tracks error from ${link} with Youtube API key: ${key}`);
+    console.error(`Fetch tracks error from ${link} with Youtube API key: ${key}`);
     throw err;
   }
   console.log('Fetch completed');

@@ -19,7 +19,8 @@ const createFetchingJob = (cronTime, key, type, link) => {
   logger.info(`Scheduling job with cron format: ${cronTime}`);
   logger.info(`Creating the cron job to fetch '${type}' tracks from ${link} with Youtube API key: ${key}`);
   return schedule.scheduleJob(cronTime, () => {
-    logger.info(cronTime);
+    logger.info(`Start job to fetch '${type}' tracks`);
+    debug(cronTime);
     logger.info('Start child process ' + moment().format());
     const child = fork('fetch.js', [key, type, link], {
       silent: true,
