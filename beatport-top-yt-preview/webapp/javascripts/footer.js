@@ -249,7 +249,7 @@ class Footer extends Base {
     this.element['openYt'].link = 'https://www.youtube.com/watch?v=' + track['video_id'];
     this.element['external'].link = 'https://www.beatport.com' + track.link;
     this.element['artist'].innerHTML = track.artists;
-    this.element['updatedTime'].innerHTML = 'Latest Update: ' + this.formatUTCDate(new Date(track.updatedAt));
+    this.element['updatedTime'].innerHTML = 'Latest Update: ' + this.formatUTCDate(new Date(track['updated_at']));
     this.element['artwork'].style.backgroundImage = 'url(' + track.imglink + ')';
     let total = this.formatTime(this.player.getDuration());
     this.element['totalTime'].textContent = total;

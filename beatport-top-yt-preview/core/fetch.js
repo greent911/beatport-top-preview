@@ -3,43 +3,65 @@
 /* eslint-disable no-console */
 if (process.argv.length <= 2) {
   console.log('Example usage:');
-  console.log('node ' + __filename.slice(__dirname.length + 1) + ' key [type [srclink]]');
+  console.log('node ' + __filename.slice(__dirname.length + 1) + ' key [type [link]]');
   process.exit(-1);
 }
 
-let key = process.argv[2];
-let type = process.argv[3] || 'top100';
-let srclink = process.argv[4] || 'https://www.beatport.com/top-100';
 const BeatportTopFetcher = require('beatporttopfetcher');
 const models = require(`${__dirname}/../models`);
+const { trackService } = require(`${__dirname}/../services`);
 const logger = require(`${__dirname}/../utils/logger`);
+
+let key = process.argv[2];
+let type = process.argv[3] || 'top100';
+let link = process.argv[4] || 'https://www.beatport.com/top-100';
 let fetcher = new BeatportTopFetcher(key);
 
-async function save(top100list) {
+/**
+ * The top track
+ * @typedef {Object} Track
+ * @property {number} num The track's top rank number
+ * @property {string} type The track's type in database
+ * @property {string} title The track's title
+ * @property {string} artists The track's artist(s)
+ * @property {string} [remixers] The track's remixer(s)
+ * @property {string} [labels] The track's label(s)
+ * @property {string} [genre] The track's genre
+ * @property {string} [released] The track's released Date, YYYY-MM-DD
+ * @property {string} link The track's page relative link on Beatport
+ * @property {string} [imglink] The track's album artwork image link
+ * @property {string} [video_id] The track's Youtube video ID
+ */
+/**
+ * Save tracks into database
+ * @param {Track[]} tracks 
+ */
+const save = async (tracks) => {
   try {
-    await models['top_track'].bulkCreate(top100list, {
-      updateOnDuplicate: [],
-      logging: logger.info
-    });
-  } catch (error) {
-    logger.error('Save DB Error!!!!');
-    throw error;
+    await trackService.upsertTracks(tracks);
+  } catch (err) {
+    logger.error('Save tracks into Database error');
+    throw err;
   } finally {
     models.sequelize.close();
   }
-}
-async function fetch() {
+};
+
+const fetch = async () => {
   try {
-    let data = await fetcher.fetchList(type, srclink);
+    let data = await fetcher.fetchList(type, link);
     console.log(data);
     await fetcher.getVideoIds();
     console.log(fetcher.top100list);
     await save(fetcher.top100list);
-  } catch (error) {
-    logger.error('Fetch Error!!!!');
-    throw error;
+  } catch (err) {
+    logger.error(`Fetch tracks error from ${link} with Youtube API key: ${key}`);
+    throw err;
   }
-  console.log('Done');
-}
+  console.log('Fetch completed');
+};
 
+/**
+ * START FETCHING
+ */
 fetch();
