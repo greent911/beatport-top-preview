@@ -12,8 +12,8 @@ let config = require(`./${env}`);
  * @property {string} link Beatport Top 100's page link to be crawled
  */
 /**
- * The fetching data configuration by different environment (development | test | production)
- * @type {Object.<string, FetchConfig>} An object of configuration(s) with fetch type name as key
+ * The fetching data configuration based on environment (development | test | production)
+ * @type {Object.<string, FetchConfig>} Using fetch types as object keys for configuring objects
  * 
  * Format:
  * {

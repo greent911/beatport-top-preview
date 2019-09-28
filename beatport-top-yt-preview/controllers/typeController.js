@@ -3,7 +3,7 @@
 const { typeService } = require('./../services');
 
 /**
- * Returns the tracks
+ * Returns the types
  * @type {Function[]} Request handler middleware
  */
 const getTypes = [

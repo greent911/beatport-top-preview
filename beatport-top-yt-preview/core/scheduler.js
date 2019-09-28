@@ -52,7 +52,7 @@ const createFetchingJob = (cronTime, key, type, link) => {
  * @property {string} link
  */
 /**
- * @param {Object.<string, FetchConfig} config An object of configuration(s) with fetch type name as key
+ * @param {Object.<string, FetchConfig} config Configured objects with fetch types as object keys
  */
 const setupFetchingJobs = (config) => {
   let jobs = [];

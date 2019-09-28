@@ -13,7 +13,7 @@ const getTracks = [
    * 1. VALIDATION RULES
    */
   [
-    // Check if type exist from /:type, type must contain only letters and numbers (can be connected with dashes)
+    // If type exist from /:type, type must contain only letters and numbers (can be connected with dashes)
     param('type')
       .optional().isString().matches(/^[a-zA-Z0-9]*$|^[a-zA-Z0-9]+[a-zA-Z0-9-]*[a-zA-Z0-9]+$/)
       .withMessage('incorrect format')

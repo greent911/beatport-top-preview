@@ -51,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
         'FROM top_tracks ' + 
        'WHERE type = :type ' + 
          'AND num BETWEEN 1 AND 100 ' + 
-       'ORDER BY num ASC',
+       'ORDER BY num ASC;',
       {replacements: { type: type }, type: sequelize.QueryTypes.SELECT, logging: logger.info});
   };
 
