@@ -3,15 +3,15 @@
 const AppError = require('./../errors/AppError');
 const logger = require('./../utils/logger');
 
-function logErrorStack(err) {
+const logErrorStack = (err) => {
   if (err instanceof AppError) {
     logger.error(err.getFullStack());
   } else {
     logger.error(err.stack);
   }
-}
+};
 
-function getErrorResponse(err) {
+const getErrorResponse = (err) => {
   let error = 'InternalServerError';
   if (err instanceof AppError) {
     error = (err.isPublic)? err.message: err.name;
@@ -19,15 +19,15 @@ function getErrorResponse(err) {
   return {
     error: error
   };
-}
+};
 
 /**
  * Error Handling Middleware
  */
-function errorHandler(err, req, res, next) {
+const errorHandler = (err, req, res, next) => {
   logErrorStack(err);
   res.status(err.status || 500);
   res.json(getErrorResponse(err));
-}
+};
 
 module.exports = errorHandler;

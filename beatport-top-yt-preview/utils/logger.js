@@ -28,7 +28,7 @@ logger.add(new transports.Console(options.console));
 
 // For logging HTTP request from morgan middleware
 logger.stream = {
-  write: function(message) {
+  write: (message) => {
     logger.info(message);
   },
 };

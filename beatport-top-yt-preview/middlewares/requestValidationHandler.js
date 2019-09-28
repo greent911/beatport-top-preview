@@ -12,14 +12,14 @@ const logger = require('./../utils/logger');
  * @param {string} error.param The parameter name
  * @returns {string}
  */
-function formatError({ location, msg, param }) {
+const formatError = ({ location, msg, param }) => {
   return `${location}[${param}]: ${msg}`;
-}
+};
 
 /**
  * Request Validation Handling Middleware
  */
-function requestValidationHandler(req, res, next) {
+const requestValidationHandler = (req, res, next) => {
   const result = validationResult(req);
   const hasNoError = result.isEmpty();
   if (hasNoError) {
@@ -35,6 +35,6 @@ function requestValidationHandler(req, res, next) {
     message: 'Request input validation error',
     errors: errors
   });
-}
+};
 
 module.exports = requestValidationHandler;
