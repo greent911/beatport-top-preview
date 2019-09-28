@@ -1,5 +1,7 @@
 'use strict';
 
+const logger = require('../utils/logger');
+
 module.exports = (sequelize, DataTypes) => {
   const Track = sequelize.define('top_track', {
     num: {
@@ -38,7 +40,54 @@ module.exports = (sequelize, DataTypes) => {
     createdAt: 'created_at',
     updatedAt: 'updated_at'
   });
-  Track.associate = function() {
+
+  /**
+   * Get tracks by type
+   * @returns {Promise<Object[]>}
+   */
+  Track.getByType = (type) => {
+    return sequelize.query(
+      'SELECT num, type, title, artists, remixers, labels, genre, released, link, imglink, video_id, created_at, updated_at ' +
+        'FROM top_tracks ' + 
+       'WHERE type = :type ' + 
+         'AND num BETWEEN 1 AND 100 ' + 
+       'ORDER BY num ASC',
+      {replacements: { type: type }, type: sequelize.QueryTypes.SELECT, logging: logger.info});
+  };
+
+  /**
+   * Update or Insert tracks
+   * @param {Object[]} tracks
+   */
+  Track.upsert = (tracks) => {
+    return Track.bulkCreate(tracks, {
+      updateOnDuplicate: [],
+      logging: logger.info
+    });
+  };
+
+  /**
+   * @typedef {Object} TypeObject
+   * @property {string} type The type
+   */
+  /**
+   * Get array of distinct type objects
+   * @returns {Promise<TypeObject[]>}
+   */
+  Track.getTypes = () => {
+    return sequelize.query(
+      'SELECT DISTINCT type ' + 
+        'FROM top_tracks ' + 
+       'ORDER BY ' +
+             'CASE ' + 
+                   'WHEN type = \'top100\' THEN 1 ' +
+                   'ELSE 2 ' + 
+             'END ASC, ' + 
+             'type ASC;',
+      {replacements: {}, type: sequelize.QueryTypes.SELECT, logging: logger.info});
+  };
+
+  Track.associate = () => {
     // associations can be defined here
   };
   return Track;

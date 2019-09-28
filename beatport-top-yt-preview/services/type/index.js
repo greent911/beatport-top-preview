@@ -1,7 +1,6 @@
 'use strict';
 
 const { DatabaseError } = require('./../../errors');
-const logger = require('../../utils/logger');
 const models = require('./../../models');
 
 /**
@@ -10,15 +9,8 @@ const models = require('./../../models');
  */
 const getTypes = async () => {
   try {
-    let typeObjects = await models.sequelize
-      .query(
-        'SELECT DISTINCT type ' + 
-          'FROM top_tracks ' + 
-         'WHERE type <> \'top100\' ' + 
-         'ORDER BY type ASC',
-        {replacements: {}, type: models.sequelize.QueryTypes.SELECT, logging: logger.info});
+    let typeObjects = await models['top_track'].getTypes();
     let types = typeObjects.map((obj) => obj.type);
-    types = ['top100', ...types];
     return types;
   } catch (err) {
     throw new DatabaseError(err.message, err);

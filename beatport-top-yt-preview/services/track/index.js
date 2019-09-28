@@ -1,7 +1,6 @@
 'use strict';
 
 const { DatabaseError } = require('./../../errors');
-const logger = require('./../../utils/logger');
 const models = require('./../../models');
 const utils = require('./../../utils');
 
@@ -29,14 +28,7 @@ const utils = require('./../../utils');
  */
 const getTracksByType = async (type) => {
   try {
-    let tracks = await models.sequelize
-      .query(
-        'SELECT num, type, title, artists, remixers, labels, genre, released, link, imglink, video_id, created_at, updated_at ' +
-          'FROM top_tracks ' + 
-         'WHERE type = :type ' + 
-           'AND num BETWEEN 1 AND 100 ' + 
-         'ORDER BY num ASC',
-        {replacements: { type: utils.parseString(type) }, type: models.sequelize.QueryTypes.SELECT, logging: logger.info});
+    let tracks = await models['top_track'].getByType(utils.parseString(type));
     return tracks;
   } catch (err) {
     throw new DatabaseError(err.message, err);
@@ -49,10 +41,7 @@ const getTracksByType = async (type) => {
  */
 const upsertTracks = async (tracks) => {
   try {
-    await models['top_track'].bulkCreate(tracks, {
-      updateOnDuplicate: [],
-      logging: logger.info
-    });
+    await models['top_track'].upsert(tracks);
   } catch (err) {
     throw new DatabaseError(err.message, err);
   }

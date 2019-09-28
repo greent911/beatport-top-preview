@@ -74,7 +74,7 @@ class Navbar extends Base {
       let typeNode = document.createElement('a');
       typeNode.setAttribute('href', '/beatport?type=' + type);
       typeNode.innerHTML = type.toUpperCase();
-      if (type=='top100') {
+      if (type == 'top100') {
         typeNode.innerHTML = 'BP-TOP-PREVIEV';
         typeNode.classList.add('title');
       }
