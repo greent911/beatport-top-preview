@@ -17,7 +17,7 @@ describe('beatport-top-fetcher fetches top 100 track data from Beatport', functi
       let type = 'top100';
       let srclink = 'https://www.beatport.com/top-100';
 
-      let datalist = await fetcher.fetchList(type, srclink);
+      let datalist = await fetcher.crawl(type, srclink);
 
       expect(datalist).to.have.lengthOf(100);
     });

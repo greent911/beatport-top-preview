@@ -72,7 +72,7 @@ class Navbar extends Base {
     let types = JSON.parse(request.response);
     types.forEach((type) => {
       let typeNode = document.createElement('a');
-      typeNode.setAttribute('href', '/beatport?type=' + type);
+      typeNode.setAttribute('href', `/beatport?type=${type}`);
       typeNode.innerHTML = type.toUpperCase();
       if (type == 'top100') {
         typeNode.innerHTML = 'BP-TOP-PREVIEV';
@@ -80,7 +80,7 @@ class Navbar extends Base {
       }
       this.element['navbar'].insertBefore(typeNode, this.element['about']);     
       let typeNodeSide = document.createElement('a');
-      typeNodeSide.setAttribute('href', '/beatport?type=' + type);
+      typeNodeSide.setAttribute('href', `/beatport?type=${type}`);
       typeNodeSide.innerHTML = type.toUpperCase();
       this.element['sidenav'].appendChild(typeNodeSide);
     });

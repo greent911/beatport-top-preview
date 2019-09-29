@@ -12,7 +12,7 @@ const logger = require('./../utils/logger');
 /**
  * @param {string} cronTime The Cron time format define frequency of actions
  * @param {*} key The Youtube API key to fetch data on Youtube
- * @param {*} type The fetching tracks' type name
+ * @param {*} type The label type
  * @param {*} link Beatport Top 100's page link to be crawled
  */
 const createFetchingJob = (cronTime, key, type, link) => {
@@ -27,7 +27,7 @@ const createFetchingJob = (cronTime, key, type, link) => {
       cwd: `${__dirname}`
     });
     child.on('error', (err) => {
-      logger.error('ERROR: spawn failed! (' + err + ')');
+      logger.error(`ERROR: spawn failed! (${err})`);
     });
     child.on('exit', (code, signal) => {
       logger.info('Exit child process ' + moment().format());
@@ -37,10 +37,10 @@ const createFetchingJob = (cronTime, key, type, link) => {
       }
     });
     child.stderr.on('data', (data) => {
-      logger.error('stderr: ' + data);
+      logger.error(`stderr: ${data}`);
     });
     child.stdout.on('data', (data) => {
-      debug('stdout: ' + data);
+      debug(`stdout: ${data}`);
     });
   });  
 };

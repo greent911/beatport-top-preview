@@ -81,14 +81,14 @@ class Content extends Base {
             rightNode.appendChild(artistsNode);
             let leftNode = document.createElement('div');
             leftNode.setAttribute('class', 'left');
-            let style = 'background-image: url("' + imglink + '");background-size: cover;';
+            let style = `background-image: url("${imglink}");background-size: cover;`;
             leftNode.setAttribute('style', style);
             let numNode = document.createElement('div');
             numNode.setAttribute('class', 'num');
             numNode.innerHTML = num;
             let trackNode = document.createElement('div');
             trackNode.setAttribute('class', 'track');
-            trackNode.setAttribute('id', videoId + '-' + i);
+            trackNode.setAttribute('id', `${videoId}-${i}`);
             trackNode.appendChild(numNode);
             trackNode.appendChild(leftNode);
             trackNode.appendChild(rightNode);
@@ -176,7 +176,7 @@ class Content extends Base {
           let videoId = track['video_id'];
           let videoIds = this.player.currentTracks.map((track) => track['video_id']);
           videoIds.forEach((id, i) => {
-            document.getElementById(id + '-' + i).style.backgroundColor = (id==videoId && i==playlistIdx)? '#e6f596': '';
+            document.getElementById(`${id}-${i}`).style.backgroundColor = (id==videoId && i==playlistIdx)? '#e6f596': '';
           });
           this.emit(Content.BUFFERING, track);
         }

@@ -13,7 +13,7 @@ let config = require(`./${env}`);
  */
 /**
  * The fetching data configuration based on environment (development | test | production)
- * @type {Object.<string, FetchConfig>} Using fetch types as object keys for configuring objects
+ * @type {Object.<string, FetchConfig>} Using label types for configuring objects
  * 
  * Format:
  * {

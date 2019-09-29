@@ -30,9 +30,9 @@ function decodeASCII(text) {
 }
 
 /** 
- * Crawl top 100 plain track data on beatport 
- * @param {string} type Use to set data's type
- * @param {string} srclink The source page link
+ * Crawl Beatport webpage for top 100 tracks
+ * @param {string} type The label type
+ * @param {string} srclink Beatport Top 100's page link to be crawled
  * @returns {Promise<Object[]>} A promise that contains the array of tracks when fulfilled.
  **/
 function crawl(type, srclink) {
@@ -106,27 +106,27 @@ class Validator {
  */
 class BeatportTopFetcher {
   /**
-   * construct with youtube API key
-   * @param {string} authkey youtube API key
+   * Construct with Youtube API key
+   * @param {string} key Youtube API key
    */
-  constructor(authkey) {
+  constructor(key) {
     this.youtube = google.youtube({
       version: 'v3',
-      auth: authkey,
+      auth: key,
     });
-    this.top100list = [];
-    this.queryTitleFilterArray = [' Original Mix'];
-    this.queryArtistsFilterArray = [new RegExp('\\(.*?\\)', 'g')];
+    this.tops = [];
+    this.titleFilterKeywords = [' Original Mix'];
+    this.artistsFilterKeywords = [new RegExp('\\(.*?\\)', 'g')];
   }
   /**
-   * Crawl top 100 track data
-   * @param {string} type 'top100' or other genre
-   * @param {string} srclink beatport top 100 page link
-   * @returns {Promise<Object[]>} A promise that contains the array of plain tracks when fulfilled.
+   * Crawl Beatport webpage for top 100 tracks
+   * @param {string} type The label type
+   * @param {string} link Beatport Top 100's page link to be crawled
+   * @returns {Promise<Object[]>} A promise that contains the array of tracks when fulfilled.
    */
-  async fetchList(type, srclink) {
-    this.top100list = await crawl(type, srclink);
-    return this.top100list;
+  async crawl(type, link) {
+    this.tops = await crawl(type, link);
+    return this.tops;
   }
   /**
    * Get the title for youtube search
@@ -134,7 +134,7 @@ class BeatportTopFetcher {
    * @returns {string} search title
    */
   getQueryTitle(title) {
-    return title.remove(this.queryTitleFilterArray);
+    return title.remove(this.titleFilterKeywords);
   }
   /**
    * Get the artists for youtube search
@@ -142,14 +142,15 @@ class BeatportTopFetcher {
    * @returns {string} search artists
    */
   getQueryArtists(artists) {
-    return artists.remove(this.queryArtistsFilterArray);
+    return artists.remove(this.artistsFilterKeywords);
   }
   /**
    * Get the title & artists for youtube search
-   * @param {string} track track data
+   * @param {Object} track track data
+   * @param {string} track.title
+   * @param {string} track.artists
    */
-  getQueryInput(track) {
-    let {title, artists} = track;
+  getQueryInput({ title, artists }) {
     return {
       queryTitle: this.getQueryTitle(title),
       queryArtists: this.getQueryArtists(artists),
@@ -202,7 +203,7 @@ class BeatportTopFetcher {
       type: 'video',
       videoEmbeddable: true,
       videoSyndicated: true,
-      q: queryTitle + ' ' + queryArtists
+      q: `${queryTitle} ${queryArtists}`
     });
     let response = await ytQueryPromise();
     if (response && response.data && response.data.items && response.data.items.length > 0) {
@@ -215,8 +216,8 @@ class BeatportTopFetcher {
    * Get top 100 track video IDs
    */
   async getVideoIds() {
-    let videoIds = await Promise.all(this.top100list.map((track) => this.getVideoId(track)));
-    this.top100list.map((data, index) => {
+    let videoIds = await Promise.all(this.tops.map((track) => this.getVideoId(track)));
+    this.tops.map((data, index) => {
       data['video_id'] = videoIds[index];
     });
     return videoIds;

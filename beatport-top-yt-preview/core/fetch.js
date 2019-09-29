@@ -51,7 +51,7 @@ const save = async (tracks) => {
 
 const fetch = async () => {
   try {
-    let data = await fetcher.fetchList(type, link);
+    let data = await fetcher.crawl(type, link);
     console.log(data);
     await fetcher.getVideoIds();
     console.log(fetcher.top100list);
