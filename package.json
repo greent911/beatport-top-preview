@@ -7,7 +7,7 @@
     "start": "node ./beatport-top-yt-preview/bin/www",
     "build": "webpack --config ./beatport-top-yt-preview/webpack.config.js",
     "test": "NODE_ENV=test mocha beatport-top-fetcher/test beatport-top-yt-preview/test --recursive --exit",
-    "devstart": "nodemon ./beatport-top-yt-preview/bin/www --ignore ./beatport-top-yt-preview/webapp/ & webpack --watch --devtool source-map --config ./beatport-top-yt-preview/webpack.config.js",
+    "devstart": "nodemon ./beatport-top-yt-preview/bin/www --ignore ./beatport-top-yt-preview/frontend/ & webpack --watch --devtool source-map --config ./beatport-top-yt-preview/webpack.config.js",
     "nodemon": "nodemon ./beatport-top-yt-preview/bin/www"
   },
   "author": "Nelson Li",

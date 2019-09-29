@@ -5,7 +5,7 @@
     "start": "node ./bin/www",
     "build": "webpack --config webpack.config.js",
     "test": "mocha --recursive",
-    "devstart": "nodemon ./bin/www --ignore ./webapp/ & webpack --watch --devtool source-map --config webpack.config.js",
+    "devstart": "nodemon ./bin/www --ignore ./frontend/ & webpack --watch --devtool source-map --config webpack.config.js",
     "nodemon": "nodemon ./bin/www"
   },
   "dependencies": {

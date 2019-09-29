@@ -6,7 +6,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
   mode: 'production',
   context: path.resolve(__dirname),
-  entry: './webapp/javascripts/main.js',
+  entry: './frontend/javascripts/main.js',
   output: {
     filename: 'main.js',
     path: path.resolve(__dirname, 'public'),
@@ -14,7 +14,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './webapp/index.html',
+      template: './frontend/index.html',
       inject: 'head'
     })
   ],
