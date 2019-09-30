@@ -5,7 +5,7 @@ const BeatportTopFetcher = require('beatporttopfetcher');
 
 describe('beatport-top-fetcher check the video data is valid for the track data', function() {
   let fetcher = new BeatportTopFetcher();
-  let youtubeDataValidator = fetcher.youtubeDataValidator;
+  let dataValidator = fetcher.dataValidator;
   it('When there are single title and artists, should validate correctly', function() {
     let videoTitle = 'Fergie & Sadrian - Natya (Original Mix)';
     let truth = {
@@ -13,7 +13,7 @@ describe('beatport-top-fetcher check the video data is valid for the track data'
       artists: 'Fergie & Sadrian',
     };
 
-    let isValid = youtubeDataValidator.validate(videoTitle, truth);
+    let isValid = dataValidator.validate(videoTitle, truth);
 
     expect(isValid).to.be.true;
   });
@@ -24,7 +24,7 @@ describe('beatport-top-fetcher check the video data is valid for the track data'
       artists: 'Illenium, Kameron Alexander',
     };
 
-    let isValid = youtubeDataValidator.validate(videoTitle, truth);
+    let isValid = dataValidator.validate(videoTitle, truth);
 
     expect(isValid).to.be.true;
   });

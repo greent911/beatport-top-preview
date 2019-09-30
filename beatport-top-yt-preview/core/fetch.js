@@ -51,11 +51,9 @@ const save = async (tracks) => {
 
 const fetch = async () => {
   try {
-    let data = await fetcher.crawl(link, type);
-    console.log(data);
-    await fetcher.fetchVideoIds();
-    console.log(fetcher.tops);
-    await save(fetcher.tops);
+    let tracks = await fetcher.fetchTracks(link, type);
+    console.log(tracks);
+    await save(tracks);
   } catch (err) {
     console.error(`Fetch tracks error from ${link} with Youtube API key: ${key}`);
     throw err;

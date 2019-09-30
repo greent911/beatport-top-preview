@@ -8,9 +8,12 @@ const { google } = require('googleapis');
 const he = require('he');
 
 /**
+ * UTILS
+ */
+/**
  * Return a new string in which specified words from the current string are deleted 
- * @param {string|string[]} filters words or filter rules to be removed
- * @returns {string} new string 
+ * @param {string|string[]|RegExp|RegExp[]} filters The words to be removed or filter rules
+ * @returns {string} The new string 
  */
 String.prototype.remove = function(filters) {
   let removeFilters = (Array.isArray(filters))? filters: [filters];
@@ -19,15 +22,19 @@ String.prototype.remove = function(filters) {
   }, this);
 };
 
-/** Decode HTML text */
+// Decode HTML text
 const decodeHTML = (text) => {
   return he.decode(text);
 };
-/** Decode ASCII */
+
+// Decode ASCII text
+// ref: https://stackoverflow.com/questions/990904/remove-accents-diacritics-in-a-string-in-javascript
 const decodeASCII = (text) => {
   let combining = /[\u0300-\u036F]/g; 
   return text.normalize('NFKD').replace(combining, '');
 };
+
+// Decode text
 const formatText = (text) => {
   return decodeASCII(decodeHTML(text));
 };
@@ -73,32 +80,54 @@ const crawl = (pagelink, type) => {
   });
 };
 
-class Sanitizer {
+/**
+ * Sanitizer for Youtube queries
+ */
+class QuerySanitizer {
+  /**
+   * The Sanitizing rule
+   * @typedef {Object} Rule
+   * @property {string} name The rule name
+   * @property {string[]|RegExp[]} filters The filter rules
+   */
+  /**
+   * Construct with Sanitizing rules
+   * @param {Rule[]} rules 
+   */
   constructor(rules) {
-    this.filterMap = new Map();
+    this.ruleMap = new Map();
     rules.forEach(({name, filters}) => {
       this.setFilters(name, filters);
     });
   }
 
+  // Set a name rule
   setFilters(name, filters) {
-    this.filterMap.set(name, filters);
+    this.ruleMap.set(name, filters);
   }
 
+  /**
+   * Return a new string by the Sanitizing rule
+   * @param {string} name The rule name
+   * @param {string} str The original string
+   */
   sanitize(name, str) {
-    let filters = this.filterMap.get(name);
+    let filters = this.ruleMap.get(name);
     return str.remove(filters);
   }
 }
 
+// Validation rules
 const validations = {
-  containArtists(videoTitle, artists) {
+  // Check videoTitle contains at least one artist
+  containAtLeastOneArtist(videoTitle, artists) {
     let checking = videoTitle.toLowerCase();
     let searchs = artists.toLowerCase().split(', ');
     let isValid = searchs.some((artist) => checking.includes(artist));
     return isValid;
   },
-  containTitle(videoTitle, title) {
+
+  validateTitle(videoTitle, title) {
     let checking = videoTitle.toLowerCase();
     let searchs = title.remove(' Remix').toLowerCase().split(' ');
     let isValid = searchs.some((str) => checking.includes(str));
@@ -106,28 +135,41 @@ const validations = {
   }
 };
 
-/** Validate youtube search result title */
-class Validator {
+/**
+ * Validator for Youtube search result video title
+ */
+class DataValidator {
   constructor() {
     this.validatorMap = new Map();
   }
 
-  add(key, validation, nullable=false) {
-    this.validatorMap.set(key, {
+  /**
+   * Add a validation rule
+   * @param {string} property The object property be used to validate
+   * @param {Function} validation The validation rule
+   * @param {boolean} nullable If is true, will not validate when the property's value is null
+   */
+  add(property, validation, nullable=false) {
+    this.validatorMap.set(property, {
       validation,
       nullable,
     });
   }
 
+  /**
+   * Validate the video title
+   * @param {*} videoTitle The video title to be validated
+   * @param {Object} truth The ground truth by property for validation
+   */
   validate(videoTitle, truth) {
-    for (const [ key, validator ] of this.validatorMap) {
+    for (const [ property, validator ] of this.validatorMap) {
       const { validation, nullable } = validator;
       if (nullable) {
-        if (truth[key] && !validation(videoTitle, truth[key])) {
+        if (truth[property] && !validation(videoTitle, truth[property])) {
           return false;
         }
       } else {
-        if (!validation(videoTitle, truth[key])) {
+        if (!validation(videoTitle, truth[property])) {
           return false;
         }
       }
@@ -141,16 +183,20 @@ class Validator {
  */
 class BeatportTopFetcher {
   /**
-   * Construct with Youtube API key
    * @param {string} key Youtube API key
    */
   constructor(key) {
+    // Initialize top tracks array
+    this.tops = [];
+
+    // Set up Youtube API
     this.youtubeAPI = google.youtube({
       version: 'v3',
       auth: key,
     });
-    this.tops = [];
-    this.querySanitizer = new Sanitizer([
+
+    // Set up rules to sanitize Youtube queries
+    this.querySanitizer = new QuerySanitizer([
       { 
         name: 'title',
         filters: [' Original Mix'] 
@@ -161,11 +207,13 @@ class BeatportTopFetcher {
       }
     ]);
 
-    this.youtubeDataValidator = new Validator();
-    this.youtubeDataValidator.add('artists', validations.containArtists);
-    this.youtubeDataValidator.add('title', validations.containTitle);
-    this.youtubeDataValidator.add('remixers', validations.containArtists, true);
+    // Set up rules to validate Youtube video data by track properties
+    this.dataValidator = new DataValidator();
+    this.dataValidator.add('title', validations.validateTitle);
+    this.dataValidator.add('artists', validations.containAtLeastOneArtist);
+    this.dataValidator.add('remixers', validations.containAtLeastOneArtist, true);
   }
+
   extractVideoData(responseData) {
     if (
       !responseData || typeof responseData !== 'object'
@@ -173,6 +221,7 @@ class BeatportTopFetcher {
     ) {
       return {};
     }
+
     let responseDataItems = responseData.items;
     let maxResults = 1;
     let videoTitle = null;
@@ -193,15 +242,19 @@ class BeatportTopFetcher {
       videoId,
     };
   }
+
   /**
    * Fetch video ID by querying Youtube search API
    * @param {object} track The track data
    */
   async fetchVideoId(track) {
     let { title, artists } = track;
+
+    // Sanitize queries
     let queryTitle = this.querySanitizer.sanitize('title', title);
     let queryArtists = this.querySanitizer.sanitize('artists', artists);
     let query = `${queryTitle} ${queryArtists}`;
+
     let searchYoutubePromise = () => this.youtubeAPI.search.list({
       part: 'id,snippet',
       maxResults: 1,
@@ -210,27 +263,36 @@ class BeatportTopFetcher {
       videoSyndicated: true,
       q: query
     });
+
+    // Start searching via Youtube API
     let response = await searchYoutubePromise();
+
     if (
       !response || typeof response !== 'object' 
       || !response.data || typeof response.data !== 'object'
     ) {
       return null;
     }
+
+    // Extract Youtube video title and id
     let { videoTitle, videoId } = this.extractVideoData(response.data);
-    if (!videoTitle || !videoId) {
+    if (!videoId || !videoTitle) {
       return null;
     }
+
+    // Validate video title with track information
     let truth = {
       artists: queryArtists,
       title: queryTitle,
       remixers: track.remixers,
     };
-    if (!this.youtubeDataValidator.validate(videoTitle, truth)) {
+    if (!this.dataValidator.validate(videoTitle, truth)) {
       return null;
     }
+
     return videoId;
   }
+
   /**
    * Crawl Beatport webpage for top 100 tracks
    * @param {string} link Beatport Top 100's page link to be crawled
@@ -241,6 +303,7 @@ class BeatportTopFetcher {
     this.tops = await crawl(link, type);
     return this.tops.map((track) => ({...track}));
   }
+
   /**
    * Fetch top 100 track video IDs from Youtube
    * @returns {Promise<string[]>} A promise that contains the array of video IDs when fulfilled.
@@ -255,6 +318,7 @@ class BeatportTopFetcher {
     });
     return videoIds;
   }
+  
   /**
    * Fetch top 100 tracks
    * @param {string} link Beatport Top 100's page link to be crawled
@@ -268,5 +332,4 @@ class BeatportTopFetcher {
   }
 }
 
-/** Export Class */
 module.exports = BeatportTopFetcher;
