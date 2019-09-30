@@ -15,26 +15,24 @@ let fetcher = new BeatportTopFetcher(key);
 //   link: '/track/space-candy-original-mix/11765032',
 //   imglink: 'https://geo-media.beatport.com/image_size/95x95/2af94ad3-a130-439a-8652-86b17270ceeb.jpg'
 // };
-// let track1 = {
+// let track = {
 //   title: 'Natya Original Mix',
 //   artists: 'Fergie & Sadrian',
 // };
-// let track2 = {
+// let track = {
 //   title: 'Laniakea Kalki Remix',
 //   artists: 'La P\'tite Fumee',
 //   remixers: 'Kalki',
 // };
-let track3 = {
+let track = {
   title: 'That Don\'t Compressor Me Much Original Mix',
   artists: 'Headroom (SA)',
 };
-// fetcher.top100list.push(trackno);
-// fetcher.top100list.push(track1);
-// fetcher.top100list.push(track2);
-fetcher.top100list.push(track3);
+
+fetcher.tops.push(track);
 
 async function getVideoId() {
-  let data = await fetcher.getVideoIds();
+  let data = await fetcher.fetchVideoIds();
   console.log(data);
 }
 getVideoId();

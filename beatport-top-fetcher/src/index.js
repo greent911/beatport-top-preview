@@ -8,34 +8,37 @@ const { google } = require('googleapis');
 const he = require('he');
 
 /**
- * Return a new string with string(s) removal
- * @param {string|string[]} strs string(s) to be removed
+ * Return a new string in which specified words from the current string are deleted 
+ * @param {string|string[]} filters words or filter rules to be removed
  * @returns {string} new string 
  */
-String.prototype.remove = function(strs) {
-  let removeStrs = (Array.isArray(strs))? strs: [strs];
-  return removeStrs.reduce((current, str) => {
-    return current.replace(str, '');
+String.prototype.remove = function(filters) {
+  let removeFilters = (Array.isArray(filters))? filters: [filters];
+  return removeFilters.reduce((current, filter) => {
+    return current.replace(filter, '');
   }, this);
 };
 
 /** Decode HTML text */
-function decodeHTML(text) {
+const decodeHTML = (text) => {
   return he.decode(text);
-}
+};
 /** Decode ASCII */
-function decodeASCII(text) {
+const decodeASCII = (text) => {
   let combining = /[\u0300-\u036F]/g; 
   return text.normalize('NFKD').replace(combining, '');
-}
+};
+const formatText = (text) => {
+  return decodeASCII(decodeHTML(text));
+};
 
 /** 
  * Crawl Beatport webpage for top 100 tracks
+ * @param {string} pagelink Beatport Top 100's page link to be crawled
  * @param {string} type The label type
- * @param {string} srclink Beatport Top 100's page link to be crawled
  * @returns {Promise<Object[]>} A promise that contains the array of tracks when fulfilled.
  **/
-function crawl(type, srclink) {
+const crawl = (pagelink, type) => {
   return new Promise((resolve, reject) => {
     let crawler = new Crawler({
       callback : function(error, res, done) {
@@ -66,38 +69,70 @@ function crawl(type, srclink) {
         done();
       }
     });
-    crawler.queue(srclink);
+    crawler.queue(pagelink);
   });
+};
+
+class Sanitizer {
+  constructor(rules) {
+    this.filterMap = new Map();
+    rules.forEach(({name, filters}) => {
+      this.setFilters(name, filters);
+    });
+  }
+
+  setFilters(name, filters) {
+    this.filterMap.set(name, filters);
+  }
+
+  sanitize(name, str) {
+    let filters = this.filterMap.get(name);
+    return str.remove(filters);
+  }
 }
+
+const validations = {
+  containArtists(videoTitle, artists) {
+    let checking = videoTitle.toLowerCase();
+    let searchs = artists.toLowerCase().split(', ');
+    let isValid = searchs.some((artist) => checking.includes(artist));
+    return isValid;
+  },
+  containTitle(videoTitle, title) {
+    let checking = videoTitle.toLowerCase();
+    let searchs = title.remove(' Remix').toLowerCase().split(' ');
+    let isValid = searchs.some((str) => checking.includes(str));
+    return isValid;
+  }
+};
 
 /** Validate youtube search result title */
 class Validator {
-  constructor(ytTitle) {
-    this.ytTitle = ytTitle;
+  constructor() {
+    this.validatorMap = new Map();
   }
-  validateArtists(artists) {
-    let checkingTitle = this.ytTitle.toLowerCase();
-    let lArtists = artists.toLowerCase();
-    let lArtistsStrs = lArtists.split(', ');
-    let isValid = lArtistsStrs.some((artist) => checkingTitle.includes(artist));
-    return isValid;
+
+  add(key, validation, nullable=false) {
+    this.validatorMap.set(key, {
+      validation,
+      nullable,
+    });
   }
-  validateTitle(title) {
-    let checkingTitle = this.ytTitle.toLowerCase();
-    let lTitle = title.remove(' Remix').toLowerCase();
-    let lTitleStrs = lTitle.split(' ');
-    let isValid = lTitleStrs.some((str) => checkingTitle.includes(str));
-    return isValid;
-  }
-  validateRemixers(remixers) {
-    let isValid = this.validateArtists(remixers);
-    return isValid;
-  }
-  validatePrimaryTitle(primaryTitle) {
-    let checkingTitle = this.ytTitle.toLowerCase();
-    let lTitle = primaryTitle.toLowerCase();
-    let isValid = checkingTitle.includes(lTitle);
-    return isValid;
+
+  validate(videoTitle, truth) {
+    for (const [ key, validator ] of this.validatorMap) {
+      const { validation, nullable } = validator;
+      if (nullable) {
+        if (truth[key] && !validation(videoTitle, truth[key])) {
+          return false;
+        }
+      } else {
+        if (!validation(videoTitle, truth[key])) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 }
 
@@ -110,117 +145,126 @@ class BeatportTopFetcher {
    * @param {string} key Youtube API key
    */
   constructor(key) {
-    this.youtube = google.youtube({
+    this.youtubeAPI = google.youtube({
       version: 'v3',
       auth: key,
     });
     this.tops = [];
-    this.titleFilterKeywords = [' Original Mix'];
-    this.artistsFilterKeywords = [new RegExp('\\(.*?\\)', 'g')];
+    this.querySanitizer = new Sanitizer([
+      { 
+        name: 'title',
+        filters: [' Original Mix'] 
+      },
+      { 
+        name: 'artists', 
+        filters: [new RegExp('\\(.*?\\)', 'g')] 
+      }
+    ]);
+
+    this.youtubeDataValidator = new Validator();
+    this.youtubeDataValidator.add('artists', validations.containArtists);
+    this.youtubeDataValidator.add('title', validations.containTitle);
+    this.youtubeDataValidator.add('remixers', validations.containArtists, true);
   }
-  /**
-   * Crawl Beatport webpage for top 100 tracks
-   * @param {string} type The label type
-   * @param {string} link Beatport Top 100's page link to be crawled
-   * @returns {Promise<Object[]>} A promise that contains the array of tracks when fulfilled.
-   */
-  async crawl(type, link) {
-    this.tops = await crawl(type, link);
-    return this.tops;
-  }
-  /**
-   * Get the title for youtube search
-   * @param {string} title track title
-   * @returns {string} search title
-   */
-  getQueryTitle(title) {
-    return title.remove(this.titleFilterKeywords);
-  }
-  /**
-   * Get the artists for youtube search
-   * @param {string} title track artists
-   * @returns {string} search artists
-   */
-  getQueryArtists(artists) {
-    return artists.remove(this.artistsFilterKeywords);
-  }
-  /**
-   * Get the title & artists for youtube search
-   * @param {Object} track track data
-   * @param {string} track.title
-   * @param {string} track.artists
-   */
-  getQueryInput({ title, artists }) {
+  extractVideoData(responseData) {
+    if (
+      !responseData || typeof responseData !== 'object'
+      || !Array.isArray(responseData.items) || responseData.items.length <= 0
+    ) {
+      return {};
+    }
+    let responseDataItems = responseData.items;
+    let maxResults = 1;
+    let videoTitle = null;
+    let videoId = null;
+    for (let index = 0; index < maxResults; index++) {
+      const { snippet, id } = responseDataItems[index];
+      videoTitle = (snippet)? snippet.title: null;
+      videoId = (id)? id.videoId: null;
+      if (videoId) break;
+    }
+
+    if (videoTitle) {
+      videoTitle = formatText(videoTitle);
+    }
+
     return {
-      queryTitle: this.getQueryTitle(title),
-      queryArtists: this.getQueryArtists(artists),
+      videoTitle,
+      videoId,
     };
   }
-  /** format HTML text from youtube search */
-  formatText(text) {
-    return decodeASCII(decodeHTML(text));
-  }
   /**
-   * Validate video ID data from youtube search API
-   * @param {object} ytResponseData youtube search response
-   * @param {object} track track data
-   * @param {string} queryTitle the title for youtube search
-   * @param {*} queryArtists the artists for youtube search
-   * @returns {string|null} if is valid or not, return video ID or null
+   * Fetch video ID by querying Youtube search API
+   * @param {object} track The track data
    */
-  getValidVideoId(ytResponseData, track, queryTitle, queryArtists) {
-    if (!ytResponseData) {
-      return null;
-    }
-    let qTitle = queryTitle || this.getQueryTitle(track.title);
-    let qArtists = queryArtists || this.getQueryArtists(track.artists);
-    let {snippet, id} = ytResponseData.items[0];
-    let ytTitle = (snippet)? snippet.title: undefined;
-    let videoId = (id)? id.videoId: undefined;
-    ytTitle = this.formatText(ytTitle);
-    let validator = new Validator(ytTitle);
-    if (!validator.validateArtists(qArtists))
-      return null;
-    if (!validator.validateTitle(qTitle))
-      return null;
-    if (track.remixers && !validator.validateRemixers(this.getQueryArtists(track.remixers)))
-      return null;
-    // if (track.primarytitle && !validator.validatePrimaryTitle(track.primarytitle))
-    //   return null;
-    return videoId;
-  }
-  /**
-   * Get video ID by youtube search API
-   * @param {object} track track data
-   */
-  async getVideoId(track) {
-    let {title, artists} = track;
-    let queryTitle = this.getQueryTitle(title);
-    let queryArtists = this.getQueryArtists(artists);
-    let ytQueryPromise = () => this.youtube.search.list({
+  async fetchVideoId(track) {
+    let { title, artists } = track;
+    let queryTitle = this.querySanitizer.sanitize('title', title);
+    let queryArtists = this.querySanitizer.sanitize('artists', artists);
+    let query = `${queryTitle} ${queryArtists}`;
+    let searchYoutubePromise = () => this.youtubeAPI.search.list({
       part: 'id,snippet',
       maxResults: 1,
       type: 'video',
       videoEmbeddable: true,
       videoSyndicated: true,
-      q: `${queryTitle} ${queryArtists}`
+      q: query
     });
-    let response = await ytQueryPromise();
-    if (response && response.data && response.data.items && response.data.items.length > 0) {
-      return this.getValidVideoId(response.data, track, queryTitle, queryArtists);
-    } else {
+    let response = await searchYoutubePromise();
+    if (
+      !response || typeof response !== 'object' 
+      || !response.data || typeof response.data !== 'object'
+    ) {
       return null;
     }
+    let { videoTitle, videoId } = this.extractVideoData(response.data);
+    if (!videoTitle || !videoId) {
+      return null;
+    }
+    let truth = {
+      artists: queryArtists,
+      title: queryTitle,
+      remixers: track.remixers,
+    };
+    if (!this.youtubeDataValidator.validate(videoTitle, truth)) {
+      return null;
+    }
+    return videoId;
   }
   /**
-   * Get top 100 track video IDs
+   * Crawl Beatport webpage for top 100 tracks
+   * @param {string} link Beatport Top 100's page link to be crawled
+   * @param {string} type The label type
+   * @returns {Promise<Object[]>} A promise that contains the array of tracks when fulfilled.
    */
-  async getVideoIds() {
-    let videoIds = await Promise.all(this.tops.map((track) => this.getVideoId(track)));
-    this.tops.map((data, index) => {
+  async crawl(link, type='top100') {
+    this.tops = await crawl(link, type);
+    return this.tops.map((track) => ({...track}));
+  }
+  /**
+   * Fetch top 100 track video IDs from Youtube
+   * @returns {Promise<string[]>} A promise that contains the array of video IDs when fulfilled.
+   */
+  async fetchVideoIds() {
+    if (this.tops.length <= 0) {
+      return [];
+    }
+    let videoIds = await Promise.all(this.tops.map((track) => this.fetchVideoId(track)));
+    this.tops.forEach((data, index) => {
       data['video_id'] = videoIds[index];
     });
     return videoIds;
+  }
+  /**
+   * Fetch top 100 tracks
+   * @param {string} link Beatport Top 100's page link to be crawled
+   * @param {string} type The label type
+   * @returns {Promise<Object[]>} A promise that contains the array of tracks with video IDs when fulfilled.
+   */
+  async fetchTracks(link, type='top100') {
+    await this.crawl(link, type);
+    await this.fetchVideoIds();
+    return this.tops.map((track) => ({...track}));
   }
 }
 
