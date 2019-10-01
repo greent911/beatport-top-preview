@@ -157,18 +157,18 @@ class DataValidator {
 
   /**
    * Validate the video title
-   * @param {*} videoTitle The video title to be validated
-   * @param {Object} truth The ground truth with property for validation
+   * @param {string} videoTitle The video title to be validated
+   * @param {Object} trackInfo The track information with property for validation
    */
-  validate(videoTitle, truth) {
+  validate(videoTitle, trackInfo) {
     for (const [ property, validator ] of this.validatorMap) {
       const { validation, nullable } = validator;
       if (nullable) {
-        if (truth[property] && !validation(videoTitle, truth[property])) {
+        if (trackInfo[property] && !validation(videoTitle, trackInfo[property])) {
           return false;
         }
       } else {
-        if (!validation(videoTitle, truth[property])) {
+        if (!validation(videoTitle, trackInfo[property])) {
           return false;
         }
       }
@@ -280,12 +280,12 @@ class BeatportTopFetcher {
     }
 
     // Validate video title with track information
-    let truth = {
+    let trackInfo = {
       artists: queryArtists,
       title: queryTitle,
       remixers: track.remixers,
     };
-    if (!this.dataValidator.validate(videoTitle, truth)) {
+    if (!this.dataValidator.validate(videoTitle, trackInfo)) {
       return null;
     }
 
