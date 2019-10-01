@@ -10,7 +10,7 @@ if (process.argv.length <= 2) {
   process.exit(-1);
 }
 
-const BeatportTopFetcher = require('beatporttopfetcher');
+const BeatportTopFetcher = require('beatport-top-fetcher');
 const models = require(`${__dirname}/../models`);
 const { trackService } = require(`${__dirname}/../services`);
 

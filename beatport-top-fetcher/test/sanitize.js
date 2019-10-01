@@ -1,7 +1,7 @@
 'use strict';
 
 const expect = require('chai').expect;
-const BeatportTopFetcher = require('beatporttopfetcher');
+const BeatportTopFetcher = require('beatport-top-fetcher');
 
 describe('beatport-top-fetcher sanitize queries (from track title & artists) for Youtube search', function() {
   const fetcher = new BeatportTopFetcher();

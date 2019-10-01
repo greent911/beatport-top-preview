@@ -48,10 +48,10 @@ const formatText = (text) => {
 const crawl = (pagelink, type) => {
   return new Promise((resolve, reject) => {
     let crawler = new Crawler({
-      callback : function(error, res, done) {
-        let plainTracks = [];
-        if (error) {
-          reject(error);
+      callback : function(err, res, done) {
+        let tracks = [];
+        if (err) {
+          reject(err);
         } else {
           const $ = res.$;
           $('ul.bucket-items li.bucket-item').each(function(i, elem) {
@@ -60,7 +60,6 @@ const crawl = (pagelink, type) => {
               num: $(elem).find('.buk-track-num').text(),
               type: type,
               title: meta.find('.buk-track-title a').text().replace(/\n/g, '').replace(/ +/g, ' ').trim(),
-              primarytitle: meta.find('.buk-track-title a span.buk-track-primary-title').text().replace(/\n/g, '').replace(/ +/g, ' ').trim(),
               artists: meta.find('.buk-track-artists').text().replace(/\n/g, '').replace(/ +/g, ' ').trim(),
               remixers: meta.find('.buk-track-remixers').text().replace(/\n/g, '').replace(/ +/g, ' ').trim(),
               labels: meta.find('.buk-track-labels').text().replace(/\n/g, '').replace(/ +/g, ' ').trim(),
@@ -69,9 +68,9 @@ const crawl = (pagelink, type) => {
               link: meta.find('.buk-track-title a').attr('href'),
               imglink: $(elem).find('.buk-track-artwork-parent a img.buk-track-artwork').attr('data-src')
             };
-            plainTracks.push(track);
+            tracks.push(track);
           });
-          resolve(plainTracks);
+          resolve(tracks);
         }
         done();
       }
@@ -85,13 +84,13 @@ const crawl = (pagelink, type) => {
  */
 class QuerySanitizer {
   /**
-   * The Sanitizing rule
+   * The sanitizing rule
    * @typedef {Object} Rule
    * @property {string} name The rule name
    * @property {string[]|RegExp[]} filters The filter rules
    */
   /**
-   * Construct with Sanitizing rules
+   * Construct with sanitizing rules
    * @param {Rule[]} rules 
    */
   constructor(rules) {
@@ -107,7 +106,7 @@ class QuerySanitizer {
   }
 
   /**
-   * Return a new string by the Sanitizing rule
+   * Return a new string by the sanitizing rule
    * @param {string} name The rule name
    * @param {string} str The original string
    */
@@ -159,7 +158,7 @@ class DataValidator {
   /**
    * Validate the video title
    * @param {*} videoTitle The video title to be validated
-   * @param {Object} truth The ground truth by property for validation
+   * @param {Object} truth The ground truth with property for validation
    */
   validate(videoTitle, truth) {
     for (const [ property, validator ] of this.validatorMap) {
@@ -207,7 +206,7 @@ class BeatportTopFetcher {
       }
     ]);
 
-    // Set up rules to validate Youtube video data by track properties
+    // Set up rules by track properties to validate Youtube video data
     this.dataValidator = new DataValidator();
     this.dataValidator.add('title', validations.validateTitle);
     this.dataValidator.add('artists', validations.containAtLeastOneArtist);
@@ -313,8 +312,8 @@ class BeatportTopFetcher {
       return [];
     }
     let videoIds = await Promise.all(this.tops.map((track) => this.fetchVideoId(track)));
-    this.tops.forEach((data, index) => {
-      data['video_id'] = videoIds[index];
+    this.tops.forEach((track, index) => {
+      track['video_id'] = videoIds[index];
     });
     return videoIds;
   }

@@ -1,6 +1,6 @@
 'use strict';
 
-const BeatportTopFetcher = require('beatporttopfetcher');
+const BeatportTopFetcher = require('beatport-top-fetcher');
 let key = '';
 let fetcher = new BeatportTopFetcher(key);
 // let track = {
@@ -31,8 +31,8 @@ let track = {
 
 fetcher.tops.push(track);
 
-async function getVideoId() {
+const getVideoId = async () => {
   let data = await fetcher.fetchVideoIds();
   console.log(data);
-}
+};
 getVideoId();

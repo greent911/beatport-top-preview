@@ -1,7 +1,7 @@
 'use strict';
 
 const expect = require('chai').expect;
-const BeatportTopFetcher = require('beatporttopfetcher');
+const BeatportTopFetcher = require('beatport-top-fetcher');
 
 describe('beatport-top-fetcher check the video data is valid for the track data', function() {
   let fetcher = new BeatportTopFetcher();

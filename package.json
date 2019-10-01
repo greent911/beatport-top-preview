@@ -2,7 +2,6 @@
   "name": "beatport-top-preview",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "start": "node ./beatport-top-yt-preview/bin/www",
     "build": "webpack --config ./beatport-top-yt-preview/webpack.config.js",
@@ -10,10 +9,10 @@
     "devstart": "nodemon ./beatport-top-yt-preview/bin/www --ignore ./beatport-top-yt-preview/frontend/ & webpack --watch --devtool source-map --config ./beatport-top-yt-preview/webpack.config.js",
     "nodemon": "nodemon ./beatport-top-yt-preview/bin/www"
   },
-  "author": "Nelson Li",
+  "author": "Nelson Li <greent911@gmail.com> (https://github.com/greent911)",
   "dependencies": {
     "beatport-top-yt-preview": "file:beatport-top-yt-preview",
-    "beatporttopfetcher": "file:beatport-top-fetcher"
+    "beatport-top-fetcher": "file:beatport-top-fetcher"
   },
   "devDependencies": {
     "chai": "*",

@@ -1,12 +1,12 @@
 {
-  "name": "beatporttopfetcher",
+  "name": "beatport-top-fetcher",
   "version": "1.0.0",
   "description": "",
   "main": "src/index.js",
   "scripts": {
     "test": "mocha"
   },
-  "author": "Nelson Li",
+  "author": "Nelson Li <greent911@gmail.com> (https://github.com/greent911)",
   "dependencies": {
     "crawler": "^1.2.0",
     "googleapis": "^37.2.0",

@@ -1,7 +1,7 @@
 'use strict';
 
 const expect = require('chai').expect;
-const BeatportTopFetcher = require('beatporttopfetcher');
+const BeatportTopFetcher = require('beatport-top-fetcher');
 
 describe('beatport-top-fetcher crawls Beatport Top 100', function() {
   describe('Initialize fetcher without google API key:', function() {
