@@ -43,9 +43,13 @@ const formatText = (text) => {
  * Crawl Beatport webpage for top 100 tracks
  * @param {string} pagelink Beatport Top 100's page link to be crawled
  * @param {string} type The label type
+ * @param {string[]} [fields] The fields can be specified for the tracks
  * @returns {Promise<Object[]>} A promise that contains the array of tracks when fulfilled.
  **/
-const crawl = (pagelink, type) => {
+const crawl = (pagelink, type, fields) => {
+  type = type || 'top100';
+  fields = (Array.isArray(fields))? fields: ['num', 'type', 'title', 'artists', 'remixers', 'labels', 'genre', 'released', 'link', 'imglink'];
+
   return new Promise((resolve, reject) => {
     let crawler = new Crawler({
       callback : function(err, res, done) {
@@ -56,7 +60,7 @@ const crawl = (pagelink, type) => {
           const $ = res.$;
           $('ul.bucket-items li.bucket-item').each(function(i, elem) {
             let meta = $(elem).find('.buk-track-meta-parent');
-            let track = {
+            let plainTrack = {
               num: $(elem).find('.buk-track-num').text(),
               type: type,
               title: meta.find('.buk-track-title a').text().replace(/\n/g, '').replace(/ +/g, ' ').trim(),
@@ -68,7 +72,11 @@ const crawl = (pagelink, type) => {
               link: meta.find('.buk-track-title a').attr('href'),
               imglink: $(elem).find('.buk-track-artwork-parent a img.buk-track-artwork').attr('data-src')
             };
-            tracks.push(track);
+
+            tracks.push(fields.reduce((track, field) => {
+              track[field] = plainTrack[field];
+              return track;
+            }, {}));
           });
           resolve(tracks);
         }
@@ -106,7 +114,7 @@ class QuerySanitizer {
   }
 
   /**
-   * Return a new string by the sanitizing rule
+   * Return a new string after sanitizing
    * @param {string} name The rule name
    * @param {string} str The original string
    */
@@ -296,10 +304,11 @@ class BeatportTopFetcher {
    * Crawl Beatport webpage for top 100 tracks
    * @param {string} link Beatport Top 100's page link to be crawled
    * @param {string} type The label type
+   * @param {string[]} [fields] The fields can be specified for the tracks
    * @returns {Promise<Object[]>} A promise that contains the array of tracks when fulfilled.
    */
-  async crawl(link, type='top100') {
-    this.tops = await crawl(link, type);
+  async crawl(link, type, fields) {
+    this.tops = await crawl(link, type, fields);
     return this.tops.map((track) => ({...track}));
   }
 
@@ -319,14 +328,32 @@ class BeatportTopFetcher {
   }
   
   /**
+   * The top track
+   * @typedef {Object} Track
+   * @property {number} [num] The track's top rank number
+   * @property {string} [type] The track's label type
+   * @property {string} [title] The track's title
+   * @property {string} [artists] The track's artist(s)
+   * @property {string} [remixers] The track's remixer(s)
+   * @property {string} [labels] The track's label(s)
+   * @property {string} [genre] The track's genre
+   * @property {string} [released] The track's released Date, YYYY-MM-DD
+   * @property {string} [link] The track's page relative link on Beatport
+   * @property {string} [imglink] The track's album artwork image link
+   * @property {string} [video_id] The track's Youtube video ID
+   */
+  /**
    * Fetch top 100 tracks
    * @param {string} link Beatport Top 100's page link to be crawled
    * @param {string} type The label type
-   * @returns {Promise<Object[]>} A promise that contains the array of tracks with video IDs when fulfilled.
+   * @param {string[]} [fields] The fields can be specified for the tracks
+   * @returns {Promise<Track[]>} A promise that contains the array of tracks with video IDs when fulfilled.
    */
-  async fetchTracks(link, type='top100') {
-    await this.crawl(link, type);
-    await this.fetchVideoIds();
+  async fetchTracks(link, type, fields) {
+    await this.crawl(link, type, fields);
+    if (!Array.isArray(fields) || fields.includes('video_id')) {
+      await this.fetchVideoIds();
+    }
     return this.tops.map((track) => ({...track}));
   }
 }
