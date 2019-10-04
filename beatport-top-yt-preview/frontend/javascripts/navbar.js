@@ -67,7 +67,7 @@ class Navbar extends Base {
     return this.minWidth;
   }
   async _setTypes() {
-    let url = '/types';
+    let url = '/api/types';
     let request = await ajaxRequest(url);
     let types = JSON.parse(request.response);
     types.forEach((type) => {

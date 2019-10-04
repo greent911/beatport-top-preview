@@ -214,7 +214,7 @@ class Content extends Base {
   async getTracks() {
     const urlParams = new URLSearchParams(window.location.search);
     let type = urlParams.get('type');
-    let url = '/tracks/' + ((type)? type: '');
+    let url = '/api/tracks/' + ((type)? type: '');
     let request = await ajaxRequest(url);
     return JSON.parse(request.response);
   }

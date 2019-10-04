@@ -5,8 +5,8 @@ const path = require('path');
 
 const router = express.Router();
 
-router.use('/tracks', require('./tracks.js'));
-router.use('/types', require('./types.js'));
+router.use('/api/tracks', require('./tracks.js'));
+router.use('/api/types', require('./types.js'));
 
 /* GET home page. */
 router.use('/beatport', (req, res) => {
