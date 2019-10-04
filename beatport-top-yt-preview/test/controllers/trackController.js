@@ -22,7 +22,7 @@ describe('Track controller', function() {
     sinon.restore();
   });
 
-  it('When request with incorrect format, should respond validation error', function(done) {
+  it('When path is not in a correct format, should respond validation error', function(done) {
     let req  = httpMocks.createRequest({
       method: 'GET',
       url: '/vsvdsvd-',
@@ -46,7 +46,7 @@ describe('Track controller', function() {
     router.handle(req, res);
   });
 
-  it('When request with correct format, should pass validation', function(done) {
+  it('When path is in a correct format, should pass validation', function(done) {
     let stub = sinon.stub(trackService, 'getTracksByType');
     let req  = httpMocks.createRequest({
       method: 'GET',
@@ -61,6 +61,80 @@ describe('Track controller', function() {
       try {
         sinon.assert.calledOnce(stub);
         sinon.assert.calledWith(stub, 'psy-trance');
+        expect(json).to.have.lengthOf(0);
+        done();
+      } catch (err) {
+        // Catch mocha’s failure message
+        done(err);
+      }
+    });
+
+    router.handle(req, res);
+  });
+
+  it('When query string is not in a correct format, should respond validation error', function(done) {
+    let req  = httpMocks.createRequest({
+      method: 'GET',
+      url: '/?fields=num,',
+    }); 
+    let res = mockResponse();
+
+    res.on('end', function() {
+      let json = res._getJSONData();
+      console.log(json);
+      try {
+        expect(json).to.have.property('message');
+        expect(json).to.have.property('errors');
+        expect(json.message).to.equal('Request input validation error');
+        done();
+      } catch (err) {
+        // Catch mocha’s failure message
+        done(err);
+      }
+    });
+
+    router.handle(req, res);
+  });
+
+  it('When query string contains incorrect field names, should respond validation error', function(done) {
+    let req  = httpMocks.createRequest({
+      method: 'GET',
+      url: '/?fields=num,nofield',
+    }); 
+    let res = mockResponse();
+
+    res.on('end', function() {
+      let json = res._getJSONData();
+      console.log(json);
+      try {
+        expect(json).to.have.property('message');
+        expect(json).to.have.property('errors');
+        expect(json.message).to.equal('Request input validation error');
+        done();
+      } catch (err) {
+        // Catch mocha’s failure message
+        done(err);
+      }
+    });
+
+    router.handle(req, res);
+  });
+
+  it('When path with query string is in a correct format, should pass validation', function(done) {
+    let stub = sinon.stub(trackService, 'getTracksByType');
+    let req  = httpMocks.createRequest({
+      method: 'GET',
+      url: '/psy-trance?fields=num,title',
+    }); 
+    let res = mockResponse();
+
+    stub.returns(Promise.resolve([]));
+    res.on('end', function() {
+      let json = res._getJSONData();
+      console.log(json);
+      try {
+        sinon.assert.calledOnce(stub);
+        sinon.assert.calledWith(stub, 'psy-trance', ['num', 'title']);
         expect(json).to.have.lengthOf(0);
         done();
       } catch (err) {

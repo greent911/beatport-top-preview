@@ -2,7 +2,6 @@
 
 const { DatabaseError } = require('./../../errors');
 const models = require('./../../models');
-const utils = require('./../../utils');
 
 /**
  * The top track
@@ -22,13 +21,14 @@ const utils = require('./../../utils');
  * @property {string} [updated_at] The number row data's updated date (Auto-inserted by sequelize bulkCreate())
  */
 /**
- * @param {*} type
+ * @param {string} type The type
+ * @param {string[]} [fields] The data fields can be specified (Default is all fields)
  * @returns {Promise<Track[]>} A promise that contains the array of tracks when fulfilled.
  * @throws {DatabaseError}
  */
-const getTracksByType = async (type) => {
+const getTracksByType = async (type, fields) => {
   try {
-    let tracks = await models['top_track'].getByType(utils.parseString(type));
+    let tracks = await models['top_track'].getByType(type, fields);
     return tracks;
   } catch (err) {
     throw new DatabaseError(err.message, err);

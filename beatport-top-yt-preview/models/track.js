@@ -43,16 +43,27 @@ module.exports = (sequelize, DataTypes) => {
 
   /**
    * Get tracks by type
+   * @param {string} type
+   * @param {string[]|Object} [attributes]
    * @returns {Promise<Object[]>}
    */
-  Track.getByType = (type) => {
-    return sequelize.query(
-      'SELECT num, type, title, artists, remixers, labels, genre, released, link, imglink, video_id, created_at, updated_at ' +
-        'FROM top_tracks ' + 
-       'WHERE type = :type ' + 
-         'AND num BETWEEN 1 AND 100 ' + 
-       'ORDER BY num ASC;',
-      {replacements: { type: type }, type: sequelize.QueryTypes.SELECT, logging: logger.info});
+  Track.getByType = (type, attributes) => {
+    let options = {
+      where: {
+        type: type,
+        num: {
+          [sequelize.Op.between]: [1, 100]
+        }
+      },
+      order: [['num', 'ASC']],
+      logging: logger.info
+    };
+
+    if (attributes) {
+      options.attributes = attributes;
+    }
+
+    return Track.findAll(options);
   };
 
   /**
