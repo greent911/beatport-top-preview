@@ -18,9 +18,8 @@ describe('beatport-top-fetcher crawls Beatport Top 100', function() {
     
     it('datalist should be 100 length after crawled', async function() {
       let link = 'https://www.beatport.com/top-100';
-      let type = 'top100';
 
-      let datalist = await fetcher.crawl(link, type);
+      let datalist = await fetcher.crawl(link);
 
       expect(datalist).to.have.lengthOf(100);
       expect(fetcher.tops).to.have.lengthOf(100);

@@ -10,19 +10,20 @@ const schedule = require('node-schedule');
 const logger = require('./../utils/logger');
 
 /**
- * @param {string} cronTime The Cron time format define frequency of actions
- * @param {*} key The Youtube API key to fetch data on Youtube
- * @param {*} type The label type
- * @param {*} link Beatport Top 100's page link to be crawled
+ * @param {Object} settings
+ * @param {string} settings.cronTime The Cron time format define frequency of actions
+ * @param {*} settings.key The Youtube API key to fetch data on Youtube
+ * @param {*} settings.pagelink Beatport Top 100's page link to be crawled
+ * @param {*} settings.type The label type
  */
-const createFetchingJob = (cronTime, key, type, link) => {
+const createFetchingJob = ({ cronTime, key, pagelink, type }) => {
   logger.info(`Scheduling job with cron format: ${cronTime}`);
-  logger.info(`Creating the cron job to fetch '${type}' tracks from ${link} with Youtube API key: ${key}`);
+  logger.info(`Creating the cron job to fetch '${type}' tracks from ${pagelink} with Youtube API key: ${key}`);
   return schedule.scheduleJob(cronTime, () => {
     logger.info(`Start job to fetch '${type}' tracks`);
     debug(cronTime);
     logger.info('Start child process ' + moment().format());
-    const child = fork('fetch.js', [key, type, link], {
+    const child = fork('fetch.js', [key, pagelink, type], {
       silent: true,
       cwd: `${__dirname}`
     });
@@ -57,9 +58,9 @@ const createFetchingJob = (cronTime, key, type, link) => {
 const setupFetchingJobs = (config) => {
   let jobs = [];
   Object.keys(config).forEach((type) => {
-    let {cronTime, key, link} = config[type];
-    if (cronTime && key && link) {
-      jobs.push(createFetchingJob(cronTime, key, type, link));
+    let {cronTime, key, link: pagelink} = config[type];
+    if (cronTime && key && pagelink) {
+      jobs.push(createFetchingJob({cronTime, key, pagelink, type}));
     }
   });
   return jobs;

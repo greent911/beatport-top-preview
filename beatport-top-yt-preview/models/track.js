@@ -2,6 +2,9 @@
 
 const logger = require('../utils/logger');
 
+/**
+ * The top track is a record of top 100 tracks
+ */
 module.exports = (sequelize, DataTypes) => {
   const Track = sequelize.define('top_track', {
     num: {
@@ -42,9 +45,9 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   /**
-   * Get tracks by type
-   * @param {string} type
-   * @param {string[]|Object} [attributes]
+   * Get top tracks by type
+   * @param {string} type The type of top track data
+   * @param {string[]|Object} [attributes] Sequelize model's options of attributes
    * @returns {Promise<Object[]>}
    */
   Track.getByType = (type, attributes) => {
@@ -67,7 +70,7 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   /**
-   * Update or Insert tracks
+   * Update or insert top tracks
    * @param {Object[]} tracks
    */
   Track.upsert = (tracks) => {

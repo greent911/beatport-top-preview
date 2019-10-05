@@ -42,13 +42,11 @@ const formatText = (text) => {
 /** 
  * Crawl Beatport webpage for top 100 tracks
  * @param {string} pagelink Beatport Top 100's page link to be crawled
- * @param {string} type The label type
- * @param {string[]} [fields] The fields can be specified for the tracks
+ * @param {string[]} [fields] The fields can be specified (All fields are included by default)
  * @returns {Promise<Object[]>} A promise that contains the array of tracks when fulfilled.
  **/
-const crawl = (pagelink, type, fields) => {
-  type = type || 'top100';
-  fields = (Array.isArray(fields))? fields: ['num', 'type', 'title', 'artists', 'remixers', 'labels', 'genre', 'released', 'link', 'imglink'];
+const crawl = (pagelink, fields) => {
+  fields = (Array.isArray(fields))? fields: ['num', 'title', 'artists', 'remixers', 'labels', 'genre', 'released', 'link', 'imglink'];
 
   return new Promise((resolve, reject) => {
     let crawler = new Crawler({
@@ -62,7 +60,6 @@ const crawl = (pagelink, type, fields) => {
             let meta = $(elem).find('.buk-track-meta-parent');
             let plainTrack = {
               num: $(elem).find('.buk-track-num').text(),
-              type: type,
               title: meta.find('.buk-track-title a').text().replace(/\n/g, '').replace(/ +/g, ' ').trim(),
               artists: meta.find('.buk-track-artists').text().replace(/\n/g, '').replace(/ +/g, ' ').trim(),
               remixers: meta.find('.buk-track-remixers').text().replace(/\n/g, '').replace(/ +/g, ' ').trim(),
@@ -152,12 +149,12 @@ class DataValidator {
 
   /**
    * Add a validation rule
-   * @param {string} property The object property be used to validate
+   * @param {string} field The object field be used to validate
    * @param {Function} validation The validation rule
-   * @param {boolean} nullable If is true, will not validate when the property's value is null
+   * @param {boolean} nullable If is true, will not validate when the field's value is null
    */
-  add(property, validation, nullable=false) {
-    this.validatorMap.set(property, {
+  add(field, validation, nullable=false) {
+    this.validatorMap.set(field, {
       validation,
       nullable,
     });
@@ -166,17 +163,17 @@ class DataValidator {
   /**
    * Validate the video title
    * @param {string} videoTitle The video title to be validated
-   * @param {Object} trackInfo The track information with property for validation
+   * @param {Object} trackInfo The track information with fields for validation
    */
   validate(videoTitle, trackInfo) {
-    for (const [ property, validator ] of this.validatorMap) {
+    for (const [ field, validator ] of this.validatorMap) {
       const { validation, nullable } = validator;
       if (nullable) {
-        if (trackInfo[property] && !validation(videoTitle, trackInfo[property])) {
+        if (trackInfo[field] && !validation(videoTitle, trackInfo[field])) {
           return false;
         }
       } else {
-        if (!validation(videoTitle, trackInfo[property])) {
+        if (!validation(videoTitle, trackInfo[field])) {
           return false;
         }
       }
@@ -193,7 +190,7 @@ class BeatportTopFetcher {
    * @param {string} key Youtube API key
    */
   constructor(key) {
-    // Initialize top tracks array
+    // Initialize top 100 tracks array
     this.tops = [];
 
     // Set up Youtube API
@@ -214,7 +211,7 @@ class BeatportTopFetcher {
       }
     ]);
 
-    // Set up rules by track properties to validate Youtube video data
+    // Set up rules by track fields to validate Youtube video data
     this.dataValidator = new DataValidator();
     this.dataValidator.add('title', validations.validateTitle);
     this.dataValidator.add('artists', validations.containAtLeastOneArtist);
@@ -302,13 +299,12 @@ class BeatportTopFetcher {
 
   /**
    * Crawl Beatport webpage for top 100 tracks
-   * @param {string} link Beatport Top 100's page link to be crawled
-   * @param {string} type The label type
+   * @param {string} pagelink Beatport Top 100's page link to be crawled
    * @param {string[]} [fields] The fields can be specified for the tracks
    * @returns {Promise<Object[]>} A promise that contains the array of tracks when fulfilled.
    */
-  async crawl(link, type, fields) {
-    this.tops = await crawl(link, type, fields);
+  async crawl(pagelink, fields) {
+    this.tops = await crawl(pagelink, fields);
     return this.tops.map((track) => ({...track}));
   }
 
@@ -328,10 +324,9 @@ class BeatportTopFetcher {
   }
   
   /**
-   * The top track
+   * The track data fields
    * @typedef {Object} Track
    * @property {number} [num] The track's top rank number
-   * @property {string} [type] The track's label type
    * @property {string} [title] The track's title
    * @property {string} [artists] The track's artist(s)
    * @property {string} [remixers] The track's remixer(s)
@@ -344,13 +339,12 @@ class BeatportTopFetcher {
    */
   /**
    * Fetch top 100 tracks
-   * @param {string} link Beatport Top 100's page link to be crawled
-   * @param {string} type The label type
-   * @param {string[]} [fields] The fields can be specified for the tracks
+   * @param {string} pagelink Beatport Top 100's page link to be crawled
+   * @param {string[]} [fields] The fields can be specified (All fields are included by default)
    * @returns {Promise<Track[]>} A promise that contains the array of tracks with video IDs when fulfilled.
    */
-  async fetchTracks(link, type, fields) {
-    await this.crawl(link, type, fields);
+  async fetchTracks(pagelink, fields) {
+    await this.crawl(pagelink, fields);
     if (!Array.isArray(fields) || fields.includes('video_id')) {
       await this.fetchVideoIds();
     }
