@@ -1,24 +1,24 @@
 'use strict';
 
 /**
- * scheduler.js: job scheduler for fetching tracks
+ * The job scheduler for fetching tracks
  */
 const { fork } = require('child_process');
-const debug = require('debug')('beatport-top-yt-preview:scheduler');
+const debug = require('debug')('beatport-top-yt-preview:fetchScheduler');
 const moment = require('moment');
 const schedule = require('node-schedule');
-const logger = require('./../utils/logger');
+const logger = require('../utils/logger');
 
 /**
  * @param {Object} settings
  * @param {string} settings.cronTime The Cron time format define frequency of actions
- * @param {*} settings.key The Youtube API key to fetch data on Youtube
+ * @param {*} settings.key The Youtube Data API key to fetch data on Youtube
  * @param {*} settings.pagelink Beatport Top 100's page link to be crawled
- * @param {*} settings.type The label type
+ * @param {*} settings.type The configuration type
  */
 const createFetchingJob = ({ cronTime, key, pagelink, type }) => {
   logger.info(`Scheduling job with cron format: ${cronTime}`);
-  logger.info(`Creating the cron job to fetch '${type}' tracks from ${pagelink} with Youtube API key: ${key}`);
+  logger.info(`Creating the cron job to fetch '${type}' tracks from ${pagelink} with Youtube Data API key: ${key}`);
   return schedule.scheduleJob(cronTime, () => {
     logger.info(`Start job to fetch '${type}' tracks`);
     debug(cronTime);
@@ -53,7 +53,7 @@ const createFetchingJob = ({ cronTime, key, pagelink, type }) => {
  * @property {string} link
  */
 /**
- * @param {Object.<string, FetchConfig} config Configured objects with fetch types as object keys
+ * @param {Object.<string, FetchConfig} config The configured settings with different types
  */
 const setupFetchingJobs = (config) => {
   let jobs = [];

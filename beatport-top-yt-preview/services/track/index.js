@@ -29,7 +29,7 @@ const models = require('./../../models');
  * @returns {Promise<TopTrack[]>} A promise that contains the array of top tracks when fulfilled.
  * @throws {DatabaseError}
  */
-const getTracksByType = async (type, fields) => {
+const getTopTracksByType = async (type, fields) => {
   try {
     let tracks = await models['top_track'].getByType(type, fields);
     return tracks;
@@ -41,13 +41,13 @@ const getTracksByType = async (type, fields) => {
 /**
  * Fetch top tracks from Beatport and Youtube
  * @param {Object} settings
- * @param {string} settings.key Youtube API key
+ * @param {string} settings.key Youtube Data API key
  * @param {string} settings.pagelink Beatport top 100's page link to be crawled
  * @param {string} [settings.type] The type of top track data
  * @param {string[]} [settings.fields] The data fields can be specified (All fields are included by default)
  * @returns {Promise<TopTrack[]>} A promise that contains the array of top tracks when fulfilled.
  */
-const fetchTracks = async ({ key, pagelink, type = 'top100', fields }) => {
+const fetchTopTracks = async ({ key, pagelink, type = 'top100', fields }) => {
   let fetcher = new BeatportTopFetcher(key);
   let tracks;
 
@@ -69,7 +69,7 @@ const fetchTracks = async ({ key, pagelink, type = 'top100', fields }) => {
  * @param {TopTrack[]} tracks 
  * @throws {DatabaseError}
  */
-const upsertTracks = async (tracks) => {
+const upsertTopTracks = async (tracks) => {
   try {
     await models['top_track'].upsert(tracks);
   } catch (err) {
@@ -78,7 +78,7 @@ const upsertTracks = async (tracks) => {
 };
 
 module.exports = {
-  getTracksByType,
-  fetchTracks,
-  upsertTracks
+  getTopTracksByType,
+  fetchTopTracks,
+  upsertTopTracks
 };

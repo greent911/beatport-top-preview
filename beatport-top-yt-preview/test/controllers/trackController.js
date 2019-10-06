@@ -47,7 +47,7 @@ describe('Track controller', function() {
   });
 
   it('When path is in a correct format, should pass validation', function(done) {
-    let stub = sinon.stub(trackService, 'getTracksByType');
+    let stub = sinon.stub(trackService, 'getTopTracksByType');
     let req  = httpMocks.createRequest({
       method: 'GET',
       url: '/psy-trance',
@@ -121,7 +121,7 @@ describe('Track controller', function() {
   });
 
   it('When path with query string is in a correct format, should pass validation', function(done) {
-    let stub = sinon.stub(trackService, 'getTracksByType');
+    let stub = sinon.stub(trackService, 'getTopTracksByType');
     let req  = httpMocks.createRequest({
       method: 'GET',
       url: '/psy-trance?fields=num,title',
@@ -147,7 +147,7 @@ describe('Track controller', function() {
   });
 
   it('When request with no parameter, should use the default one', function(done) {
-    let stub = sinon.stub(trackService, 'getTracksByType');
+    let stub = sinon.stub(trackService, 'getTopTracksByType');
     let req  = httpMocks.createRequest({
       method: 'GET',
       url: '/',

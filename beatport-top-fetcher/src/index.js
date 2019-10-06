@@ -187,7 +187,7 @@ class DataValidator {
  */
 class BeatportTopFetcher {
   /**
-   * @param {string} key Youtube API key
+   * @param {string} key Youtube Data API key
    */
   constructor(key) {
     // Initialize top 100 tracks array

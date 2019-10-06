@@ -11,7 +11,7 @@ const trackFields = ['num', 'type', 'title', 'artists',
   'imglink', 'video_id', 'created_at', 'updated_at'];
 
 /**
- * Returns the tracks
+ * Handle a request for the tracks
  * @type {Function[]} Request handler middlewares
  */
 const getTracks = [
@@ -24,7 +24,7 @@ const getTracks = [
       .optional().isString().matches(/^[a-zA-Z0-9]+$|^[a-zA-Z0-9]+[a-zA-Z0-9-]*[a-zA-Z0-9]+$/)
       .withMessage('incorrect format'),
 
-    // If fields exist from query string
+    // If fields exist from query string, fields must contain only lowercase letters, numbers and bottom lines (can be connected with commas)
     query('fields')
       .optional().isString().matches(/^[a-z0-9_]+$|^[a-z0-9_]+[a-z0-9_,]*[a-z0-9_]+$/)
       .withMessage('incorrect format').bail()
@@ -57,7 +57,7 @@ const getTracks = [
     let { fields } = req.query;
     debug(`fields: ${fields}`);
     try {
-      let tracks = await trackService.getTracksByType(type, fields);
+      let tracks = await trackService.getTopTracksByType(type, fields);
       return res.json(tracks);
     } catch (err) {
       return next(err);

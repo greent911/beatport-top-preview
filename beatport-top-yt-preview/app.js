@@ -7,7 +7,7 @@ const morgan = require('morgan');
 const path = require('path');
 
 const fetchConfig = require('./config').fetch;
-const scheduler = require('./core/scheduler');
+const fetchScheduler = require('./core/fetchScheduler');
 const logger = require('./utils/logger');
 const notFoundHandler = require('./middlewares/notFoundHandler');
 const errorHandler = require('./middlewares/errorHandler');
@@ -30,7 +30,7 @@ sequelize
   });
 
 // Fetching job schedule setup
-scheduler.setupFetchingJobs(fetchConfig);
+fetchScheduler.setupFetchingJobs(fetchConfig);
 
 app.set('strict routing', true);
 app.use(helmet());

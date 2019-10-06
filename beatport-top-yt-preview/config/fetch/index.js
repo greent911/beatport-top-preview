@@ -8,12 +8,12 @@ let config = require(`./${env}`);
 /**
  * @typedef {Object} FetchConfig
  * @property {string} cronTime The Cron time format define frequency of actions 
- * @property {string} key The Youtube API key to fetch data on Youtube
+ * @property {string} key The Youtube Data API key to fetch data on Youtube
  * @property {string} link Beatport Top 100's page link to be crawled
  */
 /**
- * The fetching data configuration based on environment (development | test | production)
- * @type {Object.<string, FetchConfig>} Using label types for configuring objects
+ * The configuration of fetching tracks based on the environment (development | test | production)
+ * @type {Object.<string, FetchConfig>} Configuring different types of settings
  * 
  * Format:
  * {

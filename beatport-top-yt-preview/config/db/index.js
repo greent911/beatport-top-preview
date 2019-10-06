@@ -11,7 +11,7 @@ const env = process.env.NODE_ENV || 'development';
  * @property {boolean} operatorsAliases Enable Sequelize's symbol operators
  */
 /**
- * DB configuration based on environment (development | test | production)
+ * Database configuration based on the environment (development | test | production)
  * @type {DBConfig}
  */
 module.exports = require(`./${env}`);
