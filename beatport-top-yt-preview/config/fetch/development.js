@@ -2,83 +2,83 @@
 
 module.exports = {
   'top100': {
-    'cronTime': process.env.GENRE_TOP100_CRONSTR || '0 0 0 * * *',
-    'key': process.env.GENRE_TOP100_KEY
+    'cronTime': process.env.FETCH_TOP100_CRONTIME || '0 0 0 * * *',
+    'key': process.env.FETCH_TOP100_KEY
   },
   'afro-house': {
-    'cronTime': process.env.GENRE_AFROHOUSE_CRONSTR,
-    'key': process.env.GENRE_AFROHOUSE_KEY
+    'cronTime': process.env.FETCH_AFROHOUSE_CRONTIME,
+    'key': process.env.FETCH_AFROHOUSE_KEY
   },
   'bass-house': {
-    'cronTime': process.env.GENRE_BASSHOUSE_CRONSTR,
-    'key': process.env.GENRE_BASSHOUSE_KEY
+    'cronTime': process.env.FETCH_BASSHOUSE_CRONTIME,
+    'key': process.env.FETCH_BASSHOUSE_KEY
   },
   'big-room': {
-    'cronTime': process.env.GENRE_BIGROOM_CRONSTR,
-    'key': process.env.GENRE_BIGROOM_KEY
+    'cronTime': process.env.FETCH_BIGROOM_CRONTIME,
+    'key': process.env.FETCH_BIGROOM_KEY
   },
   'deep-house': {
-    'cronTime': process.env.GENRE_DEEPHOUSE_CRONSTR,
-    'key': process.env.GENRE_DEEPHOUSE_KEY
+    'cronTime': process.env.FETCH_DEEPHOUSE_CRONTIME,
+    'key': process.env.FETCH_DEEPHOUSE_KEY
   },
   'drum-and-bass': {
-    'cronTime': process.env.GENRE_DRUMBASS_CRONSTR,
-    'key': process.env.GENRE_DRUMBASS_KEY
+    'cronTime': process.env.FETCH_DRUMBASS_CRONTIME,
+    'key': process.env.FETCH_DRUMBASS_KEY
   },
   'dubstep': {
-    'cronTime': process.env.GENRE_DUBSTEP_CRONSTR,
-    'key': process.env.GENRE_DUBSTEP_KEY
+    'cronTime': process.env.FETCH_DUBSTEP_CRONTIME,
+    'key': process.env.FETCH_DUBSTEP_KEY
   },
   'electro-house': {
-    'cronTime': process.env.GENRE_ELECTROHOUSE_CRONSTR,
-    'key': process.env.GENRE_ELECTROHOUSE_KEY
+    'cronTime': process.env.FETCH_ELECTROHOUSE_CRONTIME,
+    'key': process.env.FETCH_ELECTROHOUSE_KEY
   },
   'electronica-downtempo': {
-    'cronTime': process.env.GENRE_DOWNTEMPO_CRONSTR,
-    'key': process.env.GENRE_DOWNTEMPO_KEY
+    'cronTime': process.env.FETCH_DOWNTEMPO_CRONTIME,
+    'key': process.env.FETCH_DOWNTEMPO_KEY
   },
   'future-house': {
-    'cronTime': process.env.GENRE_FUTURE_CRONSTR,
-    'key': process.env.GENRE_FUTURE_KEY
+    'cronTime': process.env.FETCH_FUTURE_CRONTIME,
+    'key': process.env.FETCH_FUTURE_KEY
   },
   'hard-dance': {
-    'cronTime': process.env.GENRE_HARDDANCE_CRONSTR,
-    'key': process.env.GENRE_HARDDANCE_KEY
+    'cronTime': process.env.FETCH_HARDDANCE_CRONTIME,
+    'key': process.env.FETCH_HARDDANCE_KEY
   },
   'hardcore-hard-techno': {
-    'cronTime': process.env.GENRE_HARDCORE_CRONSTR,
-    'key': process.env.GENRE_HARDCORE_KEY
+    'cronTime': process.env.FETCH_HARDCORE_CRONTIME,
+    'key': process.env.FETCH_HARDCORE_KEY
   },
   'house': {
-    'cronTime': process.env.GENRE_HOUSE_CRONSTR,
-    'key': process.env.GENRE_HOUSE_KEY
+    'cronTime': process.env.FETCH_HOUSE_CRONTIME,
+    'key': process.env.FETCH_HOUSE_KEY
   },
   'melodic-house-and-techno': {
-    'cronTime': process.env.GENRE_MELODICTECH_CRONSTR,
-    'key': process.env.GENRE_MELODICTECH_KEY
+    'cronTime': process.env.FETCH_MELODICTECH_CRONTIME,
+    'key': process.env.FETCH_MELODICTECH_KEY
   },
   'progressive-house': {
-    'cronTime': process.env.GENRE_PROG_CRONSTR,
-    'key': process.env.GENRE_PROG_KEY
+    'cronTime': process.env.FETCH_PROG_CRONTIME,
+    'key': process.env.FETCH_PROG_KEY
   },
   'psy-trance': {
-    'cronTime': process.env.GENRE_PSYTRANCE_CRONSTR,
-    'key': process.env.GENRE_PSYTRANCE_KEY
+    'cronTime': process.env.FETCH_PSYTRANCE_CRONTIME,
+    'key': process.env.FETCH_PSYTRANCE_KEY
   },
   'tech-house': {
-    'cronTime': process.env.GENRE_TECHHOUSE_CRONSTR,
-    'key': process.env.GENRE_TECHHOUSE_KEY
+    'cronTime': process.env.FETCH_TECHHOUSE_CRONTIME,
+    'key': process.env.FETCH_TECHHOUSE_KEY
   },
   'techno': {
-    'cronTime': process.env.GENRE_TECHNO_CRONSTR,
-    'key': process.env.GENRE_TECHNO_KEY
+    'cronTime': process.env.FETCH_TECHNO_CRONTIME,
+    'key': process.env.FETCH_TECHNO_KEY
   },
   'trance': {
-    'cronTime': process.env.GENRE_TRANCE_CRONSTR,
-    'key': process.env.GENRE_TRANCE_KEY
+    'cronTime': process.env.FETCH_TRANCE_CRONTIME,
+    'key': process.env.FETCH_TRANCE_KEY
   },
   'trap-future-bass': {
-    'cronTime': process.env.GENRE_TRAPFUTURE_CRONSTR,
-    'key': process.env.GENRE_TRAPFUTURE_KEY
+    'cronTime': process.env.FETCH_TRAPFUTURE_CRONTIME,
+    'key': process.env.FETCH_TRAPFUTURE_KEY
   }
 };

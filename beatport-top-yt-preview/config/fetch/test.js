@@ -2,7 +2,7 @@
 
 module.exports = {
   'top100': {
-    'cronTime': process.env.GENRE_TOP100_CRONSTR,
-    'key': process.env.GENRE_TOP100_KEY
+    'cronTime': process.env.FETCH_TOP100_CRONTIME,
+    'key': process.env.FETCH_TOP100_KEY
   }
 };

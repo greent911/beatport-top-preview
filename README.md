@@ -26,14 +26,14 @@ DBCONFIG_PASSWORD=password
 DBCONFIG_DATABASE=database_development
 DBCONFIG_HOST=127.0.0.1
 
-# Youtube Data API keys for tracking genres
-GENRE_TOP100_KEY=<YOUR_API_KEY>
-GENRE_PSYTRANCE_KEY=<YOUR_API_KEY_2>
+# Set up different Youtube Data API keys for fetching track data with different types
+FETCH_TOP100_KEY=<YOUR_API_KEY>
+FETCH_PSYTRANCE_KEY=<YOUR_API_KEY_2>
 
-# Scheduling to fetch genre data with cron format
+# Scheduling to fetch data with cron format
 # Ex: Execute every 22:49
-GENRE_TOP100_CRONSTR=0 49 22 * * *
-GENRE_PSYTRANCE_CRONSTR=0 49 22 * * *
+FETCH_TOP100_CRONTIME=0 49 22 * * *
+FETCH_PSYTRANCE_CRONTIME=0 49 22 * * *
 ```
 #### 4. Install
 ```
