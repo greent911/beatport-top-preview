@@ -7,7 +7,6 @@
   left: 0;
   background-color: #333;
   overflow-x: hidden;
-  /* transition: 0.5s; */
   padding-top: 50px;
   z-index: 999;
 }
@@ -17,7 +16,6 @@
   font-size: medium;
   color: white;
   display: block;
-  /* transition: 0.3s; */
   z-index: 999;
 }
 .sidenav a:hover:not(.close) {
@@ -31,7 +29,7 @@
   padding: 0px 8px 5px 24px;
 }
 
-.navbar {
+.topnav {
   display: flex;
   min-height: 50px;
   max-height: 50px;
@@ -41,7 +39,7 @@
   align-items: center;
   font-weight: bold;
 }
-.navbar a {
+.topnav a {
   color: white;
   padding: 0px 10px;
   text-decoration: none;
@@ -50,33 +48,32 @@
   font-size: smaller;
   line-height: 50px;
 }
-.navbar a.menu {
+.topnav a.menu {
   padding: 0px 24px;
   font-size: 25px;
   display: none;
-  /* display: var(--menuDisplay, 'none'); */
 }
-.navbar a.title {
+.topnav a.title {
   padding: 0px 24px;
   display: flex;
   font-size: 16px;
   color: #94d500;
   font-family: 'Russo One', sans-serif;
 }
-.navbar a.about {
+.topnav a.about {
   padding: 0px 24px;
   font-size: 25px;
   margin-left: auto;
 }
-.navbar a:not(.menu):not(.title):not(.about) {
+.topnav a:not(.menu):not(.title):not(.about) {
   display: inline;
-  display: var(--typeNodeDisplay, 'inline');
+  display: var(--topnavElementDisplay, 'inline');
 }
-.navbar a:hover {
+.topnav a:hover {
   background-color: #ddd;
   color: black;
 }
-.navbar .about-dropdown {
+.topnav .about-dropdown {
   cursor: default;
   display: none;
   position: absolute;
@@ -88,12 +85,12 @@
   z-index: 997;
   text-align: left;
 }
-.navbar .about-dropdown h3 {
+.topnav .about-dropdown h3 {
   font-size: 20px;
   line-height: 20px;
   padding: 0 16px;
 }
-.navbar .about-dropdown p {
+.topnav .about-dropdown p {
   font-size: 12px;
   line-height: 16px;
   white-space: normal;
@@ -101,20 +98,17 @@
 }
 
 @media screen and (max-width: 600px) {
-  /* .navbar a:not(.menu):not(.title):not(.about) {
-    display: none;
-  } */
-  .navbar a.menu {
+  .topnav a.menu {
     display: inline;
   }
-  .navbar a:hover {
+  .topnav a:hover {
     background-color: transparent;
     color: white;
   }
-  .navbar a.title {
+  .topnav a.title {
     padding: 0px 10px;
   }
-  .navbar .about-dropdown {
+  .topnav .about-dropdown {
     width: 100%;
   }
 }

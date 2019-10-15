@@ -2,6 +2,7 @@ import '../stylesheets/all.css'; // Font Awesome css
 import Navbar from './navbar';
 import Content from './content';
 import Footer from './footer';
+import ajaxRequest from './ajaxRequest';
 import '../stylesheets/style.css';
 import '../stylesheets/navbar.css';
 import '../stylesheets/content.css';
@@ -9,19 +10,65 @@ import '../stylesheets/footer.css';
 /* global YT */
 class Main {
   constructor() {
-    this.navbar = new Navbar();
-    this.content = new Content();
-    this.footer = new Footer();
     this.isTouchMoved = false;
     this.isPinTouched = false;
     this.isPlayerInitBuffered = false;
-    this.listen();
-    this.setup();
+
+    this.navbar = null;
+    this.content = null;
+    this.footer = null;
+
+    this.typesUrl = '/api/types';
+    this.tracksUrl = '/api/tracks';
+
+    this.initialize();
+  }
+  async initialize() {
+    console.log('initialize');
+    try {
+      let [types, tracks] = await Promise.all([
+        this.getTypes(), 
+        // this.getTracks(),
+      ]);
+      this.navbar = new Navbar(types);
+
+      // TODO: refactor later
+      this.content = new Content();
+      this.footer = new Footer();
+      this.listen();
+      this.setup();
+
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  async getTypes() {
+    try {
+      let request = await ajaxRequest(this.typesUrl);
+      let types = JSON.parse(request.response);
+      return types;
+    } catch (err) {
+      console.error('Get types data error');
+      throw err;
+    }
+  }
+  async getTracks() {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      let type = urlParams.get('type');
+      let url = this.tracksUrl + '/' + ((type)? type: '');
+      let request = await ajaxRequest(url);
+      let tracks = JSON.parse(request.response);
+      return tracks;
+    } catch (err) {
+      console.error('Get tracks data error');
+      throw err;
+    }
   }
   listen() {
     window.addEventListener('resize', () => {
       console.log('window resize');
-      this.navbar.resizeNodes();
+      this.navbar.adjustDisplayMode();
       if (this.getOrientation() == 'portrait') {
         this.adjustViewHeight();
       }
@@ -57,10 +104,10 @@ class Main {
     this.footer.on(Footer.VOLUME_HID, () => {
       this.hideOverlay();
     });
-    this.navbar.on(Navbar.ABOUT_DIALOG_SHOWED, () => {
+    this.navbar.on(Navbar.ABOUT_SHOWED, () => {
       this.content.openOverlay();
     });
-    this.navbar.on(Navbar.ABOUT_DIALOG_HID, () => {
+    this.navbar.on(Navbar.ABOUT_HID, () => {
       this.hideOverlay();
     });
     this.content.once(Content.CUED, () => {
@@ -105,8 +152,8 @@ class Main {
       if (!this.isMoreMenuClicked(event)) {
         this.footer.hideMoreMenu();
       }
-      if (!this.isAboutDialogClicked(event)) {
-        this.navbar.hideAboutDialog();
+      if (!this.navbar.isAboutClicked(event)) {
+        this.navbar.hideAboutDropdown();
       }
       if (!this.isVolumeClicked(event)) {
         this.footer.hideVolumeControls();
@@ -120,8 +167,8 @@ class Main {
       if (!this.isMoreMenuClicked(event)) {
         this.footer.hideMoreMenu();
       }
-      if (!this.isAboutDialogClicked(event)) {
-        this.navbar.hideAboutDialog();
+      if (!this.navbar.isAboutClicked(event)) {
+        this.navbar.hideAboutDropdown();
       }
       if (!this.isVolumeClicked(event)) {
         this.footer.hideVolumeControls();
@@ -152,16 +199,6 @@ class Main {
     if (event.target != volumeBtn && event.target.parentNode != volumeBtn && event.target.parentNode.parentNode != volumeBtn 
       && event.target != volumeControls && event.target.parentNode != volumeControls
       && event.target.parentNode.parentNode != volumeControls && event.target.parentNode.parentNode.parentNode != volumeControls) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-  isAboutDialogClicked(event) {
-    let about = this.navbar.element['about'];
-    let aboutDropdown = this.navbar.element['aboutDropdown'];
-    if (event.target != about && event.target != aboutDropdown 
-      && event.target.parentNode != about && event.target.parentNode != aboutDropdown) {
       return false;
     } else {
       return true;

@@ -1,10 +1,11 @@
 import Base from './base';
-import ajaxRequest from './ajaxRequest';
+
 class Navbar extends Base {
-  constructor() {
+  constructor(types) {
     super();
+
     this.element = {
-      navbar: document.getElementById('navbar'),
+      topnav: document.getElementById('topnav'),
       about: document.getElementById('about'),
       menu: document.getElementById('menu'),
       close: document.getElementById('close'),
@@ -12,92 +13,106 @@ class Navbar extends Base {
       sidenav: document.getElementById('sidenav'),
       overlay: document.getElementById('overlay'),
     };
-    document.documentElement.style.setProperty('--typeNodeDisplay', 'inline');
-    this._setTypes();
+
+    document.documentElement.style.setProperty('--topnavElementDisplay', 'inline');
+
+    this._setTypeLinkElements(types);
+    this.adjustDisplayMode();
+    this._setEventListeners();
   }
-  listen() {
+  _setTypeLinkElements(types) {
+    types.forEach((type) => {
+      let element = document.createElement('a');
+      element.setAttribute('href', `/beatport?type=${type}`);
+      element.innerHTML = type.toUpperCase();
+      if (type == 'top100') {
+        element.innerHTML = 'BP-TOP-PREVIEV';
+        element.classList.add('title');
+      }
+      this.element['topnav'].insertBefore(element, this.element['about']);  
+
+      let sideElement = document.createElement('a');
+      sideElement.setAttribute('href', `/beatport?type=${type}`);
+      sideElement.innerHTML = type.toUpperCase();
+      this.element['sidenav'].appendChild(sideElement);
+    });
+  }
+  adjustDisplayMode() {
+    let topnavMinWidth = this._topnavMinWidth || this._getTopnavMinWidth();
+    if (topnavMinWidth > window.innerWidth) {
+      // Mobile mode: use sidenav layout
+      this.element['menu'].style.display = 'inline';
+      document.documentElement.style.setProperty('--topnavElementDisplay', 'none');
+    } else {
+      // Desktop mode: use topnav layout
+      this.element['menu'].removeAttribute('style');
+      document.documentElement.style.setProperty('--topnavElementDisplay', 'inline');
+    }
+  }
+  _getTopnavMinWidth() {
+    let aboutIconStyle = this.element['about'].currentStyle || window.getComputedStyle(this.element['about']);
+    let marginLeftValue = aboutIconStyle.marginLeft.replace('px', '');
+    let topnavWidth = this.element['topnav'].scrollWidth;
+    this._topnavMinWidth = parseInt(topnavWidth - marginLeftValue);
+    return this._topnavMinWidth;
+  }
+  _setEventListeners() {
     this.element['menu'].addEventListener('touchend', this._openSidenav.bind(this));
     this.element['menu'].addEventListener('click', this._openSidenav.bind(this));
     this.element['overlay'].addEventListener('touchend', this._closeSidenav.bind(this));
     this.element['overlay'].addEventListener('click', this._closeSidenav.bind(this));
     this.element['close'].addEventListener('touchend', this._closeSidenav.bind(this));
     this.element['close'].addEventListener('click', this._closeSidenav.bind(this));
-    this.element['about'].addEventListener('touchend', this._showHideAboutDialog.bind(this));
-    this.element['about'].addEventListener('click', this._showHideAboutDialog.bind(this));
-    this.element['about'].addEventListener('mouseover', this._showAboutDialog.bind(this));
-    this.element['about'].addEventListener('mouseout', this.hideAboutDialog.bind(this));
+    this.element['about'].addEventListener('touchend', this._showHideAboutDropdown.bind(this));
+    this.element['about'].addEventListener('click', this._showHideAboutDropdown.bind(this));
+    this.element['about'].addEventListener('mouseover', this._showAboutDropdown.bind(this));
+    this.element['about'].addEventListener('mouseout', this.hideAboutDropdown.bind(this));
   }
   _openSidenav(event) {
-    event.preventDefault();
+    event.preventDefault(); // prevent default href action for Anchor tag
     this.element['sidenav'].style.width = '250px';
     this.element['overlay'].style.width = '100%';
     this.element['overlay'].style.opacity = '0.8';
   }
   _closeSidenav(event) {
-    event.preventDefault();
+    event.preventDefault(); // prevent default href action for  Anchor tag
     this.element['sidenav'].removeAttribute('style');
     this.element['overlay'].removeAttribute('style');
   }
-  _showAboutDialog(event) {
-    event.preventDefault();
+  _showAboutDropdown(event) {
+    event.preventDefault(); // prevent default href action for Anchor tag
     this.element['aboutDropdown'].style.display = 'block';
-    this.emit(Navbar.ABOUT_DIALOG_SHOWED);
+    this.emit(Navbar.ABOUT_SHOWED);
   }
-  hideAboutDialog(event) {
-    if (event) event.preventDefault();
+  hideAboutDropdown(event) {
+    if (event) event.preventDefault(); // prevent default href action if click or touch event
     if (event && event.type != 'mouseout' && event.target == this.element['aboutDropdown']) return;
     if (event && event.type != 'mouseout' && event.target.parentNode == this.element['aboutDropdown']) return;
     this.element['aboutDropdown'].removeAttribute('style');
-    this.emit(Navbar.ABOUT_DIALOG_HID);
+    this.emit(Navbar.ABOUT_HID);
   }
-  _showHideAboutDialog(event) {
-    event.preventDefault();
+  _showHideAboutDropdown(event) {
+    event.preventDefault(); // prevent default href action for Anchor tag
     let display = this.element['aboutDropdown'].style.display;
     if (display != 'block') {
-      this._showAboutDialog(event);
+      this._showAboutDropdown(event);
     } else {
-      this.hideAboutDialog(event);
+      this.hideAboutDropdown(event);
     }
   }
-  getMinWidth() {
-    let style = this.element['about'].currentStyle || window.getComputedStyle(this.element['about']);
-    let marginLeftValue = style.marginLeft.replace('px', '');
-    let navbarWidth = this.element['navbar'].scrollWidth;
-    this.minWidth = parseInt(navbarWidth - marginLeftValue);
-    return this.minWidth;
-  }
-  async _setTypes() {
-    let url = '/api/types';
-    let request = await ajaxRequest(url);
-    let types = JSON.parse(request.response);
-    types.forEach((type) => {
-      let typeNode = document.createElement('a');
-      typeNode.setAttribute('href', `/beatport?type=${type}`);
-      typeNode.innerHTML = type.toUpperCase();
-      if (type == 'top100') {
-        typeNode.innerHTML = 'BP-TOP-PREVIEV';
-        typeNode.classList.add('title');
-      }
-      this.element['navbar'].insertBefore(typeNode, this.element['about']);     
-      let typeNodeSide = document.createElement('a');
-      typeNodeSide.setAttribute('href', `/beatport?type=${type}`);
-      typeNodeSide.innerHTML = type.toUpperCase();
-      this.element['sidenav'].appendChild(typeNodeSide);
-    });
-    this.resizeNodes();
-    this.listen();
-  }
-  resizeNodes() {
-    let minWidth = this.minWidth || this.getMinWidth();
-    if (minWidth > window.innerWidth) {
-      this.element['menu'].style.display = 'inline';
-      document.documentElement.style.setProperty('--typeNodeDisplay', 'none');
+  isAboutClicked(event) {
+    let about = this.element['about'];
+    let aboutDropdown = this.element['aboutDropdown'];
+    if (event.target != about && event.target != aboutDropdown 
+      && event.target.parentNode != about && event.target.parentNode != aboutDropdown) {
+      return false;
     } else {
-      this.element['menu'].removeAttribute('style');
-      document.documentElement.style.setProperty('--typeNodeDisplay', 'inline');
+      return true;
     }
   }
 }
-Navbar.ABOUT_DIALOG_SHOWED = 'ABOUT_DIALOG_SHOWED';
-Navbar.ABOUT_DIALOG_HID = 'ABOUT_DIALOG_HID';
+
+Navbar.ABOUT_SHOWED = 'ABOUT_SHOWED';
+Navbar.ABOUT_HID = 'ABOUT_HID';
+
 export default Navbar;
