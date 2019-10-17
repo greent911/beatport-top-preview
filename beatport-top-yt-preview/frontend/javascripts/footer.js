@@ -164,7 +164,6 @@ class Footer extends Base {
         classListM.remove('green');
       }
     }
-    this.player.setShuffle(this.isShuffle);
     this.emit(Footer.SHUFFLE_CLICKED, this.isShuffle);
   }
   togglePlayBack(event) {

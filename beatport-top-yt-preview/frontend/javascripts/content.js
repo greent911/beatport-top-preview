@@ -8,25 +8,27 @@ class Content extends Base {
       content: document.getElementById('content'),
       video: document.getElementById('video'),
       playlist: document.getElementById('playlist'),
+      videoOverlay: null,
     };
+    this._mediaQuery = window.matchMedia('(max-width: 600px)');
 
-    this.mediaQuery = window.matchMedia('(max-width: 600px)');
-    this.playlistTracks = [];
+    this._playlistTracks = [];
+
     this.player = null;
-    this.videoOverlay = null;
-    
-    this.isPlayerInitBuffered = false;
-    this.isShuffle = false;
-    this.initShuffle = false;
+
+    this._isRepeat = false;
+    this._firstBuffering = false;
+    this._isShuffle = false;
+    this._isShuffleMapSet = false;
+
     this.clickedNodeIdx = -1;
-    this.isRepeat = false;
 
     this.adjustDisplayMode();
     this._setPlayer(tracks);
     this._setEventListeners();
   }
   adjustDisplayMode() {
-    if (this.mediaQuery.matches) {
+    if (this._mediaQuery.matches) {
       // Mobile mode (window max-width <= 600px)
       document.body.appendChild(this.element['playlist']);
     } else {
@@ -49,11 +51,11 @@ class Content extends Base {
   }
   _setEventListeners() {
     // Listen if matches the media query
-    this.mediaQuery.addListener(this.adjustDisplayMode.bind(this));
+    this._mediaQuery.addListener(this.adjustDisplayMode.bind(this));
   }
   _initializePlayer(tracks) {
-    this.playlistTracks = tracks.filter((track) => track['video_id'] != null);
-    let videoIds = this.playlistTracks.map((track) => track['video_id']);
+    this._playlistTracks = tracks.filter((track) => track['video_id'] != null);
+    let videoIds = this._playlistTracks.map((track) => track['video_id']);
 
     window.onYouTubeIframeAPIReady = () => {
       console.log('YouTube Iframe API Ready');
@@ -93,7 +95,7 @@ class Content extends Base {
       }
       console.log('Youtube Player Ready');
 
-      this.playlistTracks.forEach((track, i) => {
+      this._playlistTracks.forEach((track, i) => {
         let {num, title, artists, imglink, video_id: videoId} = track;
         let artistsNode = document.createElement('div');
         artistsNode.innerHTML = artists;
@@ -120,13 +122,13 @@ class Content extends Base {
         trackNode.addEventListener('touchend', (event) => {
           // Solution for Opera mini issue: loading stuck for the first time after touchended
           // Pass to click event listener
-          if (!this.isPlayerInitBuffered) {
+          if (!this._firstBuffering) {
             return;
           }
 
           event.preventDefault();
-          if (this.isShuffle) {
-            if (this.initShuffle) {
+          if (this._isShuffle) {
+            if (this._isShuffleMapSet) {
               this.player.playVideoAt(this.shuffleIdxMap.get(i));
             } else {
               // Youtube playlist data is only updated when BUFFERING state start.
@@ -142,8 +144,8 @@ class Content extends Base {
         });
         trackNode.addEventListener('click', (event) => {
           event.preventDefault();
-          if (this.isShuffle) {
-            if (this.initShuffle) {
+          if (this._isShuffle) {
+            if (this._isShuffleMapSet) {
               this.player.playVideoAt(this.shuffleIdxMap.get(i));
             } else {
               this.clickedNodeIdx = i;
@@ -174,7 +176,8 @@ class Content extends Base {
       let playerState = event.data;
       console.log(playerState);
       if (playerState == YT.PlayerState.BUFFERING) {
-        if (this.isShuffle && !this.initShuffle) {
+        if (!this._firstBuffering) this._firstBuffering = true;
+        if (this._isShuffle && !this._isShuffleMapSet) {
           this.setShuffleMap();
           if (this.clickedNodeIdx >= 0) {
             this.player.playVideoAt(this.shuffleIdxMap.get(this.clickedNodeIdx));
@@ -183,12 +186,12 @@ class Content extends Base {
           }
         }
         let playlistIdx = event.target.getPlaylistIndex();
-        if (this.isShuffle) {
+        if (this._isShuffle) {
           playlistIdx = this.shuffleToOriginIdxMap.get(playlistIdx);
         }
-        let track = this.playlistTracks[playlistIdx];
+        let track = this._playlistTracks[playlistIdx];
         let videoId = track['video_id'];
-        let videoIds = this.playlistTracks.map((track) => track['video_id']);
+        let videoIds = this._playlistTracks.map((track) => track['video_id']);
         videoIds.forEach((id, i) => {
           document.getElementById(`${id}-${i}`).style.backgroundColor = (id==videoId && i==playlistIdx)? '#e6f596': '';
         });
@@ -205,7 +208,7 @@ class Content extends Base {
       } else if (playerState == YT.PlayerState.CUED) {
         this.emit(Content.CUED);
       } else if (playerState == YT.PlayerState.ENDED) {
-        if (this.isRepeat) {
+        if (this._isRepeat) {
           this.player.stopVideo();
           this.player.previousVideo();
         }
@@ -220,33 +223,43 @@ class Content extends Base {
     videoOverlay.setAttribute('class', 'video-overlay');
     videoOverlay.setAttribute('id', 'video-overlay');
     this.element['video'].appendChild(videoOverlay);
-    this.videoOverlay = document.getElementById('video-overlay');
-    this.videoOverlay.addEventListener('touchend', (event) => {
+    this.element['videoOverlay'] = document.getElementById('video-overlay');
+    this.element['videoOverlay'].addEventListener('touchend', (event) => {
       event.preventDefault();
-      this.videoOverlay.removeAttribute('style');
+      this.element['videoOverlay'].removeAttribute('style');
       this.emit(Content.OVERLAY_CLICKED);
     });
-    this.videoOverlay.addEventListener('click', (event) => {
+    this.element['videoOverlay'].addEventListener('click', (event) => {
       event.preventDefault();
-      this.videoOverlay.removeAttribute('style');
+      this.element['videoOverlay'].removeAttribute('style');
       this.emit(Content.OVERLAY_CLICKED);
     });
   }
   openOverlay() {
-    if (this.videoOverlay) {
-      this.videoOverlay.style.display = 'block';
+    if (this.element['videoOverlay']) {
+      this.element['videoOverlay'].style.display = 'block';
     }
   }
   hideOverlay() {
-    if (this.videoOverlay) {
-      this.videoOverlay.removeAttribute('style');
+    if (this.element['videoOverlay']) {
+      this.element['videoOverlay'].removeAttribute('style');
+    }
+  }
+  setRepeat(isRepeat) {
+    this._isRepeat = isRepeat;
+  }
+  setShuffle(isShuffle) {
+    this.player.setShuffle(isShuffle); // If true, change the video IDs order
+    this._isShuffle = isShuffle;
+    if (!isShuffle) {
+      this._isShuffleMapSet = false;
     }
   }
   setShuffleMap() {
-    if (this.isShuffle && !this.initShuffle) {
+    if (this._isShuffle && !this._isShuffleMapSet) {
       this.shuffleVideoIds = this.player.getPlaylist();
       let trackIdxMap = new Map();
-      this.playlistTracks.forEach((track, i) => {
+      this._playlistTracks.forEach((track, i) => {
         let {video_id:videoId} = track;
         if (trackIdxMap.has(videoId)) {
           let arr = trackIdxMap.get(videoId);
@@ -265,7 +278,7 @@ class Content extends Base {
       for (const [key, value] of this.shuffleToOriginIdxMap.entries()) {
         this.shuffleIdxMap.set(value, key);
       }
-      this.initShuffle = true;
+      this._isShuffleMapSet = true;
     }
   }
 }

@@ -115,7 +115,6 @@ class Main {
     this.content.on(Content.BUFFERING, (track) => {
       this.isPlayerInitBuffered = true;
       this.footer.isPlayerInitBuffered = true;
-      this.content.isPlayerInitBuffered = true;
       this.footer.setTrackInfo(track);
     });
     this.content.on(Content.PLAYING, () => {
@@ -125,13 +124,10 @@ class Main {
       this.footer.setStatus(Content.PAUSED);
     });
     this.footer.on(Footer.SHUFFLE_CLICKED, (isShuffle) => {
-      this.content.isShuffle = isShuffle;
-      if (!isShuffle) {
-        this.content.initShuffle = false;
-      }
+      this.content.setShuffle(isShuffle);
     });
     this.footer.on(Footer.REPEAT_CLICKED, (isRepeat) => {
-      this.content.isRepeat = isRepeat;
+      this.content.setRepeat(isRepeat);
     });
   }
   setup() {
