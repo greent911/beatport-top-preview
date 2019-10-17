@@ -3,9 +3,18 @@
   flex-direction: row;
   display: flex;
 }
-.yt-player {
+.video {
   position: relative;
   flex: 70%; 
+}
+.video-overlay {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  left: 0;
+  display: none;
 }
 .playlist {
   flex: 30%;
@@ -67,19 +76,4 @@
     height: calc(100vh - 225px);
     height: calc(var(--vh, 1vh) * 100 - 225px);
   }
-}
-/* @media screen and (max-width: 600px) and (orientation: landscape) {
-  .content {
-    height: calc(100vh - 50px);
-  }
-} */
-
-.yt-overlay {
-  height: 100%;
-  width: 100%;
-  position: absolute;
-  z-index: 10;
-  top: 0;
-  left: 0;
-  display: none;
 }

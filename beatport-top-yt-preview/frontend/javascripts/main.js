@@ -28,12 +28,11 @@ class Main {
     try {
       let [types, tracks] = await Promise.all([
         this.getTypes(), 
-        // this.getTracks(),
+        this.getTracks(),
       ]);
       this.navbar = new Navbar(types);
-
+      this.content = new Content(tracks);
       // TODO: refactor later
-      this.content = new Content();
       this.footer = new Footer();
       this.listen();
       this.setup();
@@ -136,7 +135,6 @@ class Main {
     });
   }
   setup() {
-    this.content.initPlayerTracks();
     this.adjustViewHeight();
   }
   adjustViewHeight() {

@@ -1,44 +1,63 @@
 import Base from './base';
-import ajaxRequest from './ajaxRequest';
 /* global YT */
 class Content extends Base {
-  constructor() {
+  constructor(tracks) {
     super();
+
     this.element = {
       content: document.getElementById('content'),
-      ytplayer: document.getElementById('yt-player'),
+      video: document.getElementById('video'),
       playlist: document.getElementById('playlist'),
     };
-    this.overlay = null;
+
+    this.mediaQuery = window.matchMedia('(max-width: 600px)');
+    this.playlistTracks = [];
+    this.player = null;
+    this.videoOverlay = null;
+    
     this.isPlayerInitBuffered = false;
     this.isShuffle = false;
     this.initShuffle = false;
     this.clickedNodeIdx = -1;
     this.isRepeat = false;
-    this.videoIdsString = '';
-    this.currentTracks = [];
-    this._initLayout();
-    this.listen();
+
+    this.adjustDisplayMode();
+    this._setPlayer(tracks);
+    this._setEventListeners();
   }
-  listen() {
-    this._initListener();
-  }
-  _setLayoutMode(condition) {
-    if (condition.matches) {
+  adjustDisplayMode() {
+    if (this.mediaQuery.matches) {
+      // Mobile mode (window max-width <= 600px)
       document.body.appendChild(this.element['playlist']);
     } else {
+      // Desktop mode (window max-width > 600px)
       this.element['content'].appendChild(this.element['playlist']);
     }
   }
-  _initLayout() {
-    let condition = window.matchMedia('(max-width: 600px)');
-    this._setLayoutMode(condition);
-    condition.addListener(this._setLayoutMode.bind(this, condition));
+  _setPlayer(tracks) {
+    if (!tracks || tracks.length <= 0) {
+      console.log('Oops! Track data not found.');
+      return;
+    }
+    this._initializePlayer(tracks);
+
+    // Load Youtube player API
+    let tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    let firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
   }
-  _initListener() {
+  _setEventListeners() {
+    // Listen if matches the media query
+    this.mediaQuery.addListener(this.adjustDisplayMode.bind(this));
+  }
+  _initializePlayer(tracks) {
+    this.playlistTracks = tracks.filter((track) => track['video_id'] != null);
+    let videoIds = this.playlistTracks.map((track) => track['video_id']);
+
     window.onYouTubeIframeAPIReady = () => {
       console.log('YouTube Iframe API Ready');
-      this.player = new YT.Player('yt-player-inner', {
+      this.player = new YT.Player('video-iframe', {
         height: '100%',
         width: '100%',
         events: {
@@ -47,7 +66,7 @@ class Content extends Base {
           'onError': window.onPlayerError
         },
         playerVars: {
-          playlist: this.videoIdsString,
+          playlist: videoIds.join(),
           playsinline: 1,
           rel: 0,
           enablejsapi: 1,
@@ -57,140 +76,135 @@ class Content extends Base {
           modestbranding: 1,
         },
       });
-      this.player.currentTracks = this.currentTracks;
     };
+
     window.onPlayerReady = (event) => {
-      console.log('Youtube Player Ready');
-      if (event.target && this.player.currentTracks) {
-        let playlistIdx = event.target.getPlaylistIndex();
-        // console.log(playlistIdx);
-        if (playlistIdx < 0) {
-          location.reload();
-        } else {
-          // console.log(this.player.currentTracks);
-          this.player.currentTracks.forEach((track, i) => {
-            let {num, title, artists, imglink, video_id:videoId} = track;
-            let artistsNode = document.createElement('div');
-            artistsNode.innerHTML = artists;
-            let titleNode = document.createElement('div');
-            titleNode.setAttribute('class', 'title');
-            titleNode.innerHTML = title;
-            let rightNode = document.createElement('div');
-            rightNode.setAttribute('class', 'right');
-            rightNode.appendChild(titleNode);
-            rightNode.appendChild(artistsNode);
-            let leftNode = document.createElement('div');
-            leftNode.setAttribute('class', 'left');
-            let style = `background-image: url("${imglink}");background-size: cover;`;
-            leftNode.setAttribute('style', style);
-            let numNode = document.createElement('div');
-            numNode.setAttribute('class', 'num');
-            numNode.innerHTML = num;
-            let trackNode = document.createElement('div');
-            trackNode.setAttribute('class', 'track');
-            trackNode.setAttribute('id', `${videoId}-${i}`);
-            trackNode.appendChild(numNode);
-            trackNode.appendChild(leftNode);
-            trackNode.appendChild(rightNode);
-            trackNode.addEventListener('touchend', (event) => {
-              // Solution for Opera mini issue: loading stuck for the first time after touchended
-              // Pass to click event listener
-              if (!this.isPlayerInitBuffered) {
-                return;
-              }
-              event.preventDefault();
-              if (this.isShuffle) {
-                if (this.initShuffle) {
-                  this.player.playVideoAt(this.shuffleIdxMap.get(i));
-                } else {
-                  // Youtube playlist data is only updated when buffering.
-                  // The variable shuffleIdxMap is not initialized for the first time.
-                  // So, record the index of the clicked node.
-                  this.clickedNodeIdx = i;
-                  // Call playing nextVideo to trigger buffering
-                  this.player.nextVideo();
-                }
-              } else {
-                this.player.playVideoAt(i);
-              }
-            });
-            trackNode.addEventListener('click', (event) => {
-              event.preventDefault();
-              if (this.isShuffle) {
-                if (this.initShuffle) {
-                  this.player.playVideoAt(this.shuffleIdxMap.get(i));
-                } else {
-                  this.clickedNodeIdx = i;
-                  this.player.nextVideo();
-                }
-              } else {
-                this.player.playVideoAt(i);
-              }
-            });
-            this.element['playlist'].appendChild(trackNode);
-          });
-          // Solution for Safari 11 issue: CUED status not emitted when Youtube API ready
-          setInterval(() => {
-            this.emit(Content.CUED);
-          }, 1000);
-        }
+      if (!event || !event.target) {
+        console.log('Youtube Player not Ready');
+        return;
       }
+
+      let playlistIdx = event.target.getPlaylistIndex();
+      // console.log(playlistIdx);
+      if (playlistIdx < 0) {
+        console.log('Youtube Player\'s playlist not Ready, reloading...');
+        location.reload();
+        return;
+      }
+      console.log('Youtube Player Ready');
+
+      this.playlistTracks.forEach((track, i) => {
+        let {num, title, artists, imglink, video_id: videoId} = track;
+        let artistsNode = document.createElement('div');
+        artistsNode.innerHTML = artists;
+        let titleNode = document.createElement('div');
+        titleNode.setAttribute('class', 'title');
+        titleNode.innerHTML = title;
+        let rightNode = document.createElement('div');
+        rightNode.setAttribute('class', 'right');
+        rightNode.appendChild(titleNode);
+        rightNode.appendChild(artistsNode);
+        let leftNode = document.createElement('div');
+        leftNode.setAttribute('class', 'left');
+        let style = `background-image: url("${imglink}");background-size: cover;`;
+        leftNode.setAttribute('style', style);
+        let numNode = document.createElement('div');
+        numNode.setAttribute('class', 'num');
+        numNode.innerHTML = num;
+        let trackNode = document.createElement('div');
+        trackNode.setAttribute('class', 'track');
+        trackNode.setAttribute('id', `${videoId}-${i}`);
+        trackNode.appendChild(numNode);
+        trackNode.appendChild(leftNode);
+        trackNode.appendChild(rightNode);
+        trackNode.addEventListener('touchend', (event) => {
+          // Solution for Opera mini issue: loading stuck for the first time after touchended
+          // Pass to click event listener
+          if (!this.isPlayerInitBuffered) {
+            return;
+          }
+
+          event.preventDefault();
+          if (this.isShuffle) {
+            if (this.initShuffle) {
+              this.player.playVideoAt(this.shuffleIdxMap.get(i));
+            } else {
+              // Youtube playlist data is only updated when BUFFERING state start.
+              // The variable shuffleIdxMap is not initialized for the first time.
+              // So, record the index of the clicked node.
+              this.clickedNodeIdx = i;
+              // Call playing nextVideo to trigger buffering
+              this.player.nextVideo();
+            }
+          } else {
+            this.player.playVideoAt(i);
+          }
+        });
+        trackNode.addEventListener('click', (event) => {
+          event.preventDefault();
+          if (this.isShuffle) {
+            if (this.initShuffle) {
+              this.player.playVideoAt(this.shuffleIdxMap.get(i));
+            } else {
+              this.clickedNodeIdx = i;
+              this.player.nextVideo();
+            }
+          } else {
+            this.player.playVideoAt(i);
+          }
+        });
+        this.element['playlist'].appendChild(trackNode);
+      });   
+      
       // Add overlay after Youtube iframe generated
-      let ytoverlay = document.createElement('div');
-      ytoverlay.setAttribute('class', 'yt-overlay');
-      ytoverlay.setAttribute('id', 'yt-overlay');
-      this.element['ytplayer'].appendChild(ytoverlay);
-      this.overlay = document.getElementById('yt-overlay');
-      this.overlay.addEventListener('touchend', (event) => {
-        event.preventDefault();
-        this.overlay.removeAttribute('style');
-        this.emit(Content.OVERLAY_CLICKED);
-      });
-      this.overlay.addEventListener('click', (event) => {
-        event.preventDefault();
-        this.overlay.removeAttribute('style');
-        this.emit(Content.OVERLAY_CLICKED);
-      });
+      this._initializeVideoOverlay();
+
+      // Solution for Safari 11 issue: CUED state not emitted when Youtube API ready
+      setInterval(() => {
+        this.emit(Content.CUED);
+      }, 1000);  
     };
+
     window.onPlayerStateChange = (event) => {
+      // Clear timer
       if (this.player.timer) {
         clearInterval(this.player.timer);
       }
-      let playerStatus = event.data;
-      console.log(playerStatus);
-      if (playerStatus == YT.PlayerState.BUFFERING) {
-        if (event.target && this.player.currentTracks) {
-          if (this.isShuffle && !this.initShuffle) {
-            this.setShuffleMap();
-            if (this.clickedNodeIdx >= 0) {
-              this.player.playVideoAt(this.shuffleIdxMap.get(this.clickedNodeIdx));
-              this.clickedNodeIdx = -1;
-              return;
-            }
+
+      let playerState = event.data;
+      console.log(playerState);
+      if (playerState == YT.PlayerState.BUFFERING) {
+        if (this.isShuffle && !this.initShuffle) {
+          this.setShuffleMap();
+          if (this.clickedNodeIdx >= 0) {
+            this.player.playVideoAt(this.shuffleIdxMap.get(this.clickedNodeIdx));
+            this.clickedNodeIdx = -1;
+            return;
           }
-          let playlistIdx = event.target.getPlaylistIndex();
-          if (this.isShuffle) {
-            playlistIdx = this.shuffleToOriginIdxMap.get(playlistIdx);
-          }
-          let track = this.player.currentTracks[playlistIdx];
-          let videoId = track['video_id'];
-          let videoIds = this.player.currentTracks.map((track) => track['video_id']);
-          videoIds.forEach((id, i) => {
-            document.getElementById(`${id}-${i}`).style.backgroundColor = (id==videoId && i==playlistIdx)? '#e6f596': '';
-          });
-          this.emit(Content.BUFFERING, track);
         }
-      } else if (playerStatus == -1) {
+        let playlistIdx = event.target.getPlaylistIndex();
+        if (this.isShuffle) {
+          playlistIdx = this.shuffleToOriginIdxMap.get(playlistIdx);
+        }
+        let track = this.playlistTracks[playlistIdx];
+        let videoId = track['video_id'];
+        let videoIds = this.playlistTracks.map((track) => track['video_id']);
+        videoIds.forEach((id, i) => {
+          document.getElementById(`${id}-${i}`).style.backgroundColor = (id==videoId && i==playlistIdx)? '#e6f596': '';
+        });
+        this.emit(Content.BUFFERING, track);
+      } else if (playerState == -1) {
+        // If state is unstarted for a while, set timer to play next video
         this.player.timer = setInterval(() => {
           this.player.nextVideo();
         }, 10000);
-      } else if (playerStatus == YT.PlayerState.PLAYING) {
+      } else if (playerState == YT.PlayerState.PLAYING) {
         this.emit(Content.PLAYING);
-      } else if (playerStatus == YT.PlayerState.PAUSED) {
+      } else if (playerState == YT.PlayerState.PAUSED) {
         this.emit(Content.PAUSED);
-      } else if (playerStatus == YT.PlayerState.CUED) {
+      } else if (playerState == YT.PlayerState.CUED) {
         this.emit(Content.CUED);
-      } else if (playerStatus == YT.PlayerState.ENDED) {
+      } else if (playerState == YT.PlayerState.ENDED) {
         if (this.isRepeat) {
           this.player.stopVideo();
           this.player.previousVideo();
@@ -198,47 +212,41 @@ class Content extends Base {
       }
     };
     window.onPlayerError = (event) => {
-      console.log(event);
+      console.error(event);
     };
   }
+  _initializeVideoOverlay() {
+    let videoOverlay = document.createElement('div');
+    videoOverlay.setAttribute('class', 'video-overlay');
+    videoOverlay.setAttribute('id', 'video-overlay');
+    this.element['video'].appendChild(videoOverlay);
+    this.videoOverlay = document.getElementById('video-overlay');
+    this.videoOverlay.addEventListener('touchend', (event) => {
+      event.preventDefault();
+      this.videoOverlay.removeAttribute('style');
+      this.emit(Content.OVERLAY_CLICKED);
+    });
+    this.videoOverlay.addEventListener('click', (event) => {
+      event.preventDefault();
+      this.videoOverlay.removeAttribute('style');
+      this.emit(Content.OVERLAY_CLICKED);
+    });
+  }
   openOverlay() {
-    if (this.overlay) {
-      this.overlay.style.display = 'block';
+    if (this.videoOverlay) {
+      this.videoOverlay.style.display = 'block';
     }
   }
   hideOverlay() {
-    if (this.overlay) {
-      this.overlay.removeAttribute('style');
-    }
-  }
-  async getTracks() {
-    const urlParams = new URLSearchParams(window.location.search);
-    let type = urlParams.get('type');
-    let url = '/api/tracks/' + ((type)? type: '');
-    let request = await ajaxRequest(url);
-    return JSON.parse(request.response);
-  }
-  async initPlayerTracks() {
-    let tracks = await this.getTracks();
-    if (tracks && tracks.length > 0) {
-      tracks = tracks.filter((track) => track['video_id'] != null);
-      this.currentTracks = tracks;
-      let videoIds = tracks.map((track) => track['video_id']);
-      this.videoIdsString = videoIds.join();
-      // Youtube iframe initialize
-      let tag = document.createElement('script');
-      tag.src = 'https://www.youtube.com/iframe_api';
-      let firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-    } else {
-      console.log('Oops! Track data not found.');
+    if (this.videoOverlay) {
+      this.videoOverlay.removeAttribute('style');
     }
   }
   setShuffleMap() {
     if (this.isShuffle && !this.initShuffle) {
       this.shuffleVideoIds = this.player.getPlaylist();
       let trackIdxMap = new Map();
-      this.currentTracks.forEach((track, i) => {
+      this.playlistTracks.forEach((track, i) => {
         let {video_id:videoId} = track;
         if (trackIdxMap.has(videoId)) {
           let arr = trackIdxMap.get(videoId);
@@ -261,9 +269,9 @@ class Content extends Base {
     }
   }
 }
-Content.OVERLAY_CLICKED = 'OVERLAY_CLICKED';
-Content.BUFFERING = 'BUFFERING';
-Content.PLAYING = 'PLAYING';
-Content.PAUSED = 'PAUSED';
-Content.CUED = 'CUED';
+Content.OVERLAY_CLICKED = Symbol();
+Content.BUFFERING = Symbol();
+Content.PLAYING = Symbol();
+Content.PAUSED = Symbol();
+Content.CUED = Symbol();
 export default Content;

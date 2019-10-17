@@ -112,7 +112,7 @@ class Navbar extends Base {
   }
 }
 
-Navbar.ABOUT_SHOWED = 'ABOUT_SHOWED';
-Navbar.ABOUT_HID = 'ABOUT_HID';
+Navbar.ABOUT_SHOWED = Symbol();
+Navbar.ABOUT_HID = Symbol();
 
 export default Navbar;
