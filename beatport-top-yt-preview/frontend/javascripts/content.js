@@ -21,12 +21,13 @@ class Content extends Base {
     this._isShuffle = false;
     this._isShuffleMapSet = false;
 
-    this.clickedNodeIdx = -1;
+    this.clickedIndex = -1;
 
     this.adjustDisplayMode();
     this._setPlayer(tracks);
     this._setEventListeners();
   }
+
   adjustDisplayMode() {
     if (this._mediaQuery.matches) {
       // Mobile mode (window max-width <= 600px)
@@ -36,11 +37,13 @@ class Content extends Base {
       this.element['content'].appendChild(this.element['playlist']);
     }
   }
+
   _setPlayer(tracks) {
     if (!tracks || tracks.length <= 0) {
       console.log('Oops! Track data not found.');
       return;
     }
+
     this._initializePlayer(tracks);
 
     // Load Youtube player API
@@ -49,10 +52,12 @@ class Content extends Base {
     let firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
   }
+
   _setEventListeners() {
     // Listen if matches the media query
     this._mediaQuery.addListener(this.adjustDisplayMode.bind(this));
   }
+
   _initializePlayer(tracks) {
     this._playlistTracks = tracks.filter((track) => track['video_id'] != null);
     let videoIds = this._playlistTracks.map((track) => track['video_id']);
@@ -86,9 +91,9 @@ class Content extends Base {
         return;
       }
 
-      let playlistIdx = event.target.getPlaylistIndex();
-      // console.log(playlistIdx);
-      if (playlistIdx < 0) {
+      let playlistIndex = event.target.getPlaylistIndex();
+      // console.log(playlistIndex);
+      if (playlistIndex < 0) {
         console.log('Youtube Player\'s playlist not Ready, reloading...');
         location.reload();
         return;
@@ -127,41 +132,45 @@ class Content extends Base {
           }
 
           event.preventDefault();
+
           if (this._isShuffle) {
             if (this._isShuffleMapSet) {
-              this.player.playVideoAt(this.shuffleIdxMap.get(i));
+              this.player.playVideoAt(this.shuffleIndexMap.get(i));
             } else {
-              // Youtube playlist data is only updated when BUFFERING state start.
-              // The variable shuffleIdxMap is not initialized for the first time.
-              // So, record the index of the clicked node.
-              this.clickedNodeIdx = i;
-              // Call playing nextVideo to trigger buffering
+              // Youtube player playlist is only updated when BUFFERING state started.
+              // The shuffleIndexMap is not initialized for the first time.
+              // Therefore, record the index of the clicked track node.
+              this.clickedIndex = i;
+              // Call playing nextVideo to trigger BUFFERING state
               this.player.nextVideo();
             }
-          } else {
-            this.player.playVideoAt(i);
+            return;
           }
+
+          this.player.playVideoAt(i);
         });
         trackNode.addEventListener('click', (event) => {
           event.preventDefault();
+
           if (this._isShuffle) {
             if (this._isShuffleMapSet) {
-              this.player.playVideoAt(this.shuffleIdxMap.get(i));
+              this.player.playVideoAt(this.shuffleIndexMap.get(i));
             } else {
-              this.clickedNodeIdx = i;
+              this.clickedIndex = i;
               this.player.nextVideo();
             }
-          } else {
-            this.player.playVideoAt(i);
+            return;
           }
+
+          this.player.playVideoAt(i);
         });
         this.element['playlist'].appendChild(trackNode);
       });   
       
-      // Add overlay after Youtube iframe generated
+      // Add video overlay after Youtube iframe generated
       this._initializeVideoOverlay();
 
-      // Solution for Safari 11 issue: CUED state not emitted when Youtube API ready
+      // Solution for Safari 11 issue: CUED state not emitted when Youtube Player ready
       setInterval(() => {
         this.emit(Content.CUED);
       }, 1000);  
@@ -175,29 +184,33 @@ class Content extends Base {
 
       let playerState = event.data;
       console.log(playerState);
+
       if (playerState == YT.PlayerState.BUFFERING) {
         if (!this._firstBuffering) this._firstBuffering = true;
+
         if (this._isShuffle && !this._isShuffleMapSet) {
           this.setShuffleMap();
-          if (this.clickedNodeIdx >= 0) {
-            this.player.playVideoAt(this.shuffleIdxMap.get(this.clickedNodeIdx));
-            this.clickedNodeIdx = -1;
+          if (this.clickedIndex != -1) {
+            this.player.playVideoAt(this.shuffleIndexMap.get(this.clickedIndex));
+            this.clickedIndex = -1;
             return;
           }
         }
-        let playlistIdx = event.target.getPlaylistIndex();
+
+        let playlistIndex = event.target.getPlaylistIndex();
+
         if (this._isShuffle) {
-          playlistIdx = this.shuffleToOriginIdxMap.get(playlistIdx);
+          playlistIndex = this.originIndexMap.get(playlistIndex);
         }
-        let track = this._playlistTracks[playlistIdx];
-        let videoId = track['video_id'];
-        let videoIds = this._playlistTracks.map((track) => track['video_id']);
-        videoIds.forEach((id, i) => {
-          document.getElementById(`${id}-${i}`).style.backgroundColor = (id==videoId && i==playlistIdx)? '#e6f596': '';
+
+        let track = this._playlistTracks[playlistIndex];
+        let currentVideoId = track['video_id'];
+        videoIds.forEach((videoId, i) => {
+          document.getElementById(`${videoId}-${i}`).style.backgroundColor = (videoId == currentVideoId && i == playlistIndex)? '#e6f596': '';
         });
         this.emit(Content.BUFFERING, track);
       } else if (playerState == -1) {
-        // If state is unstarted for a while, set timer to play next video
+        // If state is unstarted for a while, set up a timer to play next video
         this.player.timer = setInterval(() => {
           this.player.nextVideo();
         }, 10000);
@@ -257,34 +270,43 @@ class Content extends Base {
   }
   setShuffleMap() {
     if (this._isShuffle && !this._isShuffleMapSet) {
-      this.shuffleVideoIds = this.player.getPlaylist();
-      let trackIdxMap = new Map();
+      // Get current video IDs which are shuffled
+      let shuffledVideoIds = this.player.getPlaylist();
+
+      // Set up mapping from video ID to its origin indexes
+      let videoIdIndexesMap = new Map();
       this._playlistTracks.forEach((track, i) => {
-        let {video_id:videoId} = track;
-        if (trackIdxMap.has(videoId)) {
-          let arr = trackIdxMap.get(videoId);
-          arr.push(i);
-          trackIdxMap.set(videoId, arr);
+        let {video_id: videoId} = track;
+        if (videoIdIndexesMap.has(videoId)) {
+          let indexes = videoIdIndexesMap.get(videoId);
+          indexes.push(i);
+          videoIdIndexesMap.set(videoId, indexes);
         } else {
-          trackIdxMap.set(videoId, [i]);
+          videoIdIndexesMap.set(videoId, [i]);
         }
       });
-      this.shuffleToOriginIdxMap = new Map();
-      for (let index = this.shuffleVideoIds.length - 1; index >= 0; index--) {
-        let videoId = this.shuffleVideoIds[index];
-        this.shuffleToOriginIdxMap.set(index, trackIdxMap.get(videoId).pop());
+
+      // Set up mapping from shuffled index to origin index
+      this.originIndexMap = new Map();
+      for (let shuffledIndex = shuffledVideoIds.length - 1; shuffledIndex >= 0; shuffledIndex--) {
+        let videoId = shuffledVideoIds[shuffledIndex];
+        this.originIndexMap.set(shuffledIndex, videoIdIndexesMap.get(videoId).pop());
       }
-      this.shuffleIdxMap = new Map();
-      for (const [key, value] of this.shuffleToOriginIdxMap.entries()) {
-        this.shuffleIdxMap.set(value, key);
+
+      // Set up mapping from origin index to shuffled index
+      this.shuffleIndexMap = new Map();
+      for (const [key, value] of this.originIndexMap.entries()) {
+        this.shuffleIndexMap.set(value, key);
       }
       this._isShuffleMapSet = true;
     }
   }
 }
-Content.OVERLAY_CLICKED = Symbol();
-Content.BUFFERING = Symbol();
-Content.PLAYING = Symbol();
-Content.PAUSED = Symbol();
-Content.CUED = Symbol();
+
+Content.OVERLAY_CLICKED = Symbol('OVERLAY_CLICKED');
+Content.BUFFERING = Symbol('BUFFERING');
+Content.PLAYING = Symbol('PLAYING');
+Content.PAUSED = Symbol('PAUSED');
+Content.CUED = Symbol('CUED');
+
 export default Content;

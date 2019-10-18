@@ -20,6 +20,7 @@ class Navbar extends Base {
     this.adjustDisplayMode();
     this._setEventListeners();
   }
+  
   _setTypeLinkElements(types) {
     types.forEach((type) => {
       let element = document.createElement('a');
@@ -37,6 +38,7 @@ class Navbar extends Base {
       this.element['sidenav'].appendChild(sideElement);
     });
   }
+
   adjustDisplayMode() {
     let topnavMinWidth = this._topnavMinWidth || this._getTopnavMinWidth();
     if (topnavMinWidth > window.innerWidth) {
@@ -49,6 +51,7 @@ class Navbar extends Base {
       document.documentElement.style.setProperty('--topnavElementDisplay', 'inline');
     }
   }
+
   _getTopnavMinWidth() {
     let aboutIconStyle = this.element['about'].currentStyle || window.getComputedStyle(this.element['about']);
     let marginLeftValue = aboutIconStyle.marginLeft.replace('px', '');
@@ -56,6 +59,7 @@ class Navbar extends Base {
     this._topnavMinWidth = parseInt(topnavWidth - marginLeftValue);
     return this._topnavMinWidth;
   }
+
   _setEventListeners() {
     this.element['menu'].addEventListener('touchend', this._openSidenav.bind(this));
     this.element['menu'].addEventListener('click', this._openSidenav.bind(this));
@@ -68,22 +72,26 @@ class Navbar extends Base {
     this.element['about'].addEventListener('mouseover', this._showAboutDropdown.bind(this));
     this.element['about'].addEventListener('mouseout', this.hideAboutDropdown.bind(this));
   }
+
   _openSidenav(event) {
     event.preventDefault(); // prevent default href action for Anchor tag
     this.element['sidenav'].style.width = '250px';
     this.element['overlay'].style.width = '100%';
     this.element['overlay'].style.opacity = '0.8';
   }
+
   _closeSidenav(event) {
     event.preventDefault(); // prevent default href action for  Anchor tag
     this.element['sidenav'].removeAttribute('style');
     this.element['overlay'].removeAttribute('style');
   }
+
   _showAboutDropdown(event) {
     event.preventDefault(); // prevent default href action for Anchor tag
     this.element['aboutDropdown'].style.display = 'block';
     this.emit(Navbar.ABOUT_SHOWED);
   }
+
   hideAboutDropdown(event) {
     if (event) event.preventDefault(); // prevent default href action if click or touch event
     if (event && event.type != 'mouseout' && event.target == this.element['aboutDropdown']) return;
@@ -91,6 +99,7 @@ class Navbar extends Base {
     this.element['aboutDropdown'].removeAttribute('style');
     this.emit(Navbar.ABOUT_HID);
   }
+
   _showHideAboutDropdown(event) {
     event.preventDefault(); // prevent default href action for Anchor tag
     let display = this.element['aboutDropdown'].style.display;
@@ -100,6 +109,7 @@ class Navbar extends Base {
       this.hideAboutDropdown(event);
     }
   }
+
   isAboutClicked(event) {
     let about = this.element['about'];
     let aboutDropdown = this.element['aboutDropdown'];
@@ -112,7 +122,7 @@ class Navbar extends Base {
   }
 }
 
-Navbar.ABOUT_SHOWED = Symbol();
-Navbar.ABOUT_HID = Symbol();
+Navbar.ABOUT_SHOWED = Symbol('ABOUT_SHOWED');
+Navbar.ABOUT_HID = Symbol('ABOUT_HID');
 
 export default Navbar;
