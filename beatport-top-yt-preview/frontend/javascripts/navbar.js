@@ -81,7 +81,7 @@ class Navbar extends Base {
   }
 
   _closeSidenav(event) {
-    event.preventDefault(); // prevent default href action for  Anchor tag
+    event.preventDefault(); // prevent default href action for Anchor tag
     this.element['sidenav'].removeAttribute('style');
     this.element['overlay'].removeAttribute('style');
   }

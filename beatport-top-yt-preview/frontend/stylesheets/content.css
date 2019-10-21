@@ -16,23 +16,23 @@
   left: 0;
   display: none;
 }
-.playlist {
+.top-playlist {
   flex: 30%;
   min-width: 111px;
   background-color: #f1f1f1;
   overflow-y: scroll;
 }
-.playlist .track {
+.top-playlist .track {
   height: 80px;
   background-color: #fff;
   display: flex;
   margin: 0 0 2px;
   flex-direction: row;
 }
-.playlist .track:hover {
+.top-playlist .track:hover {
   background: #F4F4F4;
 }
-.playlist .track .num {
+.top-playlist .track .num {
   display: flex;
   justify-content: center;
   text-align: center;
@@ -40,18 +40,18 @@
   align-items: center;
   font-size: 0.8em;
 }
-.playlist .track .left {
+.top-playlist .track .left {
   width: 80px;
   background-color: #333;
 }
-.playlist .track .right {
+.top-playlist .track .right {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
   overflow: hidden;
 }
-.playlist .track .right div {
+.top-playlist .track .right div {
   text-align: left;
   font-size: 1em;
   padding-left: 8px;
@@ -59,14 +59,14 @@
   overflow-x: hidden;
   white-space: nowrap;
 }
-.playlist .track .right div.title {
+.top-playlist .track .right div.title {
   font-weight: bold;
 }
-.playlist::-webkit-scrollbar {
+.top-playlist::-webkit-scrollbar {
   -webkit-appearance: none;
   width: 7px;
 }
-.playlist::-webkit-scrollbar-thumb {
+.top-playlist::-webkit-scrollbar-thumb {
   border-radius: 4px;
   background-color: rgba(0, 0, 0, .5);
 }

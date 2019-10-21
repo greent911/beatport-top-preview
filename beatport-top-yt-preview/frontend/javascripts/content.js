@@ -1,5 +1,7 @@
 import Base from './base';
+
 /* global YT */
+
 class Content extends Base {
   constructor(tracks) {
     super();
@@ -7,21 +9,18 @@ class Content extends Base {
     this.element = {
       content: document.getElementById('content'),
       video: document.getElementById('video'),
-      playlist: document.getElementById('playlist'),
+      topPlaylist: document.getElementById('top-playlist'),
       videoOverlay: null,
     };
     this._mediaQuery = window.matchMedia('(max-width: 600px)');
 
-    this._playlistTracks = [];
-
+    this._topPlaylist = [];
     this.player = null;
-
-    this._isRepeat = false;
+    this._recordIndex = -1;
     this._firstBuffering = false;
+    this._isRepeat = false;
     this._isShuffle = false;
     this._isShuffleMapSet = false;
-
-    this.clickedIndex = -1;
 
     this.adjustDisplayMode();
     this._setPlayer(tracks);
@@ -31,10 +30,10 @@ class Content extends Base {
   adjustDisplayMode() {
     if (this._mediaQuery.matches) {
       // Mobile mode (window max-width <= 600px)
-      document.body.appendChild(this.element['playlist']);
+      document.body.appendChild(this.element['topPlaylist']);
     } else {
       // Desktop mode (window max-width > 600px)
-      this.element['content'].appendChild(this.element['playlist']);
+      this.element['content'].appendChild(this.element['topPlaylist']);
     }
   }
 
@@ -58,9 +57,20 @@ class Content extends Base {
     this._mediaQuery.addListener(this.adjustDisplayMode.bind(this));
   }
 
+  /**
+   * @typedef {Object} Track
+   * @property {number} num The top rank number
+   * @property {string} title The track's title
+   * @property {string} artists The track's artist(s)
+   * @property {string} imglink The track's album artwork image link
+   * @property {string|null} video_id The track's Youtube video ID
+   */
+  /**
+   * @param {Track[]} tracks The tracks to initialize Youtube player and top playlist
+   */
   _initializePlayer(tracks) {
-    this._playlistTracks = tracks.filter((track) => track['video_id'] != null);
-    let videoIds = this._playlistTracks.map((track) => track['video_id']);
+    this._topPlaylist = tracks.filter((track) => track['video_id'] != null);
+    let videoIds = this._topPlaylist.map((track) => track['video_id']);
 
     window.onYouTubeIframeAPIReady = () => {
       console.log('YouTube Iframe API Ready');
@@ -100,8 +110,9 @@ class Content extends Base {
       }
       console.log('Youtube Player Ready');
 
-      this._playlistTracks.forEach((track, i) => {
-        let {num, title, artists, imglink, video_id: videoId} = track;
+      // Generate top playlist from tracks
+      this._topPlaylist.forEach((track, i) => {
+        let { num, title, artists, imglink, video_id: videoId } = track;
         let artistsNode = document.createElement('div');
         artistsNode.innerHTML = artists;
         let titleNode = document.createElement('div');
@@ -137,11 +148,11 @@ class Content extends Base {
             if (this._isShuffleMapSet) {
               this.player.playVideoAt(this.shuffleIndexMap.get(i));
             } else {
-              // Youtube player playlist is only updated when BUFFERING state started.
-              // The shuffleIndexMap is not initialized for the first time.
+              // Because Youtube player playlist is only updated when BUFFERING state started,
+              // the shuffleIndexMap is not initialized for the first time.
               // Therefore, record the index of the clicked track node.
-              this.clickedIndex = i;
-              // Call playing nextVideo to trigger BUFFERING state
+              this._recordIndex = i;
+              // And then call nextVideo() to trigger BUFFERING state.
               this.player.nextVideo();
             }
             return;
@@ -156,7 +167,7 @@ class Content extends Base {
             if (this._isShuffleMapSet) {
               this.player.playVideoAt(this.shuffleIndexMap.get(i));
             } else {
-              this.clickedIndex = i;
+              this._recordIndex = i;
               this.player.nextVideo();
             }
             return;
@@ -164,10 +175,10 @@ class Content extends Base {
 
           this.player.playVideoAt(i);
         });
-        this.element['playlist'].appendChild(trackNode);
+        this.element['topPlaylist'].appendChild(trackNode);
       });   
       
-      // Add video overlay after Youtube iframe generated
+      // Add video overlay when Youtube player ready
       this._initializeVideoOverlay();
 
       // Solution for Safari 11 issue: CUED state not emitted when Youtube Player ready
@@ -185,41 +196,71 @@ class Content extends Base {
       let playerState = event.data;
       console.log(playerState);
 
+      /**
+       * PLAYER BUFFERING
+       */
       if (playerState == YT.PlayerState.BUFFERING) {
         if (!this._firstBuffering) this._firstBuffering = true;
 
         if (this._isShuffle && !this._isShuffleMapSet) {
-          this.setShuffleMap();
-          if (this.clickedIndex != -1) {
-            this.player.playVideoAt(this.shuffleIndexMap.get(this.clickedIndex));
-            this.clickedIndex = -1;
+          let {shuffleIndexMap, originIndexMap} = this._getShuffleMap(this.player.getPlaylist());
+          this.shuffleIndexMap = shuffleIndexMap;
+          this.originIndexMap = originIndexMap;
+          this._isShuffleMapSet = true;
+
+          if (this._recordIndex != -1) {
+            this.player.playVideoAt(this.shuffleIndexMap.get(this._recordIndex));
+            this._recordIndex = -1;
             return;
           }
-        }
+        }        
 
+        // Set color background to the track nodes in top playlist
         let playlistIndex = event.target.getPlaylistIndex();
-
-        if (this._isShuffle) {
-          playlistIndex = this.originIndexMap.get(playlistIndex);
-        }
-
-        let track = this._playlistTracks[playlistIndex];
+        let topPlaylistIndex = (this._isShuffle)? this.originIndexMap.get(playlistIndex): playlistIndex;
+        let track = this._topPlaylist[topPlaylistIndex];
         let currentVideoId = track['video_id'];
-        videoIds.forEach((videoId, i) => {
-          document.getElementById(`${videoId}-${i}`).style.backgroundColor = (videoId == currentVideoId && i == playlistIndex)? '#e6f596': '';
+
+        this._topPlaylist.forEach((track, i) => {
+          let { video_id: videoId } = track;
+          document.getElementById(`${videoId}-${i}`).style.backgroundColor = 
+          (videoId == currentVideoId && i == topPlaylistIndex)
+          ? '#e6f596'
+          : '';
         });
+
         this.emit(Content.BUFFERING, track);
+
+      /**
+       * PLAYER UNSTARTED
+       */
       } else if (playerState == -1) {
         // If state is unstarted for a while, set up a timer to play next video
         this.player.timer = setInterval(() => {
           this.player.nextVideo();
         }, 10000);
+
+      /**
+       * PLAYER PLAYING
+       */
       } else if (playerState == YT.PlayerState.PLAYING) {
         this.emit(Content.PLAYING);
+      
+      /**
+       * PLAYER PAUSED
+       */
       } else if (playerState == YT.PlayerState.PAUSED) {
         this.emit(Content.PAUSED);
+
+      /**
+       * PLAYER CUED
+       */  
       } else if (playerState == YT.PlayerState.CUED) {
         this.emit(Content.CUED);
+
+      /**
+       * PLAYER ENDED
+       */ 
       } else if (playerState == YT.PlayerState.ENDED) {
         if (this._isRepeat) {
           this.player.stopVideo();
@@ -227,10 +268,48 @@ class Content extends Base {
         }
       }
     };
+
     window.onPlayerError = (event) => {
       console.error(event);
     };
   }
+
+  /**
+   * @param {*} playlist The shuffled playlist
+   */
+  _getShuffleMap(playlist) {
+    // Set up mapping from video ID to origin indexes
+    let videoIdIndexesMap = new Map();
+    this._topPlaylist.forEach((track, i) => {
+      let {video_id: videoId} = track;
+      if (videoIdIndexesMap.has(videoId)) {
+        let indexes = videoIdIndexesMap.get(videoId);
+        indexes.push(i);
+        videoIdIndexesMap.set(videoId, indexes);
+      } else {
+        videoIdIndexesMap.set(videoId, [i]);
+      }
+    });
+
+    // Set up mapping from the shuffled playlist index to origin index
+    let originIndexMap = new Map();
+    for (let shuffledIndex = playlist.length - 1; shuffledIndex >= 0; shuffledIndex--) {
+      let videoId = playlist[shuffledIndex];
+      originIndexMap.set(shuffledIndex, videoIdIndexesMap.get(videoId).pop());
+    }
+
+    // Set up mapping from origin index to shuffled playlist index
+    let shuffleIndexMap = new Map();
+    for (const [key, value] of originIndexMap.entries()) {
+      shuffleIndexMap.set(value, key);
+    }
+
+    return {
+      shuffleIndexMap,
+      originIndexMap,
+    };
+  }
+
   _initializeVideoOverlay() {
     let videoOverlay = document.createElement('div');
     videoOverlay.setAttribute('class', 'video-overlay');
@@ -248,59 +327,31 @@ class Content extends Base {
       this.emit(Content.OVERLAY_CLICKED);
     });
   }
+
   openOverlay() {
     if (this.element['videoOverlay']) {
       this.element['videoOverlay'].style.display = 'block';
     }
   }
+
   hideOverlay() {
     if (this.element['videoOverlay']) {
       this.element['videoOverlay'].removeAttribute('style');
     }
   }
+
   setRepeat(isRepeat) {
     this._isRepeat = isRepeat;
   }
+
   setShuffle(isShuffle) {
-    this.player.setShuffle(isShuffle); // If true, change the video IDs order
+    this.player.setShuffle(isShuffle); // If true, will shuffle the playlist at BUFFERING state
     this._isShuffle = isShuffle;
     if (!isShuffle) {
       this._isShuffleMapSet = false;
     }
   }
-  setShuffleMap() {
-    if (this._isShuffle && !this._isShuffleMapSet) {
-      // Get current video IDs which are shuffled
-      let shuffledVideoIds = this.player.getPlaylist();
 
-      // Set up mapping from video ID to its origin indexes
-      let videoIdIndexesMap = new Map();
-      this._playlistTracks.forEach((track, i) => {
-        let {video_id: videoId} = track;
-        if (videoIdIndexesMap.has(videoId)) {
-          let indexes = videoIdIndexesMap.get(videoId);
-          indexes.push(i);
-          videoIdIndexesMap.set(videoId, indexes);
-        } else {
-          videoIdIndexesMap.set(videoId, [i]);
-        }
-      });
-
-      // Set up mapping from shuffled index to origin index
-      this.originIndexMap = new Map();
-      for (let shuffledIndex = shuffledVideoIds.length - 1; shuffledIndex >= 0; shuffledIndex--) {
-        let videoId = shuffledVideoIds[shuffledIndex];
-        this.originIndexMap.set(shuffledIndex, videoIdIndexesMap.get(videoId).pop());
-      }
-
-      // Set up mapping from origin index to shuffled index
-      this.shuffleIndexMap = new Map();
-      for (const [key, value] of this.originIndexMap.entries()) {
-        this.shuffleIndexMap.set(value, key);
-      }
-      this._isShuffleMapSet = true;
-    }
-  }
 }
 
 Content.OVERLAY_CLICKED = Symbol('OVERLAY_CLICKED');
