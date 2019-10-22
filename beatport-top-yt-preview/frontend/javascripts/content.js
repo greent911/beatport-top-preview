@@ -363,6 +363,16 @@ class Content extends Base {
     return false;
   }
 
+  unMute() {
+    this.player.unMute();
+  }
+
+  getVolume() {
+    return (this.player.isMuted())
+    ? 0
+    : this.player.getVolume();
+  }
+
 }
 
 Content.OVERLAY_CLICKED = Symbol('OVERLAY_CLICKED');

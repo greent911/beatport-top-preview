@@ -49,24 +49,11 @@ class Footer extends Base {
   }
   init(player) {
     this.player = player;
-    this.initVolume();
     this.element['repeatonce'].style.display = 'none';
     this.element['repeatonceM'].style.display = 'none';
     this.element['moreDropup'].removeAttribute('style');
     document.getElementById('footer').removeAttribute('style');
     this.listen();
-  }
-  initVolume() {
-    this.player.unMute();
-    setInterval(() => {
-      if (this.player.isMuted()) {
-        this.element['volumeProgress'].style.height = '0%';
-        this.updateVolume(0);
-      } else {
-        this.element['volumeProgress'].style.height = this.player.getVolume() + '%';
-        this.updateVolume(this.player.getVolume() / 100);
-      }
-    }, 500);
   }
   listen() {
     this.element['playToggle'].addEventListener('touchend', (event) => {
@@ -322,7 +309,9 @@ class Footer extends Base {
     this.lockUpdateProgress = true;
     this.stopUpdateProgress();
   }
-  updateVolume(coefficient) {
+  updateVolume(value) {
+    this.element['volumeProgress'].style.height = `${value}%`;
+    let coefficient = value / 100;
     if(coefficient >= 0.5) {
       this.element['speaker'].attributes.d.value = 'M14.667 0v2.747c3.853 1.146 6.666 4.72 6.666 8.946 0 4.227-2.813 7.787-6.666 8.934v2.76C20 22.173 24 17.4 24 11.693 24 5.987 20 1.213 14.667 0zM18 11.693c0-2.36-1.333-4.386-3.333-5.373v10.707c2-.947 3.333-2.987 3.333-5.334zm-18-4v8h5.333L12 22.36V1.027L5.333 7.693H0z';  
     } else if(coefficient < 0.5 && coefficient > 0.05) {

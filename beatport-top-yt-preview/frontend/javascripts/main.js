@@ -35,7 +35,7 @@ class Main {
       // TODO: refactor later
       this.footer = new Footer();
       this.listen();
-      this.setup();
+      this.adjustViewHeight();
 
     } catch (err) {
       console.error(err);
@@ -110,7 +110,9 @@ class Main {
       this.hideOverlay();
     });
     this.content.once(Content.CUED, () => {
+      this.content.unMute();
       this.footer.setup(this.content.player);
+      this.syncPlayerVolume();
     });
     this.content.on(Content.BUFFERING, (track) => {
       this.isPlayerInitBuffered = true;
@@ -130,8 +132,10 @@ class Main {
       this.content.setRepeat(isRepeat);
     });
   }
-  setup() {
-    this.adjustViewHeight();
+  syncPlayerVolume() {
+    setInterval(() => {
+      this.footer.updateVolume(this.content.getVolume());
+    }, 500);
   }
   adjustViewHeight() {
     // correct height for mobile browsers
@@ -280,9 +284,9 @@ class Main {
         let offsetY = event.clientY - rect.top;
         coefficient = 1 - offsetY / height;
       }
-      self.footer.element['volumeProgress'].style.height = (coefficient*100) + '%';
-      self.footer.updateVolume(coefficient);
-      self.content.player.unMute();
+
+      self.footer.updateVolume(coefficient*100);
+      self.content.unMute();
       self.content.player.setVolume(parseInt((coefficient * 100)));
     };
     window.addEventListener('mouseup', () => {
