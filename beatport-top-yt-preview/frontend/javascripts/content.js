@@ -352,6 +352,17 @@ class Content extends Base {
     }
   }
 
+  isTopPlaylistClicked(event) {
+    let playlist = this.element['topPlaylist'];
+    if (event.target == playlist || event.target.parentNode == playlist
+      || (event.target.parentNode && event.target.parentNode.parentNode == playlist)
+      || (event.target.parentNode.parentNode 
+        && event.target.parentNode.parentNode.parentNode == playlist)) {
+      return true;
+    }
+    return false;
+  }
+
 }
 
 Content.OVERLAY_CLICKED = Symbol('OVERLAY_CLICKED');

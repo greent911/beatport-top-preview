@@ -142,7 +142,7 @@ class Main {
   windowClicked(event) {
     // Solution for Opera mini issue: loading stuck for the first time after touchended or clicked
     // Special works for the first time toggling Youtube player
-    if (!this.isPlayerInitBuffered && (this.isPlayButtonClicked(event) || this.isPlaylistClicked(event))) {
+    if (!this.isPlayerInitBuffered && (this.isPlayButtonClicked(event) || this.content.isTopPlaylistClicked(event))) {
       if (!this.isMoreMenuClicked(event)) {
         this.footer.hideMoreMenu();
       }
@@ -203,16 +203,6 @@ class Main {
     let playBack = this.footer.element['playBack'];
     let playForward = this.footer.element['playForward'];
     if (event.target == playToggle || event.target == playBack || event.target == playForward) {
-      return true;
-    }
-    return false;
-  }
-  isPlaylistClicked(event) {
-    let playlist = this.content.element['playlist'];
-    if (event.target == playlist || event.target.parentNode == playlist
-      || (event.target.parentNode && event.target.parentNode.parentNode == playlist)
-      || (event.target.parentNode.parentNode 
-        && event.target.parentNode.parentNode.parentNode == playlist)) {
       return true;
     }
     return false;
