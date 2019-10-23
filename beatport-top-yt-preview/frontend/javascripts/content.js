@@ -17,7 +17,7 @@ class Content extends Base {
     this._topPlaylist = [];
     this.player = null;
     this._recordIndex = -1;
-    this._firstBuffering = false;
+    this._isPlayerFirstBuffering = false;
     this._isRepeat = false;
     this._isShuffle = false;
     this._isShuffleMapSet = false;
@@ -138,7 +138,7 @@ class Content extends Base {
         trackNode.addEventListener('touchend', (event) => {
           // Solution for Opera mini issue: loading stuck for the first time after touchended
           // Pass to click event listener
-          if (!this._firstBuffering) {
+          if (!this._isPlayerFirstBuffering) {
             return;
           }
 
@@ -200,7 +200,7 @@ class Content extends Base {
        * PLAYER BUFFERING
        */
       if (playerState == YT.PlayerState.BUFFERING) {
-        if (!this._firstBuffering) this._firstBuffering = true;
+        if (!this._isPlayerFirstBuffering) this._isPlayerFirstBuffering = true;
 
         if (this._isShuffle && !this._isShuffleMapSet) {
           let {shuffleIndexMap, originIndexMap} = this._getShuffleMap(this.player.getPlaylist());
@@ -373,12 +373,42 @@ class Content extends Base {
     : this.player.getVolume();
   }
 
+  getState() {
+    let playerState = this.player.getPlayerState();
+    switch (playerState) {
+      case YT.PlayerState.BUFFERING:
+        return Content.BUFFERING;
+      case -1:
+        return Content.UNSTART;
+      case YT.PlayerState.PLAYING:
+        return Content.PLAYING;
+      case YT.PlayerState.PAUSED:
+        return Content.PAUSED;
+      case YT.PlayerState.CUED:
+        return Content.CUED;
+      case YT.PlayerState.ENDED:
+        return Content.ENDED;    
+      default:
+        return Content.UNKNOWN;
+    }
+  }
+
+  playVideo() {
+    this.player.playVideo();
+  }
+
+  pauseVideo() {
+    this.player.pauseVideo();
+  }
 }
 
 Content.OVERLAY_CLICKED = Symbol('OVERLAY_CLICKED');
 Content.BUFFERING = Symbol('BUFFERING');
+Content.UNSTART = Symbol('UNSTART');
 Content.PLAYING = Symbol('PLAYING');
 Content.PAUSED = Symbol('PAUSED');
 Content.CUED = Symbol('CUED');
+Content.ENDED = Symbol('ENDED');
+Content.UNKNOWN = Symbol('UNKNOWN');
 
 export default Content;

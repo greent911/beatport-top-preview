@@ -12,7 +12,7 @@ class Main {
   constructor() {
     this.isTouchMoved = false;
     this.isPinTouched = false;
-    this.isPlayerInitBuffered = false;
+    this.isPlayerFirstBuffering = false;
 
     this.navbar = null;
     this.content = null;
@@ -91,6 +91,16 @@ class Main {
     }, true);
     window.addEventListener('touchend', this.windowClicked.bind(this), true);
     window.addEventListener('click', this.windowClicked.bind(this), true);
+    this.footer.on(Footer.PLAY_PAUSE_TOGGLED, () => {
+      if (this.content.getState() != Content.BUFFERING) { 
+        this.footer.setPlayButton();
+        if (this.footer.isPlay) {
+          this.content.playVideo();
+        } else {
+          this.content.pauseVideo();
+        }
+      }
+    });
     this.footer.on(Footer.MORE_MENU_SHOWED, () => {
       this.content.openOverlay();
     });
@@ -115,15 +125,23 @@ class Main {
       this.syncPlayerVolume();
     });
     this.content.on(Content.BUFFERING, (track) => {
-      this.isPlayerInitBuffered = true;
-      this.footer.isPlayerInitBuffered = true;
+      // TO-DO: refactor
+      this.isPlayerFirstBuffering = true;
+      this.footer.isPlayerFirstBuffering = true;
       this.footer.setTrackInfo(track);
     });
     this.content.on(Content.PLAYING, () => {
-      this.footer.setStatus(Content.PLAYING);
+      this.footer.updateProgress();
+      this.footer.setPlay();
     });
     this.content.on(Content.PAUSED, () => {
-      this.footer.setStatus(Content.PAUSED);
+      this.footer.stopUpdateProgress();
+      // Wait a little bit to prevent quickly switch to pause before playing next video
+      setTimeout(() => {
+        if (this.content.getState() == Content.PAUSED) {
+          this.footer.setPause();
+        }
+      }, 0);  
     });
     this.footer.on(Footer.SHUFFLE_CLICKED, (isShuffle) => {
       this.content.setShuffle(isShuffle);
@@ -145,8 +163,8 @@ class Main {
   }
   windowClicked(event) {
     // Solution for Opera mini issue: loading stuck for the first time after touchended or clicked
-    // Special works for the first time toggling Youtube player
-    if (!this.isPlayerInitBuffered && (this.isPlayButtonClicked(event) || this.content.isTopPlaylistClicked(event))) {
+    // Special works for the first time running Youtube player
+    if (!this.isPlayerFirstBuffering && (this.isPlayButtonClicked(event) || this.content.isTopPlaylistClicked(event))) {
       if (!this.isMoreMenuClicked(event)) {
         this.footer.hideMoreMenu();
       }
@@ -203,10 +221,10 @@ class Main {
     }
   }
   isPlayButtonClicked(event) {
-    let playToggle = this.footer.element['playToggle'];
+    let playPause = this.footer.element['playPause'];
     let playBack = this.footer.element['playBack'];
     let playForward = this.footer.element['playForward'];
-    if (event.target == playToggle || event.target == playBack || event.target == playForward) {
+    if (event.target == playPause || event.target == playBack || event.target == playForward) {
       return true;
     }
     return false;

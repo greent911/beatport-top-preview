@@ -68,46 +68,46 @@
   min-width: 150px;
   justify-content: center;
 }
-.footer .playerbtn {
+.footer .player-button {
   padding: 0 10px;
 }
-.footer .playerbtn i {
+.footer .player-button i {
   font-size: 25px;
   cursor: pointer;
   transition: 0.15s ease-in-out;
   -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
-.footer .playerbtn .mobile {
+.footer .player-button .mobile {
   display: none;
   /* visibility: hidden; */
 }
-.footer .playerbtn .green {
+.footer .player-button .green {
   color: forestgreen;
 }
-.footer .playerbtn .repeat {
+.footer .player-button .repeat {
   /* content: url(../../public/images/icons8-repeat-100.png); */
   content: url(../images/icons8-repeat-100.png);
   -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
-.footer .playerbtn .repeatonce {
+.footer .player-button .repeatonce {
   /* display: none; */
   /* content: url(../../public/images/icons8-repeat-100-1.png); */
   content: url(../images/icons8-repeat-100-1.png);
   -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
-.footer .playerbtn div {
+.footer .player-button div {
   height: 25px;
   width: 25px;
   cursor: pointer;
   transition: 0.15s ease-in-out;
 }
-.footer .playerbtn i#external {
+.footer .player-button i#external {
   position: relative;
 }
-.footer .playerbtn i#external:hover {
+.footer .player-button i#external:hover {
   color: forestgreen;
 }
-.footer .playerbtn i#external .tooltiptext {
+.footer .player-button i#external .tooltiptext {
   visibility: hidden;
   width: 150px;
   background-color: #333;
@@ -126,7 +126,7 @@
   font-size: 16px;
   font-weight: bold;
 }
-.footer .playerbtn i#external .tooltiptext::after {
+.footer .player-button i#external .tooltiptext::after {
   content: "";
   position: absolute;
   top: 100%;
@@ -136,14 +136,14 @@
   border-style: solid;
   border-color: #333 transparent transparent transparent;
 }
-.footer .playerbtn i#external:hover .tooltiptext {
+.footer .player-button i#external:hover .tooltiptext {
   visibility: visible;
   opacity: 1;
 }
-.footer .player-buttons .playToggle {
+.footer .player-buttons .play-pause {
   padding: 0 20px;
 }
-.footer .player-buttons .playerbtn i#playToggle {
+.footer .player-buttons .player-button i#play-pause {
   width: 40px;
   height: 40px;
   font-size: 40px;
@@ -392,11 +392,11 @@
     width: 100%;
     min-width: 280px;
   }
-  .footer .player-buttons .playerbtn .normal {
+  .footer .player-buttons .player-button .normal {
     display: none;
     /* visibility: hidden; */
   }
-  .footer .playerbtn .mobile {
+  .footer .player-button .mobile {
     display: flex;
     /* visibility: visible; */
   }

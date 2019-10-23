@@ -8,7 +8,7 @@ class Footer extends Base {
       artwork: document.getElementById('artwork'),
       title: document.getElementById('title'),
       artist: document.getElementById('artist'),
-      playToggle: document.getElementById('playToggle'),
+      playPause: document.getElementById('play-pause'),
       external: document.getElementById('external'),
       externalM: document.getElementById('external-m'),
       random: document.getElementById('random'),
@@ -39,7 +39,9 @@ class Footer extends Base {
       moreCancel: document.getElementById('more-cancel'),
       updatedTime: document.getElementById('updated-time'),
     };
-    this.isPlayerInitBuffered = false;
+    this.isPlayerFirstBuffering = false;
+    this._updateProgressTimer = null;
+
     this.isShuffle = false;
     this.isRepeat = false;
     this.element['moreDropup'].style.display = 'block';
@@ -56,13 +58,13 @@ class Footer extends Base {
     this.listen();
   }
   listen() {
-    this.element['playToggle'].addEventListener('touchend', (event) => {
-      if (!this.isPlayerInitBuffered) {
+    this.element['playPause'].addEventListener('touchend', (event) => {
+      if (!this.isPlayerFirstBuffering) {
         return;
       }
-      this.playPauseVideo(event);
+      this.togglePlayPause(event);
     });
-    this.element['playToggle'].addEventListener('click', this.playPauseVideo.bind(this));
+    this.element['playPause'].addEventListener('click', this.togglePlayPause.bind(this));
     this.element['external'].addEventListener('touchend', this.openLink.bind(this));
     this.element['external'].addEventListener('click', this.openLink.bind(this));
     this.element['externalM'].addEventListener('touchend', this.openLink.bind(this));
@@ -74,14 +76,14 @@ class Footer extends Base {
     this.element['randomM'].addEventListener('touchend', this.toggleRandom.bind(this));
     this.element['randomM'].addEventListener('click', this.toggleRandom.bind(this));
     this.element['playBack'].addEventListener('touchend', (event) => {
-      if (!this.isPlayerInitBuffered) {
+      if (!this.isPlayerFirstBuffering) {
         return;
       }
       this.togglePlayBack(event);
     });
     this.element['playBack'].addEventListener('click', this.togglePlayBack.bind(this));
     this.element['playForward'].addEventListener('touchend', (event) => {
-      if (!this.isPlayerInitBuffered) {
+      if (!this.isPlayerFirstBuffering) {
         return;
       }
       this.togglePlayForward(event);
@@ -104,20 +106,37 @@ class Footer extends Base {
     this.element['volumeBtn'].addEventListener('touchend', this.showHideVolumeBtn.bind(this));
     this.element['volumeBtn'].addEventListener('click', this.showHideVolumeBtn.bind(this));
   }
-  playPauseVideo(event) {
+  togglePlayPause(event) {
     if (event) event.preventDefault();
-    if (this.player.getPlayerState() != YT.PlayerState.BUFFERING) {     
-      let classList = this.element['playToggle'].classList;
-      if (classList.contains('fa-play-circle')) {
-        classList.add('fa-pause-circle');
-        classList.remove('fa-play-circle');
-        this.player.playVideo();
-      } else {
-        classList.add('fa-play-circle');
-        classList.remove('fa-pause-circle');
-        this.player.pauseVideo();
-      }
+    this.emit(Footer.PLAY_PAUSE_TOGGLED);
+  }
+  setPlayButton() {
+    let classList = this.element['playPause'].classList;
+    if (classList.contains('fa-play-circle')) {
+      classList.add('fa-pause-circle');
+      classList.remove('fa-play-circle');
+      this.isPlay = true;
+    } else {
+      classList.add('fa-play-circle');
+      classList.remove('fa-pause-circle');
+      this.isPlay = false;
     }
+  }
+  setPlay() {
+    let classList = this.element['playPause'].classList;
+    if (classList.contains('fa-play-circle')) {
+      classList.add('fa-pause-circle');
+      classList.remove('fa-play-circle');
+    }
+    this.isPlay = true;
+  }
+  setPause() {
+    let classList = this.element['playPause'].classList;
+    if (classList.contains('fa-pause-circle')) {
+      classList.add('fa-play-circle');
+      classList.remove('fa-pause-circle');
+    }
+    this.isPlay = false;
   }
   openLink(event) {
     event.preventDefault();
@@ -155,7 +174,7 @@ class Footer extends Base {
   }
   togglePlayBack(event) {
     event.preventDefault();
-    let classList = this.element['playToggle'].classList;
+    let classList = this.element['playPause'].classList;
     this.player.previousVideo();
     if (classList.contains('fa-play-circle')) {
       classList.add('fa-pause-circle');
@@ -164,7 +183,7 @@ class Footer extends Base {
   }
   togglePlayForward(event) {
     event.preventDefault();
-    let classList = this.element['playToggle'].classList;
+    let classList = this.element['playPause'].classList;
     this.player.nextVideo();
     if (classList.contains('fa-play-circle')) {
       classList.add('fa-pause-circle');
@@ -240,32 +259,8 @@ class Footer extends Base {
     let total = this.formatTime(this.player.getDuration());
     this.element['totalTime'].textContent = total;
     this.element['totalTimeM'].textContent = total;
-    this.setStatus(Content.PLAYING);
-  }
-  setStatus(status) {
-    let classList = this.element['playToggle'].classList;
-    switch (status) {
-    case Content.PLAYING:
-      this.updateProgress();
-      if (classList.contains('fa-play-circle')) {
-        classList.add('fa-pause-circle');
-        classList.remove('fa-play-circle');
-      }
-      break;
-    case Content.PAUSED:
-      this.stopUpdateProgress();
-      if (classList.contains('fa-pause-circle')) {
-        setTimeout(() => {
-          if (this.player.getPlayerState() == YT.PlayerState.PAUSED) {
-            classList.add('fa-play-circle');
-            classList.remove('fa-pause-circle');
-          }
-        }, 0);
-      }
-      break;
-    default:
-      break;
-    }
+    this.updateProgress();
+    this.setPlay();
   }
   formatUTCDate(date) {
     let month = date.getUTCMonth() + 1; // months from 1-12
@@ -286,11 +281,8 @@ class Footer extends Base {
     return min + ':' + ((sec<10) ? ('0' + sec) : sec);
   }
   updateProgress() {
-    if (this.lockUpdateProgress) {
-      return;
-    }
     this.stopUpdateProgress();
-    this.updateProgressTimer = setInterval(() => {
+    this._updateProgressTimer = setInterval(() => {
       let current = this.player.getCurrentTime();
       let duration = this.player.getDuration();
       let percent = (current / duration) * 100;
@@ -301,13 +293,9 @@ class Footer extends Base {
     }, 100);
   }
   stopUpdateProgress() {
-    if (this.updateProgressTimer) {
-      clearInterval(this.updateProgressTimer);
+    if (this._updateProgressTimer) {
+      clearInterval(this._updateProgressTimer);
     }
-  }
-  forceStopUpdateProgress() {
-    this.lockUpdateProgress = true;
-    this.stopUpdateProgress();
   }
   updateVolume(value) {
     this.element['volumeProgress'].style.height = `${value}%`;
@@ -337,6 +325,7 @@ class Footer extends Base {
     return coefficient;
   }
 }
+Footer.PLAY_PAUSE_TOGGLED = Symbol('PLAY_PAUSE_TOGGLED');
 Footer.MORE_MENU_SHOWED = 'MORE_MENU_SHOWED';
 Footer.MORE_MENU_HID = 'MORE_MENU_HID';
 Footer.VOLUME_SHOWED = 'VOLUME_SHOWED';
