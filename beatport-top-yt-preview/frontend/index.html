@@ -1,83 +1,86 @@
 <!doctype html>
 
 <head>
-<title>Beatport Top 100 Preview | Full Length Playlists</title>
-<meta charset="UTF-8">
-<meta name="description" content="This website automatically generates full length track playlists from Beatport Top 100 Big Room, Dubstep, House, Trance, Techno, Psy-Trance and more.">
-<meta name="google-site-verification" content="9k2MLe9VfKn3ViS9Fx69r0DbkIebpcKdOFKkFshvduI"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-<link href="https://fonts.googleapis.com/css?family=Russo+One&display=swap" rel="stylesheet">
+  <title>Beatport Top 100 Preview | Full Length Playlists</title>
+  <meta charset="UTF-8">
+  <meta name="description"
+    content="This website automatically generates full length track playlists from Beatport Top 100 Big Room, Dubstep, House, Trance, Techno, Psy-Trance and more.">
+  <meta name="google-site-verification" content="9k2MLe9VfKn3ViS9Fx69r0DbkIebpcKdOFKkFshvduI" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <link href="https://fonts.googleapis.com/css?family=Russo+One&display=swap" rel="stylesheet">
 </head>
 
 <body>
-<div id="overlay" class="overlay"></div>
-<div id="sidenav" class="sidenav">
-  <a href="javascript:void(0);" class="close" id="close">&times;</a>
-</div>
+  <div id="overlay" class="overlay"></div>
+  <div id="sidenav" class="sidenav">
+    <a href="javascript:void(0);" class="close" id="close">&times;</a>
+  </div>
 
-<div class="topnav" id="topnav">
-  <a href="javascript:void(0);" id="menu" class="menu">
-    <i class="fa fa-bars"></i>
-  </a>
-  <a href="javascript:void(0);" class="about" id="about">
-    <i class="fas fa-info-circle"></i>
-    <div class="about-dropdown" id="about-dropdown">
-      <h3>About BP-TOP-PREVIEV</h3>
-      <p>Hi, I'm Nelson Li. I'm a developer and love electronic music as well.</p>
-      <p>Some of preview clips on Beatport Top 100 are not good enough for the listeners. Therefore, I decided to create an application to find full length music videos on YouTube and automatically generate the top 100 playlists. This application gives users an efficient way to preview music before purchasing on Beatport.com.</p>
-      <p>This site is not affiliated with Beatport or any of its affiliates.</p>
-    </div>
-  </a>
-</div>
-<div class="content" id="content">
-  <div id="video" class="video">
-    <div id="video-iframe">
-    </div>
-  </div>
-  <div class="top-playlist" id="top-playlist">
-  </div>
-</div>
-<div id="footer" class="footer" style="visibility: hidden;">
-    <div id="artwork" class="artwork"></div>
-    <div class="track-info">
-    <div class="current-track">
-      <a class="title" id="title" target="_blank"></a>
-      <a class="artist" id="artist" target="_blank"></a>
-    </div>
-    <div class="audio-player" id="audio-player">
-      <div class="controls" id="controls">
-        <span class="current-time" id="current-time">0:00</span>
-        <div id="audio-slider" class="audio-slider" data-direction="horizontal">
-          <div id="progress" class="progress">
-            <div class="pin" id="progress-pin" data-method="rewind"></div>
-          </div>
-        </div>
-        <span class="total-time" id="total-time">0:00</span>
+  <div class="topnav" id="topnav">
+    <a href="javascript:void(0);" id="menu" class="menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <a href="javascript:void(0);" class="about" id="about">
+      <i class="fas fa-info-circle"></i>
+      <div class="about-dropdown" id="about-dropdown">
+        <h3>About BP-TOP-PREVIEV</h3>
+        <p>Hi, I'm Nelson Li. I'm a developer and love electronic music as well.</p>
+        <p>Some of preview clips on Beatport Top 100 are not good enough for the listeners. Therefore, I decided to
+          create an application to find full length music videos on YouTube and automatically generate the top 100
+          playlists. This application gives users an efficient way to preview music before purchasing on Beatport.com.
+        </p>
+        <p>This site is not affiliated with Beatport or any of its affiliates.</p>
       </div>
-      <div class="volume">
-        <div id="volume-btn" class="volume-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25">
-            <path id="speaker" fill="#000000" fill-rule="evenodd" d="M14.667 0v2.747c3.853 1.146 6.666 4.72 6.666 8.946 0 4.227-2.813 7.787-6.666 8.934v2.76C20 22.173 24 17.4 24 11.693 24 5.987 20 1.213 14.667 0zM18 11.693c0-2.36-1.333-4.386-3.333-5.373v10.707c2-.947 3.333-2.987 3.333-5.334zm-18-4v8h5.333L12 22.36V1.027L5.333 7.693H0z"/>
-          </svg>
+    </a>
+  </div>
+  <div class="content" id="content">
+    <div id="video" class="video">
+      <div id="video-iframe"></div>
+    </div>
+    <div class="top-playlist" id="top-playlist"></div>
+  </div>
+  <div id="footer" class="footer" style="visibility: hidden;">
+    <div id="artwork" class="artwork"></div>
+    <div class="views">
+      <div class="track-info">
+        <a class="title" id="title" target="_blank"></a>
+        <a class="artist" id="artist" target="_blank"></a>
+      </div>
+      <div class="audio-player" id="audio-player">
+        <div class="audio-controls" id="audio-controls">
+          <span class="current-time" id="current-time">0:00</span>
+          <div id="audio-slider" class="audio-slider" data-direction="horizontal">
+            <div id="progress" class="progress">
+              <div class="pin" id="progress-pin" data-method="rewind"></div>
+            </div>
+          </div>
+          <span class="total-time" id="total-time">0:00</span>
         </div>
-        <div id="volume-controls" class="volume-controls">
-          <div id="volume-slider" class="volume-slider" data-direction="vertical">
-            <div id="volume-progress" class="volume-progress">
-              <div class="volume-pin" id="volume-pin" data-method="changeVolume"></div>
+        <div class="volume">
+          <div id="volume-btn" class="volume-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25">
+              <path id="speaker" fill="#000000" fill-rule="evenodd"
+                d="M14.667 0v2.747c3.853 1.146 6.666 4.72 6.666 8.946 0 4.227-2.813 7.787-6.666 8.934v2.76C20 22.173 24 17.4 24 11.693 24 5.987 20 1.213 14.667 0zM18 11.693c0-2.36-1.333-4.386-3.333-5.373v10.707c2-.947 3.333-2.987 3.333-5.334zm-18-4v8h5.333L12 22.36V1.027L5.333 7.693H0z" />
+            </svg>
+          </div>
+          <div id="volume-controls" class="volume-controls">
+            <div id="volume-slider" class="volume-slider" data-direction="vertical">
+              <div id="volume-progress" class="volume-progress">
+                <div class="volume-pin" id="volume-pin" data-method="changeVolume"></div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="timeline-m">
-      <div class="timeline-control-m">
-      <span class="current-time" id="current-time-m">0:00</span>
-      <span class="total-time" id="total-time-m">0:00</span>
+      <div class="time-m">
+        <div class="time-inner-m">
+          <span class="current-time" id="current-time-m">0:00</span>
+          <span class="total-time" id="total-time-m">0:00</span>
+        </div>
       </div>
     </div>
-    </div>
-    <div class='player-buttons'>
-      <div class="pleft">
+    <div class='controls'>
+      <div class="cleft">
         <div class='player-button'>
           <i id="external" class="normal fas fa-external-link-square-alt">
             <span class="tooltiptext">Link to Beatport</span>
@@ -85,38 +88,41 @@
           <i id="random-m" class="fas fa-random mobile"></i>
         </div>
       </div>
-      <div class="pmid">
-      <div class='player-button'>
-        <i id="random" class="fas fa-random normal"></i>
+      <div class="cmid">
+        <div class='player-button'>
+          <i id="random" class="fas fa-random normal"></i>
+        </div>
+        <div class='player-button play-back'>
+          <i id="play-back" class="fa fa-backward" aria-hidden="true"></i>
+        </div>
+        <div class='player-button play-pause'>
+          <i id="play-pause" class="far fa-play-circle" aria-hidden="true"></i>
+        </div>
+        <div class='player-button play-forward'>
+          <i id="play-forward" class="fa fa-forward" aria-hidden="true"></i>
+        </div>
+        <div class='player-button'>
+          <div id="repeat" class="normal repeat"></div>
+          <div id="repeatonce" class="normal repeatonce"></div>
+        </div>
       </div>
-      <div class='player-button play-back'>
-        <i id="play-back" class="fa fa-backward" aria-hidden="true"></i>
-      </div>
-      <div class='player-button play-pause'>
-        <i id="play-pause" class="far fa-play-circle" aria-hidden="true"></i>
-      </div>
-      <div class='player-button play-forward'>
-        <i id="play-forward" class="fa fa-forward" aria-hidden="true"></i>
-      </div>
-      <div class='player-button'>
-        <div id="repeat" class="normal repeat"></div>
-        <div id="repeatonce" class="normal repeatonce"></div>
-      </div>	
-      </div>
-      <div class="pright">
+      <div class="cright">
         <div class='player-button'>
           <i id="more" class="fas fa-ellipsis-h normal"></i>
           <div id="repeat-m" class="mobile repeat"></div>
           <div id="repeatonce-m" class="mobile repeatonce"></div>
         </div>
         <div id="more-dropup" class="more-dropup">
-          <a href="#" id="open-yt"><i class="fab fa-youtube" style="padding-right: 10px; color: red"></i>Watch on youtube.com</a>
+          <a href="#" id="open-yt">
+            <i class="fab fa-youtube" style="padding-right: 10px; color: red"></i>
+            Watch on youtube.com
+          </a>
           <a href="#" id="more-cancel" style="color: #94d500">Cancel</a>
           <div id="updated-time"></div>
         </div>
       </div>
     </div>
-    <div class="m-footer">
+    <div class="footer-m">
       <div class="fleft">
         <div class='player-button'>
           <i id="external-m" class="mobile fas fa-external-link-square-alt"></i>
@@ -128,9 +134,7 @@
         </div>
       </div>
     </div>
-</div>
-<script>
-</script>
+  </div>
 </body>
 
-</html>	
+</html>
