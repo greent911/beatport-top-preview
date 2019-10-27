@@ -85,13 +85,10 @@
   color: forestgreen;
 }
 .footer .player-button .repeat {
-  /* content: url(../../public/images/icons8-repeat-100.png); */
   content: url(../images/icons8-repeat-100.png);
   -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 .footer .player-button .repeatonce {
-  /* display: none; */
-  /* content: url(../../public/images/icons8-repeat-100-1.png); */
   content: url(../images/icons8-repeat-100-1.png);
   -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
@@ -326,9 +323,6 @@
 }
 @media screen and (max-width: 1000px) {
   .footer .volume {
-    display: none;
-  }
-  .footer #external-om {
     display: none;
   }
 }

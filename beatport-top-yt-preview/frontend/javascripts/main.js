@@ -23,10 +23,9 @@ class Main {
     this.typesUrl = '/api/types';
     this.tracksUrl = '/api/tracks';
 
-    this.initialize();
+    this.setup();
   }
-  async initialize() {
-    console.log('initialize');
+  async setup() {
     try {
       let [types, tracks] = await Promise.all([
         this.getTypes(), 
@@ -134,7 +133,8 @@ class Main {
     });
     this.content.once(Content.CUED, () => {
       this.content.unMute();
-      this.footer.initialize();
+      // When the player is ready, set up and display footer
+      this.footer.setup();
       this.syncPlayerVolume();
     });
     this.content.on(Content.BUFFERING, (track) => {
@@ -160,10 +160,10 @@ class Main {
         }
       }, 0);  
     });
-    this.footer.on(Footer.SHUFFLE_CLICKED, (isShuffle) => {
+    this.footer.on(Footer.SHUFFLE_TOGGLED, (isShuffle) => {
       this.content.setShuffle(isShuffle);
     });
-    this.footer.on(Footer.REPEAT_CLICKED, (isRepeat) => {
+    this.footer.on(Footer.REPEAT_TOGGLED, (isRepeat) => {
       this.content.setRepeat(isRepeat);
     });
   }
@@ -194,14 +194,14 @@ class Main {
   windowClicked(event) {
     // Solution for Opera mini issue: loading stuck for the first time after touchended or clicked
     // Special works for the first time running Youtube player
-    if (!this.isPlayerFirstBuffering && (this.isPlayButtonClicked(event) || this.content.isTopPlaylistClicked(event))) {
-      if (!this.isMoreMenuClicked(event)) {
+    if (!this.isPlayerFirstBuffering && (this.footer.isPlayButtonClicked(event) || this.content.isTopPlaylistClicked(event))) {
+      if (!this.footer.isMoreMenuClicked(event)) {
         this.footer.hideMoreMenu();
       }
       if (!this.navbar.isAboutClicked(event)) {
         this.navbar.hideAboutDropdown();
       }
-      if (!this.isVolumeClicked(event)) {
+      if (!this.footer.isVolumeClicked(event)) {
         this.footer.hideVolumeControls();
       }
       return;
@@ -210,13 +210,13 @@ class Main {
       // If is touchmove, no more click or touchend event
       event.stopPropagation();
     } else {
-      if (!this.isMoreMenuClicked(event)) {
+      if (!this.footer.isMoreMenuClicked(event)) {
         this.footer.hideMoreMenu();
       }
       if (!this.navbar.isAboutClicked(event)) {
         this.navbar.hideAboutDropdown();
       }
-      if (!this.isVolumeClicked(event)) {
+      if (!this.footer.isVolumeClicked(event)) {
         this.footer.hideVolumeControls();
       }
     }
@@ -227,37 +227,6 @@ class Main {
     && this.footer.element['volumeControls'].style.display != 'flex') {
       this.content.hideOverlay();
     }
-  }
-  isMoreMenuClicked(event) {
-    let more = this.footer.element['more'];
-    let moreM = this.footer.element['moreM'];
-    let dropup = this.footer.element['moreDropup'];
-    if (event.target != more && event.target != moreM 
-      && event.target != dropup && event.target.parentNode != dropup) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-  isVolumeClicked(event) {
-    let volumeBtn = this.footer.element['volumeBtn'];
-    let volumeControls = this.footer.element['volumeControls'];
-    if (event.target != volumeBtn && event.target.parentNode != volumeBtn && event.target.parentNode.parentNode != volumeBtn 
-      && event.target != volumeControls && event.target.parentNode != volumeControls
-      && event.target.parentNode.parentNode != volumeControls && event.target.parentNode.parentNode.parentNode != volumeControls) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-  isPlayButtonClicked(event) {
-    let playPause = this.footer.element['playPause'];
-    let playBack = this.footer.element['playBack'];
-    let playForward = this.footer.element['playForward'];
-    if (event.target == playPause || event.target == playBack || event.target == playForward) {
-      return true;
-    }
-    return false;
   }
   progressPinDragging(e, mouseOrTouch) {
     if (e.target != this.footer.element['progressPin']) {

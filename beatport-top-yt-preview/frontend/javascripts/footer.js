@@ -40,120 +40,117 @@ class Footer extends Base {
       moreCancel: document.getElementById('more-cancel'),
       updatedTime: document.getElementById('updated-time'),
     };
-    this.isPlayerFirstBuffering = false;
 
-    this.isShuffle = false;
-    this.isRepeat = false;
-    this.element['moreDropup'].style.display = 'block';
+    this.isPlayerFirstBuffering = false;
+    this._isShuffle = false;
+    this._isRepeat = false;
+
+    // this.element['moreDropup'].style.display = 'block';
   }
-  initialize() {
+
+  setup() {
+    // Hide repeatonce icon buttons
     this.element['repeatonce'].style.display = 'none';
     this.element['repeatonceM'].style.display = 'none';
-    this.element['moreDropup'].removeAttribute('style');
+
+    // this.element['moreDropup'].removeAttribute('style');
+
+    // Display footer
     document.getElementById('footer').removeAttribute('style');
+    
     this._setEventListeners();
   }
+
   _setEventListeners() {
     this.element['playPause'].addEventListener('touchend', (event) => {
       if (!this.isPlayerFirstBuffering) {
         return;
       }
-      this.togglePlayPause(event);
+      this._togglePlayPause(event);
     });
-    this.element['playPause'].addEventListener('click', this.togglePlayPause.bind(this));
-    this.element['external'].addEventListener('touchend', this.openLink.bind(this));
-    this.element['external'].addEventListener('click', this.openLink.bind(this));
-    this.element['externalM'].addEventListener('touchend', this.openLink.bind(this));
-    this.element['externalM'].addEventListener('click', this.openLink.bind(this));
-    this.element['openYt'].addEventListener('touchend', this.openYoutube.bind(this));
-    this.element['openYt'].addEventListener('click', this.openYoutube.bind(this));
-    this.element['random'].addEventListener('touchend', this.toggleRandom.bind(this));
-    this.element['random'].addEventListener('click', this.toggleRandom.bind(this));
-    this.element['randomM'].addEventListener('touchend', this.toggleRandom.bind(this));
-    this.element['randomM'].addEventListener('click', this.toggleRandom.bind(this));
+    this.element['playPause'].addEventListener('click', this._togglePlayPause.bind(this));
+
+    this.element['external'].addEventListener('touchend', this._openBeatportLink.bind(this));
+    this.element['external'].addEventListener('click', this._openBeatportLink.bind(this));
+    this.element['externalM'].addEventListener('touchend', this._openBeatportLink.bind(this));
+    this.element['externalM'].addEventListener('click', this._openBeatportLink.bind(this));
+
+    this.element['openYt'].addEventListener('touchend', this._openYoutube.bind(this));
+    this.element['openYt'].addEventListener('click', this._openYoutube.bind(this));
+
+    this.element['random'].addEventListener('touchend', this._toggleRandom.bind(this));
+    this.element['random'].addEventListener('click', this._toggleRandom.bind(this));
+    this.element['randomM'].addEventListener('touchend', this._toggleRandom.bind(this));
+    this.element['randomM'].addEventListener('click', this._toggleRandom.bind(this));
+
     this.element['playBack'].addEventListener('touchend', (event) => {
       if (!this.isPlayerFirstBuffering) {
         return;
       }
-      this.togglePlayBack(event);
+      this._togglePlayBack(event);
     });
-    this.element['playBack'].addEventListener('click', this.togglePlayBack.bind(this));
+    this.element['playBack'].addEventListener('click', this._togglePlayBack.bind(this));
+
     this.element['playForward'].addEventListener('touchend', (event) => {
       if (!this.isPlayerFirstBuffering) {
         return;
       }
-      this.togglePlayForward(event);
+      this._togglePlayForward(event);
     });
-    this.element['playForward'].addEventListener('click', this.togglePlayForward.bind(this));
-    this.element['repeat'].addEventListener('touchend', this.toggleRepeat.bind(this));
-    this.element['repeat'].addEventListener('click', this.toggleRepeat.bind(this));
-    this.element['repeatM'].addEventListener('touchend', this.toggleRepeat.bind(this));
-    this.element['repeatM'].addEventListener('click', this.toggleRepeat.bind(this));
-    this.element['repeatonce'].addEventListener('touchend', this.toggleRepeat.bind(this));
-    this.element['repeatonce'].addEventListener('click', this.toggleRepeat.bind(this));
-    this.element['repeatonceM'].addEventListener('touchend', this.toggleRepeat.bind(this));
-    this.element['repeatonceM'].addEventListener('click', this.toggleRepeat.bind(this));
-    this.element['more'].addEventListener('touchend', this.showHideMoreMenu.bind(this));
-    this.element['more'].addEventListener('click', this.showHideMoreMenu.bind(this));
-    this.element['moreM'].addEventListener('touchend', this.showHideMoreMenu.bind(this));
-    this.element['moreM'].addEventListener('click', this.showHideMoreMenu.bind(this));
+    this.element['playForward'].addEventListener('click', this._togglePlayForward.bind(this));
+
+    this.element['repeat'].addEventListener('touchend', this._toggleRepeat.bind(this));
+    this.element['repeat'].addEventListener('click', this._toggleRepeat.bind(this));
+    this.element['repeatM'].addEventListener('touchend', this._toggleRepeat.bind(this));
+    this.element['repeatM'].addEventListener('click', this._toggleRepeat.bind(this));
+    this.element['repeatonce'].addEventListener('touchend', this._toggleRepeat.bind(this));
+    this.element['repeatonce'].addEventListener('click', this._toggleRepeat.bind(this));
+    this.element['repeatonceM'].addEventListener('touchend', this._toggleRepeat.bind(this));
+    this.element['repeatonceM'].addEventListener('click', this._toggleRepeat.bind(this));
+
+    this.element['more'].addEventListener('touchend', this._showHideMoreMenu.bind(this));
+    this.element['more'].addEventListener('click', this._showHideMoreMenu.bind(this));
+    this.element['moreM'].addEventListener('touchend', this._showHideMoreMenu.bind(this));
+    this.element['moreM'].addEventListener('click', this._showHideMoreMenu.bind(this));
+
     this.element['moreCancel'].addEventListener('touchend', this.hideMoreMenu.bind(this));
     this.element['moreCancel'].addEventListener('click', this.hideMoreMenu.bind(this));
-    this.element['volumeBtn'].addEventListener('touchend', this.showHideVolumeBtn.bind(this));
-    this.element['volumeBtn'].addEventListener('click', this.showHideVolumeBtn.bind(this));
+
+    this.element['volumeBtn'].addEventListener('touchend', this._showHideVolumeBtn.bind(this));
+    this.element['volumeBtn'].addEventListener('click', this._showHideVolumeBtn.bind(this));
   }
-  togglePlayPause(event) {
+
+  _togglePlayPause(event) {
     if (event) event.preventDefault();
+
     this.emit(Footer.PLAY_PAUSE_TOGGLED);
   }
-  setPlayButton() {
-    let classList = this.element['playPause'].classList;
-    if (classList.contains('fa-play-circle')) {
-      classList.add('fa-pause-circle');
-      classList.remove('fa-play-circle');
-      this.isPlay = true;
-    } else {
-      classList.add('fa-play-circle');
-      classList.remove('fa-pause-circle');
-      this.isPlay = false;
-    }
-  }
-  setPlay() {
-    let classList = this.element['playPause'].classList;
-    if (classList.contains('fa-play-circle')) {
-      classList.add('fa-pause-circle');
-      classList.remove('fa-play-circle');
-    }
-    this.isPlay = true;
-  }
-  setPause() {
-    let classList = this.element['playPause'].classList;
-    if (classList.contains('fa-pause-circle')) {
-      classList.add('fa-play-circle');
-      classList.remove('fa-pause-circle');
-    }
-    this.isPlay = false;
-  }
-  openLink(event) {
+
+  _openBeatportLink(event) {
     event.preventDefault();
+
     let link = this.element['external'].link;
     if (link) {
       window.open(link);
     }
   }
-  openYoutube(event) {
+
+  _openYoutube(event) {
     event.preventDefault();
+
     let ytLink = this.element['openYt'].link;
     if (ytLink) {
       this.emit(Footer.OPEN_YOUTUBE_CLICKED, ytLink);
     }
   }
-  toggleRandom(event) {
+
+  _toggleRandom(event) {
     event.preventDefault();
-    this.isShuffle = !this.isShuffle;
+
+    this._isShuffle = !this._isShuffle;
     let classList = this.element['random'].classList;
     let classListM = this.element['randomM'].classList;
-    if (this.isShuffle) {
+    if (this._isShuffle) {
       classList.add('green');
       classListM.add('green');
     } else {
@@ -164,26 +161,32 @@ class Footer extends Base {
         classListM.remove('green');
       }
     }
-    this.emit(Footer.SHUFFLE_CLICKED, this.isShuffle);
+    this.emit(Footer.SHUFFLE_TOGGLED, this._isShuffle);
   }
-  togglePlayBack(event) {
+
+  _togglePlayBack(event) {
     event.preventDefault();
+
     this.setPlay();
     this.emit(Footer.PLAY_BACK_TOGGLED);
   }
-  togglePlayForward(event) {
+
+  _togglePlayForward(event) {
     event.preventDefault();
+
     this.setPlay();
     this.emit(Footer.PLAY_FORWARD_TOGGLED);
   }
-  toggleRepeat(event) {
+
+  _toggleRepeat(event) {
     event.preventDefault();
-    this.isRepeat = !this.isRepeat;
+
+    this._isRepeat = !this._isRepeat;
     let repeat = this.element['repeat'];
     let repeatonce = this.element['repeatonce'];
     let repeatM = this.element['repeatM'];
     let repeatonceM = this.element['repeatonceM'];
-    if (this.isRepeat) {
+    if (this._isRepeat) {
       repeat.style.display = 'none';
       repeatM.style.display = 'none';
       repeatonce.removeAttribute('style');
@@ -194,62 +197,60 @@ class Footer extends Base {
       repeat.removeAttribute('style');
       repeatM.removeAttribute('style');
     }
-    this.emit(Footer.REPEAT_CLICKED, this.isRepeat);
+    this.emit(Footer.REPEAT_TOGGLED, this._isRepeat);
   }
-  showMoreMenu(event) {
+  
+  _showMoreMenu(event) {
     event.preventDefault();
+
     this.element['moreDropup'].style.display = 'block';
     this.emit(Footer.MORE_MENU_SHOWED);
   }
+
   hideMoreMenu(event) {
     if(event) event.preventDefault();
+
     this.element['moreDropup'].removeAttribute('style');
     this.emit(Footer.MORE_MENU_HID);
   }
-  showHideMoreMenu(event) {
+
+  _showHideMoreMenu(event) {
     event.preventDefault();
+
     let display = this.element['moreDropup'].style.display;
     if (display != 'block') {
-      this.showMoreMenu(event);
+      this._showMoreMenu(event);
     } else {
       this.hideMoreMenu(event);
     }
   }
-  showVolumeControls(event) {
+
+  _showVolumeControls(event) {
     event.preventDefault();
+
     this.element['volumeControls'].style.display = 'flex';
     this.emit(Footer.VOLUME_SHOWED);
   }
+
   hideVolumeControls(event) {
     if(event) event.preventDefault();
+
     this.element['volumeControls'].removeAttribute('style');
     this.emit(Footer.VOLUME_HID);
   }
-  showHideVolumeBtn(event) {
+
+  _showHideVolumeBtn(event) {
     event.preventDefault();
+    
     let display = this.element['volumeControls'].style.display;
     if (display != 'flex') {
-      this.showVolumeControls(event);
+      this._showVolumeControls(event);
     } else {
       this.hideVolumeControls(event);
     }
   }
-  setTrackInfo(track, duration) {
-    let { title, video_id: videoId, link, artists, updated_at: updatedAt, imglink  } = track;
-    let totalTime = this.formatTime(duration);
-    let updatedTime = this.formatUTCDate(new Date(updatedAt));
 
-    this.element['title'].innerHTML = title;
-    // this.element['title'].href = `https://www.beatport.com${link}`;
-    this.element['openYt'].link = `https://www.youtube.com/watch?v=${videoId}`;
-    this.element['external'].link = `https://www.beatport.com${link}`;
-    this.element['artist'].innerHTML = artists;
-    this.element['updatedTime'].innerHTML = `Latest Update: ${updatedTime}`;
-    this.element['artwork'].style.backgroundImage = `url(${imglink})`;
-    this.element['totalTime'].textContent = totalTime;
-    this.element['totalTimeM'].textContent = totalTime;
-  }
-  formatUTCDate(date) {
+  _formatUTCDate(date) {
     let month = date.getUTCMonth() + 1; // months from 1-12
     let day = date.getUTCDate();
     let year = date.getUTCFullYear();
@@ -262,11 +263,60 @@ class Footer extends Base {
     + ((minutes<10) ? ('0' + minutes) : minutes) + ':' 
     + ((seconds<10) ? ('0' + seconds) : seconds);
   }
+
+  setPlayButton() {
+    let classList = this.element['playPause'].classList;
+    if (classList.contains('fa-play-circle')) {
+      classList.add('fa-pause-circle');
+      classList.remove('fa-play-circle');
+      this.isPlay = true;
+    } else {
+      classList.add('fa-play-circle');
+      classList.remove('fa-pause-circle');
+      this.isPlay = false;
+    }
+  }
+
+  setPlay() {
+    let classList = this.element['playPause'].classList;
+    if (classList.contains('fa-play-circle')) {
+      classList.add('fa-pause-circle');
+      classList.remove('fa-play-circle');
+    }
+    this.isPlay = true;
+  }
+
+  setPause() {
+    let classList = this.element['playPause'].classList;
+    if (classList.contains('fa-pause-circle')) {
+      classList.add('fa-play-circle');
+      classList.remove('fa-pause-circle');
+    }
+    this.isPlay = false;
+  }
+
   formatTime(seconds) {
     let min = Math.floor(seconds / 60);
     let sec = Math.floor(seconds % 60);
     return min + ':' + ((sec<10) ? ('0' + sec) : sec);
   }
+
+  setTrackInfo(track, duration) {
+    let { title, video_id: videoId, link, artists, updated_at: updatedAt, imglink  } = track;
+    let totalTime = this.formatTime(duration);
+    let updatedTime = this._formatUTCDate(new Date(updatedAt));
+
+    this.element['title'].innerHTML = title;
+    // this.element['title'].href = `https://www.beatport.com${link}`;
+    this.element['openYt'].link = `https://www.youtube.com/watch?v=${videoId}`;
+    this.element['external'].link = `https://www.beatport.com${link}`;
+    this.element['artist'].innerHTML = artists;
+    this.element['updatedTime'].innerHTML = `Latest Update: ${updatedTime}`;
+    this.element['artwork'].style.backgroundImage = `url(${imglink})`;
+    this.element['totalTime'].textContent = totalTime;
+    this.element['totalTimeM'].textContent = totalTime;
+  }
+
   updateProgress(seconds, duration) {
     let percent = (seconds / duration) * 100;
     let currentTime = this.formatTime(seconds);
@@ -275,6 +325,7 @@ class Footer extends Base {
     this.element['currentTime'].textContent = currentTime;
     this.element['currentTimeM'].textContent = currentTime;
   }
+
   updateVolume(value) {
     this.element['volumeProgress'].style.height = `${value}%`;
     let coefficient = value / 100;
@@ -286,6 +337,7 @@ class Footer extends Base {
       this.element['speaker'].attributes.d.value = 'M0 7.667v8h5.333L12 22.333V1L5.333 7.667';
     }
   }
+
   getProgressCoef(posX) {
     let coefficient = 0; 
     let slider = this.element['audioSlider'];
@@ -302,16 +354,51 @@ class Footer extends Base {
     }
     return coefficient;
   }
+
+  isMoreMenuClicked(event) {
+    let more = this.element['more'];
+    let moreM = this.element['moreM'];
+    let dropup = this.element['moreDropup'];
+    if (event.target != more && event.target != moreM 
+      && event.target != dropup && event.target.parentNode != dropup) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  isVolumeClicked(event) {
+    let volumeBtn = this.element['volumeBtn'];
+    let volumeControls = this.element['volumeControls'];
+    if (event.target != volumeBtn && event.target.parentNode != volumeBtn && event.target.parentNode.parentNode != volumeBtn 
+      && event.target != volumeControls && event.target.parentNode != volumeControls
+      && event.target.parentNode.parentNode != volumeControls && event.target.parentNode.parentNode.parentNode != volumeControls) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  isPlayButtonClicked(event) {
+    let playPause = this.element['playPause'];
+    let playBack = this.element['playBack'];
+    let playForward = this.element['playForward'];
+    if (event.target == playPause || event.target == playBack || event.target == playForward) {
+      return true;
+    }
+    return false;
+  }
 }
+
 Footer.PLAY_PAUSE_TOGGLED = Symbol('PLAY_PAUSE_TOGGLED');
 Footer.PLAY_BACK_TOGGLED = Symbol('PLAY_BACK_TOGGLED');
 Footer.PLAY_FORWARD_TOGGLED = Symbol('PLAY_FORWARD_TOGGLED');
 Footer.OPEN_YOUTUBE_CLICKED = Symbol('OPEN_YOUTUBE_CLICKED');
-Footer.MORE_MENU_SHOWED = 'MORE_MENU_SHOWED';
-Footer.MORE_MENU_HID = 'MORE_MENU_HID';
-Footer.VOLUME_SHOWED = 'VOLUME_SHOWED';
-Footer.VOLUME_HID = 'VOLUME_HID';
-Footer.SHUFFLE_CLICKED = 'SHUFFLE_CLICKED';
-Footer.REPEAT_CLICKED = 'REPEAT_CLICKED';
+Footer.MORE_MENU_SHOWED = Symbol('MORE_MENU_SHOWED');
+Footer.MORE_MENU_HID = Symbol('MORE_MENU_HID');
+Footer.VOLUME_SHOWED = Symbol('VOLUME_SHOWED');
+Footer.VOLUME_HID = Symbol('VOLUME_HID');
+Footer.SHUFFLE_TOGGLED = Symbol('SHUFFLE_TOGGLED');
+Footer.REPEAT_TOGGLED = Symbol('REPEAT_TOGGLED');
 
 export default Footer;
