@@ -1,6 +1,7 @@
 import Base from './base';
-import Content from './content';
+
 /* global YT */
+
 class Footer extends Base {
   constructor() {
     super();
@@ -40,24 +41,19 @@ class Footer extends Base {
       updatedTime: document.getElementById('updated-time'),
     };
     this.isPlayerFirstBuffering = false;
-    this._updateProgressTimer = null;
 
     this.isShuffle = false;
     this.isRepeat = false;
     this.element['moreDropup'].style.display = 'block';
   }
-  setup(player) {
-    this.init(player);
-  }
-  init(player) {
-    this.player = player;
+  initialize() {
     this.element['repeatonce'].style.display = 'none';
     this.element['repeatonceM'].style.display = 'none';
     this.element['moreDropup'].removeAttribute('style');
     document.getElementById('footer').removeAttribute('style');
-    this.listen();
+    this._setEventListeners();
   }
-  listen() {
+  _setEventListeners() {
     this.element['playPause'].addEventListener('touchend', (event) => {
       if (!this.isPlayerFirstBuffering) {
         return;
@@ -69,8 +65,8 @@ class Footer extends Base {
     this.element['external'].addEventListener('click', this.openLink.bind(this));
     this.element['externalM'].addEventListener('touchend', this.openLink.bind(this));
     this.element['externalM'].addEventListener('click', this.openLink.bind(this));
-    this.element['openYt'].addEventListener('touchend', this.openYtLink.bind(this));
-    this.element['openYt'].addEventListener('click', this.openYtLink.bind(this));
+    this.element['openYt'].addEventListener('touchend', this.openYoutube.bind(this));
+    this.element['openYt'].addEventListener('click', this.openYoutube.bind(this));
     this.element['random'].addEventListener('touchend', this.toggleRandom.bind(this));
     this.element['random'].addEventListener('click', this.toggleRandom.bind(this));
     this.element['randomM'].addEventListener('touchend', this.toggleRandom.bind(this));
@@ -145,13 +141,11 @@ class Footer extends Base {
       window.open(link);
     }
   }
-  openYtLink(event) {
+  openYoutube(event) {
     event.preventDefault();
-    let link = this.element['openYt'].link;
-    if (link) {
-      this.player.pauseVideo();
-      window.open(link + '&t=' + parseInt(this.player.getCurrentTime()));
-      this.hideMoreMenu();
+    let ytLink = this.element['openYt'].link;
+    if (ytLink) {
+      this.emit(Footer.OPEN_YOUTUBE_CLICKED, ytLink);
     }
   }
   toggleRandom(event) {
@@ -174,21 +168,13 @@ class Footer extends Base {
   }
   togglePlayBack(event) {
     event.preventDefault();
-    let classList = this.element['playPause'].classList;
-    this.player.previousVideo();
-    if (classList.contains('fa-play-circle')) {
-      classList.add('fa-pause-circle');
-      classList.remove('fa-play-circle');
-    }
+    this.setPlay();
+    this.emit(Footer.PLAY_BACK_TOGGLED);
   }
   togglePlayForward(event) {
     event.preventDefault();
-    let classList = this.element['playPause'].classList;
-    this.player.nextVideo();
-    if (classList.contains('fa-play-circle')) {
-      classList.add('fa-pause-circle');
-      classList.remove('fa-play-circle');
-    }
+    this.setPlay();
+    this.emit(Footer.PLAY_FORWARD_TOGGLED);
   }
   toggleRepeat(event) {
     event.preventDefault();
@@ -248,19 +234,20 @@ class Footer extends Base {
       this.hideVolumeControls(event);
     }
   }
-  setTrackInfo(track) {
-    this.element['title'].innerHTML = track.title;
-    // this.element['title'].href = 'https://www.beatport.com' + track.link;
-    this.element['openYt'].link = 'https://www.youtube.com/watch?v=' + track['video_id'];
-    this.element['external'].link = 'https://www.beatport.com' + track.link;
-    this.element['artist'].innerHTML = track.artists;
-    this.element['updatedTime'].innerHTML = 'Latest Update: ' + this.formatUTCDate(new Date(track['updated_at']));
-    this.element['artwork'].style.backgroundImage = 'url(' + track.imglink + ')';
-    let total = this.formatTime(this.player.getDuration());
-    this.element['totalTime'].textContent = total;
-    this.element['totalTimeM'].textContent = total;
-    this.updateProgress();
-    this.setPlay();
+  setTrackInfo(track, duration) {
+    let { title, video_id: videoId, link, artists, updated_at: updatedAt, imglink  } = track;
+    let totalTime = this.formatTime(duration);
+    let updatedTime = this.formatUTCDate(new Date(updatedAt));
+
+    this.element['title'].innerHTML = title;
+    // this.element['title'].href = `https://www.beatport.com${link}`;
+    this.element['openYt'].link = `https://www.youtube.com/watch?v=${videoId}`;
+    this.element['external'].link = `https://www.beatport.com${link}`;
+    this.element['artist'].innerHTML = artists;
+    this.element['updatedTime'].innerHTML = `Latest Update: ${updatedTime}`;
+    this.element['artwork'].style.backgroundImage = `url(${imglink})`;
+    this.element['totalTime'].textContent = totalTime;
+    this.element['totalTimeM'].textContent = totalTime;
   }
   formatUTCDate(date) {
     let month = date.getUTCMonth() + 1; // months from 1-12
@@ -275,27 +262,18 @@ class Footer extends Base {
     + ((minutes<10) ? ('0' + minutes) : minutes) + ':' 
     + ((seconds<10) ? ('0' + seconds) : seconds);
   }
-  formatTime(time) {
-    let min = Math.floor(time / 60);
-    let sec = Math.floor(time % 60);
+  formatTime(seconds) {
+    let min = Math.floor(seconds / 60);
+    let sec = Math.floor(seconds % 60);
     return min + ':' + ((sec<10) ? ('0' + sec) : sec);
   }
-  updateProgress() {
-    this.stopUpdateProgress();
-    this._updateProgressTimer = setInterval(() => {
-      let current = this.player.getCurrentTime();
-      let duration = this.player.getDuration();
-      let percent = (current / duration) * 100;
-      this.element['progress'].style.width = percent + '%';
-      current = this.formatTime(current);
-      this.element['currentTime'].textContent = current;
-      this.element['currentTimeM'].textContent = current;
-    }, 100);
-  }
-  stopUpdateProgress() {
-    if (this._updateProgressTimer) {
-      clearInterval(this._updateProgressTimer);
-    }
+  updateProgress(seconds, duration) {
+    let percent = (seconds / duration) * 100;
+    let currentTime = this.formatTime(seconds);
+
+    this.element['progress'].style.width = percent + '%';
+    this.element['currentTime'].textContent = currentTime;
+    this.element['currentTimeM'].textContent = currentTime;
   }
   updateVolume(value) {
     this.element['volumeProgress'].style.height = `${value}%`;
@@ -326,10 +304,14 @@ class Footer extends Base {
   }
 }
 Footer.PLAY_PAUSE_TOGGLED = Symbol('PLAY_PAUSE_TOGGLED');
+Footer.PLAY_BACK_TOGGLED = Symbol('PLAY_BACK_TOGGLED');
+Footer.PLAY_FORWARD_TOGGLED = Symbol('PLAY_FORWARD_TOGGLED');
+Footer.OPEN_YOUTUBE_CLICKED = Symbol('OPEN_YOUTUBE_CLICKED');
 Footer.MORE_MENU_SHOWED = 'MORE_MENU_SHOWED';
 Footer.MORE_MENU_HID = 'MORE_MENU_HID';
 Footer.VOLUME_SHOWED = 'VOLUME_SHOWED';
 Footer.VOLUME_HID = 'VOLUME_HID';
 Footer.SHUFFLE_CLICKED = 'SHUFFLE_CLICKED';
 Footer.REPEAT_CLICKED = 'REPEAT_CLICKED';
+
 export default Footer;

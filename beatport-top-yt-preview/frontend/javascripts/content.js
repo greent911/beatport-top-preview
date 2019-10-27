@@ -397,8 +397,24 @@ class Content extends Base {
     this.player.playVideo();
   }
 
+  playPreviousVideo() {
+    this.player.previousVideo();
+  }
+
+  playNextVideo() {
+    this.player.nextVideo();
+  }
+
   pauseVideo() {
     this.player.pauseVideo();
+  }
+
+  getVideoElapsedSeconds() {
+    return parseInt(this.player.getCurrentTime());
+  }
+
+  getVideoDuration() {
+    return this.player.getDuration();
   }
 }
 

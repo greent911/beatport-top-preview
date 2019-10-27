@@ -14,6 +14,8 @@ class Main {
     this.isPinTouched = false;
     this.isPlayerFirstBuffering = false;
 
+    this.updatePlayerProgressTimer = null;
+
     this.navbar = null;
     this.content = null;
     this.footer = null;
@@ -32,8 +34,8 @@ class Main {
       ]);
       this.navbar = new Navbar(types);
       this.content = new Content(tracks);
-      // TODO: refactor later
       this.footer = new Footer();
+      
       this.listen();
       this.adjustViewHeight();
 
@@ -101,6 +103,17 @@ class Main {
         }
       }
     });
+    this.footer.on(Footer.PLAY_BACK_TOGGLED, () => {
+      this.content.playPreviousVideo();
+    });
+    this.footer.on(Footer.PLAY_FORWARD_TOGGLED, () => {
+      this.content.playNextVideo();
+    });
+    this.footer.on(Footer.OPEN_YOUTUBE_CLICKED, (ytLink) => {
+      this.content.pauseVideo();
+      window.open(ytLink + '&t=' + this.content.getVideoElapsedSeconds());
+      this.footer.hideMoreMenu();
+    });
     this.footer.on(Footer.MORE_MENU_SHOWED, () => {
       this.content.openOverlay();
     });
@@ -121,21 +134,25 @@ class Main {
     });
     this.content.once(Content.CUED, () => {
       this.content.unMute();
-      this.footer.setup(this.content.player);
+      this.footer.initialize();
       this.syncPlayerVolume();
     });
     this.content.on(Content.BUFFERING, (track) => {
       // TO-DO: refactor
       this.isPlayerFirstBuffering = true;
       this.footer.isPlayerFirstBuffering = true;
-      this.footer.setTrackInfo(track);
+
+      let duration = this.content.getVideoDuration();
+      this.footer.setTrackInfo(track, duration);
+      this.footer.setPlay();
+      this.syncPlayerProgress();
     });
     this.content.on(Content.PLAYING, () => {
-      this.footer.updateProgress();
+      this.syncPlayerProgress();
       this.footer.setPlay();
     });
     this.content.on(Content.PAUSED, () => {
-      this.footer.stopUpdateProgress();
+      this.stopSyncPlayerProgress();
       // Wait a little bit to prevent quickly switch to pause before playing next video
       setTimeout(() => {
         if (this.content.getState() == Content.PAUSED) {
@@ -154,6 +171,19 @@ class Main {
     setInterval(() => {
       this.footer.updateVolume(this.content.getVolume());
     }, 500);
+  }
+  syncPlayerProgress() {
+    this.stopSyncPlayerProgress();
+    this.updatePlayerProgressTimer = setInterval(() => {
+      let seconds = this.content.getVideoElapsedSeconds();
+      let duration = this.content.getVideoDuration();
+      this.footer.updateProgress(seconds, duration);
+    }, 100);
+  }
+  stopSyncPlayerProgress() {
+    if (this.updatePlayerProgressTimer) {
+      clearInterval(this.updatePlayerProgressTimer);
+    }
   }
   adjustViewHeight() {
     // correct height for mobile browsers
