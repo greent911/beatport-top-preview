@@ -373,6 +373,15 @@ class Content extends Base {
     : this.player.getVolume();
   }
 
+  setVolume(val) {
+    if (val >= 100) {
+      val = 100;
+    } else if (val <= 0) {
+      val = 0;
+    }
+    this.player.setVolume(val);
+  }
+
   getState() {
     let playerState = this.player.getPlayerState();
     switch (playerState) {
@@ -415,6 +424,10 @@ class Content extends Base {
 
   getVideoDuration() {
     return this.player.getDuration();
+  }
+
+  seekTo(seconds) {
+    this.player.seekTo(seconds);
   }
 }
 

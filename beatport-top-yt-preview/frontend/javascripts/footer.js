@@ -1,7 +1,5 @@
 import Base from './base';
 
-/* global YT */
-
 class Footer extends Base {
   constructor() {
     super();
@@ -317,13 +315,21 @@ class Footer extends Base {
     this.element['totalTimeM'].textContent = totalTime;
   }
 
+  setProgress(percent) {
+    this.element['progress'].style.width = `${percent}%`;
+  }
+
+  setCurrentTimeText(currentTime) {
+    this.element['currentTime'].textContent = currentTime;
+    this.element['currentTimeM'].textContent = currentTime;
+  }
+
   updateProgress(seconds, duration) {
     let percent = (seconds / duration) * 100;
     let currentTime = this.formatTime(seconds);
 
-    this.element['progress'].style.width = percent + '%';
-    this.element['currentTime'].textContent = currentTime;
-    this.element['currentTimeM'].textContent = currentTime;
+    this.setProgress(percent);
+    this.setCurrentTimeText(currentTime);
   }
 
   updateVolume(value) {

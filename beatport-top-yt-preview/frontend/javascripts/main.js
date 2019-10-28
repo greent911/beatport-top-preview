@@ -7,11 +7,11 @@ import '../stylesheets/style.css';
 import '../stylesheets/navbar.css';
 import '../stylesheets/content.css';
 import '../stylesheets/footer.css';
-/* global YT */
+
 class Main {
   constructor() {
     this.isTouchMoved = false;
-    this.isPinTouched = false;
+    this.isProgressPinTouched = false;
     this.isPlayerFirstBuffering = false;
 
     this.updatePlayerProgressTimer = null;
@@ -25,6 +25,7 @@ class Main {
 
     this.setup();
   }
+
   async setup() {
     try {
       let [types, tracks] = await Promise.all([
@@ -35,13 +36,14 @@ class Main {
       this.content = new Content(tracks);
       this.footer = new Footer();
       
-      this.listen();
       this.adjustViewHeight();
+      this.setEventListeners();
 
     } catch (err) {
       console.error(err);
     }
   }
+
   async getTypes() {
     try {
       let request = await ajaxRequest(this.typesUrl);
@@ -52,10 +54,11 @@ class Main {
       throw err;
     }
   }
+
   async getTracks() {
     try {
-      const urlParams = new URLSearchParams(window.location.search);
-      let type = urlParams.get('type');
+      let href = new URL(window.location.href);
+      let type = href.pathname.split('/')[2];
       let url = this.tracksUrl + '/' + ((type)? type: '');
       let request = await ajaxRequest(url);
       let tracks = JSON.parse(request.response);
@@ -65,33 +68,81 @@ class Main {
       throw err;
     }
   }
-  listen() {
+
+  adjustViewHeight() {
+    // correct height for mobile browsers
+    // ref: https://css-tricks.com/the-trick-to-viewport-units-on-mobile/
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  }
+
+  setEventListeners() {
     window.addEventListener('resize', () => {
       console.log('window resize');
       this.navbar.adjustDisplayMode();
       if (this.getOrientation() == 'portrait') {
         this.adjustViewHeight();
       }
-    }); 
-    window.addEventListener('touchstart', (e) => {
-      console.log('touchstart');
+    });
+
+    window.addEventListener('touchstart', (event) => {
+      // console.log('touchstart');
       this.isTouchMoved = false;
-      this.isPinTouched = false;
-      if (e.target == this.footer.element['progressPin']) {
-        this.isPinTouched = true;
-        this.progressPinDragging(e, 'touch');
+      this.isProgressPinTouched = false;
+      if (event.target == this.footer.element['progressPin']) {
+        this.isProgressPinTouched = true;
+        this.progressPinDragging(event, 'touch');
       }
     }, true);
-    window.addEventListener('touchmove', () => {this.isTouchMoved = true;console.log('touchmove');}, true);
-    window.addEventListener('mousedown', (e) => {
-      if (e.target == this.footer.element['progressPin']) {
-        this.progressPinDragging(e, 'mousedown');
-      } else if (e.target == this.footer.element['volumePin']) {
-        this.volumePinDragging(e);
+    window.addEventListener('touchmove', () => {
+      // console.log('touchmove');
+      this.isTouchMoved = true;
+    }, true);
+    window.addEventListener('touchend', this.windowClickEnd.bind(this), true);
+
+    window.addEventListener('mousedown', (event) => {
+      if (event.target == this.footer.element['progressPin']) {
+        this.progressPinDragging(event, 'mousedown');
+      } else if (event.target == this.footer.element['volumePin']) {
+        this.volumePinDragging(event);
       }
     }, true);
-    window.addEventListener('touchend', this.windowClicked.bind(this), true);
-    window.addEventListener('click', this.windowClicked.bind(this), true);
+    window.addEventListener('click', this.windowClickEnd.bind(this), true);
+
+    this.navbar.on(Navbar.ABOUT_SHOWED, () => {
+      this.content.openOverlay();
+    });
+    this.navbar.on(Navbar.ABOUT_HID, () => {
+      this.hideOverlay();
+    });
+    this.content.once(Content.CUED, () => {
+      this.content.unMute();
+      // When the player is ready, set up and display footer
+      this.footer.setup();
+      this.syncPlayerVolume();
+    });
+    this.content.on(Content.BUFFERING, (track) => {
+      this.isPlayerFirstBuffering = true;
+      this.footer.isPlayerFirstBuffering = true;
+
+      let duration = this.content.getVideoDuration();
+      this.footer.setTrackInfo(track, duration);
+      this.footer.setPlay();
+      this.syncPlayerProgress();
+    });
+    this.content.on(Content.PLAYING, () => {
+      this.syncPlayerProgress();
+      this.footer.setPlay();
+    });
+    this.content.on(Content.PAUSED, () => {
+      this.stopSyncPlayerProgress();
+      // Wait a little bit to prevent quickly switch to pause before playing next video
+      setTimeout(() => {
+        if (this.content.getState() == Content.PAUSED) {
+          this.footer.setPause();
+        }
+      }, 0);  
+    });
     this.footer.on(Footer.PLAY_PAUSE_TOGGLED, () => {
       if (this.content.getState() != Content.BUFFERING) { 
         this.footer.setPlayButton();
@@ -101,7 +152,7 @@ class Main {
           this.content.pauseVideo();
         }
       }
-    });
+    });    
     this.footer.on(Footer.PLAY_BACK_TOGGLED, () => {
       this.content.playPreviousVideo();
     });
@@ -125,41 +176,6 @@ class Main {
     this.footer.on(Footer.VOLUME_HID, () => {
       this.hideOverlay();
     });
-    this.navbar.on(Navbar.ABOUT_SHOWED, () => {
-      this.content.openOverlay();
-    });
-    this.navbar.on(Navbar.ABOUT_HID, () => {
-      this.hideOverlay();
-    });
-    this.content.once(Content.CUED, () => {
-      this.content.unMute();
-      // When the player is ready, set up and display footer
-      this.footer.setup();
-      this.syncPlayerVolume();
-    });
-    this.content.on(Content.BUFFERING, (track) => {
-      // TO-DO: refactor
-      this.isPlayerFirstBuffering = true;
-      this.footer.isPlayerFirstBuffering = true;
-
-      let duration = this.content.getVideoDuration();
-      this.footer.setTrackInfo(track, duration);
-      this.footer.setPlay();
-      this.syncPlayerProgress();
-    });
-    this.content.on(Content.PLAYING, () => {
-      this.syncPlayerProgress();
-      this.footer.setPlay();
-    });
-    this.content.on(Content.PAUSED, () => {
-      this.stopSyncPlayerProgress();
-      // Wait a little bit to prevent quickly switch to pause before playing next video
-      setTimeout(() => {
-        if (this.content.getState() == Content.PAUSED) {
-          this.footer.setPause();
-        }
-      }, 0);  
-    });
     this.footer.on(Footer.SHUFFLE_TOGGLED, (isShuffle) => {
       this.content.setShuffle(isShuffle);
     });
@@ -167,11 +183,22 @@ class Main {
       this.content.setRepeat(isRepeat);
     });
   }
+
+  getOrientation() {
+    if (window.matchMedia('(orientation: portrait)').matches) {
+      return 'portrait';
+    }
+    if (window.matchMedia('(orientation: landscape)').matches) {
+      return 'landscape';
+    }
+  }
+
   syncPlayerVolume() {
     setInterval(() => {
       this.footer.updateVolume(this.content.getVolume());
     }, 500);
   }
+
   syncPlayerProgress() {
     this.stopSyncPlayerProgress();
     this.updatePlayerProgressTimer = setInterval(() => {
@@ -180,19 +207,15 @@ class Main {
       this.footer.updateProgress(seconds, duration);
     }, 100);
   }
+
   stopSyncPlayerProgress() {
     if (this.updatePlayerProgressTimer) {
       clearInterval(this.updatePlayerProgressTimer);
     }
   }
-  adjustViewHeight() {
-    // correct height for mobile browsers
-    // ref: https://css-tricks.com/the-trick-to-viewport-units-on-mobile/
-    let vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
-  }
-  windowClicked(event) {
-    // Solution for Opera mini issue: loading stuck for the first time after touchended or clicked
+
+  windowClickEnd(event) {
+    // Solution for Opera mini issue: loading stuck for the first time after touchend
     // Special works for the first time running Youtube player
     if (!this.isPlayerFirstBuffering && (this.footer.isPlayButtonClicked(event) || this.content.isTopPlaylistClicked(event))) {
       if (!this.footer.isMoreMenuClicked(event)) {
@@ -206,21 +229,23 @@ class Main {
       }
       return;
     }
-    if (this.isTouchMoved && !this.isPinTouched) {
-      // If is touchmove, no more click or touchend event
+    // Normal case
+    if (this.isTouchMoved && !this.isProgressPinTouched) {
+      // no other inner click or touchend event
       event.stopPropagation();
-    } else {
-      if (!this.footer.isMoreMenuClicked(event)) {
-        this.footer.hideMoreMenu();
-      }
-      if (!this.navbar.isAboutClicked(event)) {
-        this.navbar.hideAboutDropdown();
-      }
-      if (!this.footer.isVolumeClicked(event)) {
-        this.footer.hideVolumeControls();
-      }
+      return;
+    }
+    if (!this.footer.isMoreMenuClicked(event)) {
+      this.footer.hideMoreMenu();
+    }
+    if (!this.navbar.isAboutClicked(event)) {
+      this.navbar.hideAboutDropdown();
+    }
+    if (!this.footer.isVolumeClicked(event)) {
+      this.footer.hideVolumeControls();
     }
   }
+
   hideOverlay() {
     if (this.footer.element['moreDropup'].style.display != 'block' 
     && this.navbar.element['aboutDropdown'].style.display != 'block'
@@ -228,70 +253,80 @@ class Main {
       this.content.hideOverlay();
     }
   }
+
   progressPinDragging(e, mouseOrTouch) {
     if (e.target != this.footer.element['progressPin']) {
       return;
     }
-    let eventMove = 'mousemove';
-    let eventUp = 'mouseup';
+
+    let moveEventName = 'mousemove';
+    let endEventName = 'mouseup';
     switch (mouseOrTouch) {
     case 'touch':
-      eventMove = 'touchmove';
-      eventUp = 'touchend';
+      moveEventName = 'touchmove';
+      endEventName = 'touchend';
       break;
     case 'mousedown':
     default:
       break;
     }
+
     let self = this;
     let nextVideo = false;
-    let mousedownStatus = this.content.player.getPlayerState();
-    let mousemove = function(event) {
+    let playerState = this.content.getState();
+    let moving = function(event) {
       // prevent default text selection feature
       event.preventDefault();
+
+      // prevent misclicking on youtube
       self.content.openOverlay();
+
       let posX = (mouseOrTouch != 'touch')? event.clientX: event.touches[0].clientX;
       let progressCoef = self.footer.getProgressCoef(posX);
-      self.footer.element['progress'].style.width = (progressCoef*100) + '%';
-      let newDuration = self.content.player.getDuration() * progressCoef;
-      let newFormattedDuration = self.footer.formatTime(newDuration);
-      self.footer.element['currentTime'].textContent = newFormattedDuration;
-      self.footer.element['currentTimeM'].textContent = newFormattedDuration;
+      self.footer.setProgress(progressCoef*100);
+      let seconds = self.content.getVideoDuration() * progressCoef;
+      let newTime = self.footer.formatTime(seconds);
+      self.footer.setCurrentTimeText(newTime);
       if (progressCoef >= 1) {
         nextVideo = true;
       } else {
         nextVideo = false;
-        self.content.player.seekTo(newDuration);
+        self.content.seekTo(seconds);
       }
     };
-    window.addEventListener(eventUp, () => {
+
+    window.addEventListener(endEventName, () => {
       self.content.hideOverlay();
-      window.removeEventListener(eventMove, mousemove, {passive: false});
+      window.removeEventListener(moveEventName, moving, {passive: false});
       if (nextVideo) {
-        self.content.player.nextVideo();
+        self.content.playNextVideo();
         nextVideo = false;
       } else {
-        if (mousedownStatus != YT.PlayerState.PAUSED) {
-          self.content.player.playVideo();
+        if (playerState != Content.PAUSED) {
+          self.content.playVideo();
         }
       }
     }, {once: true, passive: false});
 
-    window.addEventListener(eventMove, mousemove, {passive: false});
-    this.content.player.pauseVideo();
+    // Set up mouse or touch move event handler
+    window.addEventListener(moveEventName, moving, {passive: false});
+
+    this.content.pauseVideo();
   }
+
   volumePinDragging(e) {
     if (e.target != this.footer.element['volumePin']) {
       return;
     }
+
     let self = this;
-    let mousemoving = function(event) {
+    let moving = function(event) {
       event.preventDefault();
       let volumeSlider = self.footer.element['volumeSlider'];
       let rect = volumeSlider.getBoundingClientRect();
       let min = rect.top;
       let max = min + volumeSlider.offsetHeight;
-      let coefficient = self.content.player.getVolume() / 100;
+      let coefficient = self.content.getVolume() / 100;
       if (event.clientY < min) {
         coefficient = 1;
       } else if (event.clientY > max) {
@@ -302,22 +337,17 @@ class Main {
         coefficient = 1 - offsetY / height;
       }
 
-      self.footer.updateVolume(coefficient*100);
+      self.footer.updateVolume(coefficient * 100);
       self.content.unMute();
-      self.content.player.setVolume(parseInt((coefficient * 100)));
+      self.content.setVolume(parseInt((coefficient * 100)));
     };
+
     window.addEventListener('mouseup', () => {
-      window.removeEventListener('mousemove', mousemoving);
+      window.removeEventListener('mousemove', moving);
     }, {once: true});
-    window.addEventListener('mousemove', mousemoving);
-  }
-  getOrientation() {
-    if (window.matchMedia('(orientation: portrait)').matches) {
-      return 'portrait';
-    }
-    if (window.matchMedia('(orientation: landscape)').matches) {
-      return 'landscape';
-    }
+
+    // Set up mouse move event handler
+    window.addEventListener('mousemove', moving);
   }
 }
 

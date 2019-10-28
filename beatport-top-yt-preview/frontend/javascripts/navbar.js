@@ -24,7 +24,7 @@ class Navbar extends Base {
   _setTypeLinkElements(types) {
     types.forEach((type) => {
       let element = document.createElement('a');
-      element.setAttribute('href', `/beatport?type=${type}`);
+      element.setAttribute('href', `/beatport/${type}`);
       element.innerHTML = type.toUpperCase();
       if (type == 'top100') {
         element.innerHTML = 'BP-TOP-PREVIEV';
@@ -33,7 +33,7 @@ class Navbar extends Base {
       this.element['topnav'].insertBefore(element, this.element['about']);  
 
       let sideElement = document.createElement('a');
-      sideElement.setAttribute('href', `/beatport?type=${type}`);
+      sideElement.setAttribute('href', `/beatport/${type}`);
       sideElement.innerHTML = type.toUpperCase();
       this.element['sidenav'].appendChild(sideElement);
     });
