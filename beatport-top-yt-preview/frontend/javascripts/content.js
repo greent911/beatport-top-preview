@@ -136,7 +136,7 @@ class Content extends Base {
         trackNode.appendChild(leftNode);
         trackNode.appendChild(rightNode);
         trackNode.addEventListener('touchend', (event) => {
-          // Solution for Opera mini issue: loading stuck for the first time after touchended
+          // Solution for Opera mini issue: loading stuck for the first time after touchend
           // Pass to click event listener
           if (!this._isPlayerFirstBuffering) {
             return;
@@ -194,7 +194,7 @@ class Content extends Base {
       }
 
       let playerState = event.data;
-      console.log(playerState);
+      // console.log(playerState);
 
       /**
        * PLAYER BUFFERING
@@ -367,19 +367,26 @@ class Content extends Base {
     this.player.unMute();
   }
 
+  /**
+   * Return the player's current volume
+   * @returns {number} a value between 0-100
+   */
   getVolume() {
     return (this.player.isMuted())
     ? 0
     : this.player.getVolume();
   }
 
-  setVolume(val) {
-    if (val >= 100) {
-      val = 100;
-    } else if (val <= 0) {
-      val = 0;
+  /**
+   * @param {number} value a value between 0-100
+   */
+  setVolume(value) {
+    if (value >= 100) {
+      value = 100;
+    } else if (value <= 0) {
+      value = 0;
     }
-    this.player.setVolume(val);
+    this.player.setVolume(value);
   }
 
   getState() {
@@ -418,14 +425,26 @@ class Content extends Base {
     this.player.pauseVideo();
   }
 
+  /**
+   * Return current video playing time in seconds
+   * @returns {number} seconds
+   */
   getVideoElapsedSeconds() {
     return parseInt(this.player.getCurrentTime());
   }
 
+  /**
+   * Return current video duration in seconds
+   * @returns {number} seconds
+   */
   getVideoDuration() {
     return this.player.getDuration();
   }
 
+  /**
+   * Set current video playing time 
+   * @param {number} seconds 
+   */
   seekTo(seconds) {
     this.player.seekTo(seconds);
   }

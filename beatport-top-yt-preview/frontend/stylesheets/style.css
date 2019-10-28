@@ -19,9 +19,3 @@ a:not(:hover) {
     height: calc(100vh + var(--vh, 1vh) * 100 - 175px);
   }
 }
-
-/* @media screen and (max-width: 600px) and (orientation: landscape) {
-  body {
-    height: calc(200vh - 155px);
-  }
-} */

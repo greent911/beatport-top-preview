@@ -43,7 +43,8 @@ class Footer extends Base {
     this._isShuffle = false;
     this._isRepeat = false;
 
-    // this.element['moreDropup'].style.display = 'block';
+    // Dirty way to preload yt icon in moreDropup
+    this.element['moreDropup'].style.display = 'block';
   }
 
   setup() {
@@ -51,7 +52,7 @@ class Footer extends Base {
     this.element['repeatonce'].style.display = 'none';
     this.element['repeatonceM'].style.display = 'none';
 
-    // this.element['moreDropup'].removeAttribute('style');
+    this.element['moreDropup'].removeAttribute('style');
 
     // Display footer
     document.getElementById('footer').removeAttribute('style');
@@ -332,6 +333,9 @@ class Footer extends Base {
     this.setCurrentTimeText(currentTime);
   }
 
+  /**
+   * @param {number} value a value between 0-100
+   */
   updateVolume(value) {
     this.element['volumeProgress'].style.height = `${value}%`;
     let coefficient = value / 100;
