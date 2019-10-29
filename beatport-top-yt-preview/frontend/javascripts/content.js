@@ -15,7 +15,7 @@ class Content extends Base {
     this._mediaQuery = window.matchMedia('(max-width: 600px)');
 
     this._topPlaylist = [];
-    this.player = null;
+    this._player = null;
     this._recordIndex = -1;
     this._isPlayerFirstBuffering = false;
     this._isRepeat = false;
@@ -74,7 +74,7 @@ class Content extends Base {
 
     window.onYouTubeIframeAPIReady = () => {
       console.log('YouTube Iframe API Ready');
-      this.player = new YT.Player('video-iframe', {
+      this._player = new YT.Player('video-iframe', {
         height: '100%',
         width: '100%',
         events: {
@@ -146,34 +146,34 @@ class Content extends Base {
 
           if (this._isShuffle) {
             if (this._isShuffleMapSet) {
-              this.player.playVideoAt(this.shuffleIndexMap.get(i));
+              this._player.playVideoAt(this.shuffleIndexMap.get(i));
             } else {
               // Because Youtube player playlist is only updated when BUFFERING state started,
               // the shuffleIndexMap is not initialized for the first time.
               // Therefore, record the index of the clicked track node.
               this._recordIndex = i;
               // And then call nextVideo() to trigger BUFFERING state.
-              this.player.nextVideo();
+              this._player.nextVideo();
             }
             return;
           }
 
-          this.player.playVideoAt(i);
+          this._player.playVideoAt(i);
         });
         trackNode.addEventListener('click', (event) => {
           event.preventDefault();
 
           if (this._isShuffle) {
             if (this._isShuffleMapSet) {
-              this.player.playVideoAt(this.shuffleIndexMap.get(i));
+              this._player.playVideoAt(this.shuffleIndexMap.get(i));
             } else {
               this._recordIndex = i;
-              this.player.nextVideo();
+              this._player.nextVideo();
             }
             return;
           }
 
-          this.player.playVideoAt(i);
+          this._player.playVideoAt(i);
         });
         this.element['topPlaylist'].appendChild(trackNode);
       });   
@@ -189,8 +189,8 @@ class Content extends Base {
 
     window.onPlayerStateChange = (event) => {
       // Clear timer
-      if (this.player.timer) {
-        clearInterval(this.player.timer);
+      if (this._player.timer) {
+        clearInterval(this._player.timer);
       }
 
       let playerState = event.data;
@@ -203,13 +203,13 @@ class Content extends Base {
         if (!this._isPlayerFirstBuffering) this._isPlayerFirstBuffering = true;
 
         if (this._isShuffle && !this._isShuffleMapSet) {
-          let {shuffleIndexMap, originIndexMap} = this._getShuffleMap(this.player.getPlaylist());
+          let {shuffleIndexMap, originIndexMap} = this._getShuffleMap(this._player.getPlaylist());
           this.shuffleIndexMap = shuffleIndexMap;
           this.originIndexMap = originIndexMap;
           this._isShuffleMapSet = true;
 
           if (this._recordIndex != -1) {
-            this.player.playVideoAt(this.shuffleIndexMap.get(this._recordIndex));
+            this._player.playVideoAt(this.shuffleIndexMap.get(this._recordIndex));
             this._recordIndex = -1;
             return;
           }
@@ -236,8 +236,8 @@ class Content extends Base {
        */
       } else if (playerState == -1) {
         // If state is unstarted for a while, set up a timer to play next video
-        this.player.timer = setInterval(() => {
-          this.player.nextVideo();
+        this._player.timer = setInterval(() => {
+          this._player.nextVideo();
         }, 10000);
 
       /**
@@ -263,8 +263,8 @@ class Content extends Base {
        */ 
       } else if (playerState == YT.PlayerState.ENDED) {
         if (this._isRepeat) {
-          this.player.stopVideo();
-          this.player.previousVideo();
+          this._player.stopVideo();
+          this._player.previousVideo();
         }
       }
     };
@@ -345,7 +345,7 @@ class Content extends Base {
   }
 
   setShuffle(isShuffle) {
-    this.player.setShuffle(isShuffle); // If true, will shuffle the playlist at BUFFERING state
+    this._player.setShuffle(isShuffle); // If true, will shuffle the playlist at BUFFERING state
     this._isShuffle = isShuffle;
     if (!isShuffle) {
       this._isShuffleMapSet = false;
@@ -364,7 +364,7 @@ class Content extends Base {
   }
 
   unMute() {
-    this.player.unMute();
+    this._player.unMute();
   }
 
   /**
@@ -372,9 +372,9 @@ class Content extends Base {
    * @returns {number} a value between 0-100
    */
   getVolume() {
-    return (this.player.isMuted())
+    return (this._player.isMuted())
     ? 0
-    : this.player.getVolume();
+    : this._player.getVolume();
   }
 
   /**
@@ -386,11 +386,11 @@ class Content extends Base {
     } else if (value <= 0) {
       value = 0;
     }
-    this.player.setVolume(value);
+    this._player.setVolume(value);
   }
 
   getState() {
-    let playerState = this.player.getPlayerState();
+    let playerState = this._player.getPlayerState();
     switch (playerState) {
       case YT.PlayerState.BUFFERING:
         return Content.BUFFERING;
@@ -410,19 +410,19 @@ class Content extends Base {
   }
 
   playVideo() {
-    this.player.playVideo();
+    this._player.playVideo();
   }
 
   playPreviousVideo() {
-    this.player.previousVideo();
+    this._player.previousVideo();
   }
 
   playNextVideo() {
-    this.player.nextVideo();
+    this._player.nextVideo();
   }
 
   pauseVideo() {
-    this.player.pauseVideo();
+    this._player.pauseVideo();
   }
 
   /**
@@ -430,7 +430,7 @@ class Content extends Base {
    * @returns {number} seconds
    */
   getVideoElapsedSeconds() {
-    return parseInt(this.player.getCurrentTime());
+    return parseInt(this._player.getCurrentTime());
   }
 
   /**
@@ -438,7 +438,7 @@ class Content extends Base {
    * @returns {number} seconds
    */
   getVideoDuration() {
-    return this.player.getDuration();
+    return this._player.getDuration();
   }
 
   /**
@@ -446,7 +446,7 @@ class Content extends Base {
    * @param {number} seconds 
    */
   seekTo(seconds) {
-    this.player.seekTo(seconds);
+    this._player.seekTo(seconds);
   }
 }
 
