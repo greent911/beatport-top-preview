@@ -199,7 +199,7 @@ class Content extends Base {
       /**
        * PLAYER BUFFERING
        */
-      if (playerState == YT.PlayerState.BUFFERING) {
+      if (playerState === YT.PlayerState.BUFFERING) {
         if (!this._isPlayerFirstBuffering) this._isPlayerFirstBuffering = true;
 
         if (this._isShuffle && !this._isShuffleMapSet) {
@@ -208,7 +208,7 @@ class Content extends Base {
           this.originIndexMap = originIndexMap;
           this._isShuffleMapSet = true;
 
-          if (this._recordIndex != -1) {
+          if (this._recordIndex !== -1) {
             this._player.playVideoAt(this.shuffleIndexMap.get(this._recordIndex));
             this._recordIndex = -1;
             return;
@@ -224,9 +224,9 @@ class Content extends Base {
         this._topPlaylist.forEach((track, i) => {
           let { video_id: videoId } = track;
           document.getElementById(`${videoId}-${i}`).style.backgroundColor = 
-          (videoId == currentVideoId && i == topPlaylistIndex)
-          ? '#e6f596'
-          : '';
+          (videoId === currentVideoId && i === topPlaylistIndex)
+            ? '#e6f596'
+            : '';
         });
 
         this.emit(Content.BUFFERING, track);
@@ -243,25 +243,25 @@ class Content extends Base {
       /**
        * PLAYER PLAYING
        */
-      } else if (playerState == YT.PlayerState.PLAYING) {
+      } else if (playerState === YT.PlayerState.PLAYING) {
         this.emit(Content.PLAYING);
       
       /**
        * PLAYER PAUSED
        */
-      } else if (playerState == YT.PlayerState.PAUSED) {
+      } else if (playerState === YT.PlayerState.PAUSED) {
         this.emit(Content.PAUSED);
 
       /**
        * PLAYER CUED
        */  
-      } else if (playerState == YT.PlayerState.CUED) {
+      } else if (playerState === YT.PlayerState.CUED) {
         this.emit(Content.CUED);
 
       /**
        * PLAYER ENDED
        */ 
-      } else if (playerState == YT.PlayerState.ENDED) {
+      } else if (playerState === YT.PlayerState.ENDED) {
         if (this._isRepeat) {
           this._player.stopVideo();
           this._player.previousVideo();
@@ -354,10 +354,10 @@ class Content extends Base {
 
   isTopPlaylistClicked(event) {
     let playlist = this.element['topPlaylist'];
-    if (event.target == playlist || event.target.parentNode == playlist
-      || (event.target.parentNode && event.target.parentNode.parentNode == playlist)
+    if (event.target === playlist || event.target.parentNode === playlist
+      || (event.target.parentNode && event.target.parentNode.parentNode === playlist)
       || (event.target.parentNode.parentNode 
-        && event.target.parentNode.parentNode.parentNode == playlist)) {
+        && event.target.parentNode.parentNode.parentNode === playlist)) {
       return true;
     }
     return false;
@@ -373,8 +373,8 @@ class Content extends Base {
    */
   getVolume() {
     return (this._player.isMuted())
-    ? 0
-    : this._player.getVolume();
+      ? 0
+      : this._player.getVolume();
   }
 
   /**
@@ -392,20 +392,20 @@ class Content extends Base {
   getState() {
     let playerState = this._player.getPlayerState();
     switch (playerState) {
-      case YT.PlayerState.BUFFERING:
-        return Content.BUFFERING;
-      case -1:
-        return Content.UNSTART;
-      case YT.PlayerState.PLAYING:
-        return Content.PLAYING;
-      case YT.PlayerState.PAUSED:
-        return Content.PAUSED;
-      case YT.PlayerState.CUED:
-        return Content.CUED;
-      case YT.PlayerState.ENDED:
-        return Content.ENDED;    
-      default:
-        return Content.UNKNOWN;
+    case YT.PlayerState.BUFFERING:
+      return Content.BUFFERING;
+    case -1:
+      return Content.UNSTART;
+    case YT.PlayerState.PLAYING:
+      return Content.PLAYING;
+    case YT.PlayerState.PAUSED:
+      return Content.PAUSED;
+    case YT.PlayerState.CUED:
+      return Content.CUED;
+    case YT.PlayerState.ENDED:
+      return Content.ENDED;    
+    default:
+      return Content.UNKNOWN;
     }
   }
 

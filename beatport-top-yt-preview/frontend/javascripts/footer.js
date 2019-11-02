@@ -217,7 +217,7 @@ class Footer extends Base {
     event.preventDefault();
 
     let display = this.element['moreDropup'].style.display;
-    if (display != 'block') {
+    if (display !== 'block') {
       this._showMoreMenu(event);
     } else {
       this.hideMoreMenu(event);
@@ -242,7 +242,7 @@ class Footer extends Base {
     event.preventDefault();
     
     let display = this.element['volumeControls'].style.display;
-    if (display != 'flex') {
+    if (display !== 'flex') {
       this._showVolumeControls(event);
     } else {
       this.hideVolumeControls(event);
@@ -369,8 +369,8 @@ class Footer extends Base {
     let more = this.element['more'];
     let moreM = this.element['moreM'];
     let dropup = this.element['moreDropup'];
-    if (event.target != more && event.target != moreM 
-      && event.target != dropup && event.target.parentNode != dropup) {
+    if (event.target !== more && event.target !== moreM 
+      && event.target !== dropup && event.target.parentNode !== dropup) {
       return false;
     } else {
       return true;
@@ -380,9 +380,9 @@ class Footer extends Base {
   isVolumeClicked(event) {
     let volumeBtn = this.element['volumeBtn'];
     let volumeControls = this.element['volumeControls'];
-    if (event.target != volumeBtn && event.target.parentNode != volumeBtn && event.target.parentNode.parentNode != volumeBtn 
-      && event.target != volumeControls && event.target.parentNode != volumeControls
-      && event.target.parentNode.parentNode != volumeControls && event.target.parentNode.parentNode.parentNode != volumeControls) {
+    if (event.target !== volumeBtn && event.target.parentNode !== volumeBtn && event.target.parentNode.parentNode !== volumeBtn 
+      && event.target !== volumeControls && event.target.parentNode !== volumeControls
+      && event.target.parentNode.parentNode !== volumeControls && event.target.parentNode.parentNode.parentNode !== volumeControls) {
       return false;
     } else {
       return true;
@@ -393,7 +393,7 @@ class Footer extends Base {
     let playPause = this.element['playPause'];
     let playBack = this.element['playBack'];
     let playForward = this.element['playForward'];
-    if (event.target == playPause || event.target == playBack || event.target == playForward) {
+    if (event.target === playPause || event.target === playBack || event.target === playForward) {
       return true;
     }
     return false;

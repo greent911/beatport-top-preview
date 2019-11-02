@@ -85,6 +85,22 @@ fetcher.fetchTracks('https://www.beatport.com/top-100')
     console.log(tracks);
   });
 ```
+#### 3. Fetching Beatport top 100's track data with specific fields
+```js
+const BeatportTopFetcher = require('beatport-top-fetcher');
+let fetcher = new BeatportTopFetcher('your Youtube API key here');
+let fields = ['num', 'title', 'artists'];
+fetcher.fetchTracks('https://www.beatport.com/top-100')
+  .then((tracks) => {
+    console.log(tracks);
+    // tracks = [{
+    //  num: 1,
+    //  title: 'XXX',
+    //  artists: 'YYY, ZZZ',
+    // }, ...more ]
+  });
+```
+The fields include: ```num```, ```title```, ```artists```, ```remixers```, ```labels```, ```genre```, ```released```, ```link```, ```imglink```, ```video_id```
 ## Development Server Setup
 #### 1. Database
 You'll need to:
@@ -112,6 +128,7 @@ FETCH_PSYTRANCE_CRONTIME=0 49 22 * * *
 #### 4. Install
 ```
 $ npm install
+$ npm run build
 $ npm run devstart
 ```
 Wait for scheduling jobs finished.

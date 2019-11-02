@@ -26,7 +26,7 @@ class Navbar extends Base {
       let element = document.createElement('a');
       element.setAttribute('href', `/beatport/${type}`);
       element.innerHTML = type.toUpperCase();
-      if (type == 'top100') {
+      if (type === 'top100') {
         element.innerHTML = 'BP-TOP-PREVIEV';
         element.classList.add('title');
       }
@@ -94,8 +94,8 @@ class Navbar extends Base {
 
   hideAboutDropdown(event) {
     if (event) event.preventDefault(); // prevent default href action if click or touch event
-    if (event && event.type != 'mouseout' && event.target == this.element['aboutDropdown']) return;
-    if (event && event.type != 'mouseout' && event.target.parentNode == this.element['aboutDropdown']) return;
+    if (event && event.type !== 'mouseout' && event.target === this.element['aboutDropdown']) return;
+    if (event && event.type !== 'mouseout' && event.target.parentNode === this.element['aboutDropdown']) return;
     this.element['aboutDropdown'].removeAttribute('style');
     this.emit(Navbar.ABOUT_HID);
   }
@@ -103,7 +103,7 @@ class Navbar extends Base {
   _showHideAboutDropdown(event) {
     event.preventDefault(); // prevent default href action for Anchor tag
     let display = this.element['aboutDropdown'].style.display;
-    if (display != 'block') {
+    if (display !== 'block') {
       this._showAboutDropdown(event);
     } else {
       this.hideAboutDropdown(event);
@@ -113,8 +113,8 @@ class Navbar extends Base {
   isAboutClicked(event) {
     let about = this.element['about'];
     let aboutDropdown = this.element['aboutDropdown'];
-    if (event.target != about && event.target != aboutDropdown 
-      && event.target.parentNode != about && event.target.parentNode != aboutDropdown) {
+    if (event.target !== about && event.target !== aboutDropdown 
+      && event.target.parentNode !== about && event.target.parentNode !== aboutDropdown) {
       return false;
     } else {
       return true;

@@ -1,7 +1,7 @@
 'use strict';
 
 const BeatportTopFetcher = require('beatport-top-fetcher');
-let key = '';
+let key = 'Your API key goes here';
 let fetcher = new BeatportTopFetcher(key);
 // let track = {
 //   num: '14',

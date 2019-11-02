@@ -80,7 +80,7 @@ class Main {
     window.addEventListener('resize', () => {
       console.log('window resize');
       this.navbar.adjustDisplayMode();
-      if (this.getOrientation() == 'portrait') {
+      if (this.getOrientation() === 'portrait') {
         this.adjustViewHeight();
       }
     });
@@ -89,7 +89,7 @@ class Main {
       // console.log('touchstart');
       this.isTouchMoved = false;
       this.isProgressPinTouched = false;
-      if (event.target == this.footer.element['progressPin']) {
+      if (event.target === this.footer.element['progressPin']) {
         this.isProgressPinTouched = true;
         this.progressPinDragging(event, 'touch');
       }
@@ -101,9 +101,9 @@ class Main {
     window.addEventListener('touchend', this.windowClickEnd.bind(this), true);
 
     window.addEventListener('mousedown', (event) => {
-      if (event.target == this.footer.element['progressPin']) {
+      if (event.target === this.footer.element['progressPin']) {
         this.progressPinDragging(event, 'mousedown');
-      } else if (event.target == this.footer.element['volumePin']) {
+      } else if (event.target === this.footer.element['volumePin']) {
         this.volumePinDragging(event);
       }
     }, true);
@@ -117,8 +117,10 @@ class Main {
     });
     this.content.once(Content.CUED, () => {
       this.content.unMute();
+
       // When the player is ready, set up and display footer
       this.footer.setup();
+      
       this.syncPlayerVolume();
     });
     this.content.on(Content.BUFFERING, (track) => {
@@ -136,15 +138,16 @@ class Main {
     });
     this.content.on(Content.PAUSED, () => {
       this.stopSyncPlayerProgress();
+
       // Wait a little bit to prevent quickly switch to pause before playing next video
       setTimeout(() => {
-        if (this.content.getState() == Content.PAUSED) {
+        if (this.content.getState() === Content.PAUSED) {
           this.footer.setPause();
         }
       }, 0);  
     });
     this.footer.on(Footer.PLAY_PAUSE_TOGGLED, () => {
-      if (this.content.getState() != Content.BUFFERING) { 
+      if (this.content.getState() !== Content.BUFFERING) { 
         this.footer.setPlayButton();
         if (this.footer.isPlay) {
           this.content.playVideo();
@@ -247,15 +250,15 @@ class Main {
   }
 
   hideOverlay() {
-    if (this.footer.element['moreDropup'].style.display != 'block' 
-    && this.navbar.element['aboutDropdown'].style.display != 'block'
-    && this.footer.element['volumeControls'].style.display != 'flex') {
+    if (this.footer.element['moreDropup'].style.display !== 'block' 
+    && this.navbar.element['aboutDropdown'].style.display !== 'block'
+    && this.footer.element['volumeControls'].style.display !== 'flex') {
       this.content.hideOverlay();
     }
   }
 
   progressPinDragging(e, mouseOrTouch) {
-    if (e.target != this.footer.element['progressPin']) {
+    if (e.target !== this.footer.element['progressPin']) {
       return;
     }
 
@@ -281,7 +284,7 @@ class Main {
       // prevent misclicking on youtube
       self.content.openOverlay();
 
-      let posX = (mouseOrTouch != 'touch')? event.clientX: event.touches[0].clientX;
+      let posX = (mouseOrTouch !== 'touch')? event.clientX: event.touches[0].clientX;
       let progressCoef = self.footer.getProgressCoef(posX);
       self.footer.setProgress(progressCoef*100);
       let seconds = self.content.getVideoDuration() * progressCoef;
@@ -302,7 +305,7 @@ class Main {
         self.content.playNextVideo();
         nextVideo = false;
       } else {
-        if (playerState != Content.PAUSED) {
+        if (playerState !== Content.PAUSED) {
           self.content.playVideo();
         }
       }
@@ -315,7 +318,7 @@ class Main {
   }
 
   volumePinDragging(e) {
-    if (e.target != this.footer.element['volumePin']) {
+    if (e.target !== this.footer.element['volumePin']) {
       return;
     }
 

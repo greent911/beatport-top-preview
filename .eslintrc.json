@@ -24,6 +24,9 @@
             "error",
             "always"
         ],
-        "no-console": 1
+        "no-console": 1,
+        "no-var": "warn",
+        "eqeqeq": "warn",
+        "no-unused-vars": ["error", { "argsIgnorePattern": "next" }]
     }
 }

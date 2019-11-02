@@ -26,10 +26,13 @@ const requestValidationHandler = (req, res, next) => {
     return next();
   }
   let errors = result.array();
+
   // Log validation error objects 
   logger.info(errors);
+
   // Format errors for response
   errors = errors.map(formatError);
+  
   res.status(httpStatus.UNPROCESSABLE_ENTITY);
   return res.json({
     message: 'Request input validation error',
